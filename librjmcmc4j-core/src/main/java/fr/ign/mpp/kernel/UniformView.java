@@ -7,13 +7,13 @@ import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
-import fr.ign.mpp.configuration.BirthDeathModification;
-import fr.ign.mpp.configuration.GraphConfiguration;
+import fr.ign.mpp.configuration.AbstractBirthDeathModification;
+import fr.ign.mpp.configuration.AbstractGraphConfiguration;
 import fr.ign.rjmcmc.kernel.SimpleObject;
 import fr.ign.rjmcmc.kernel.View;
 
-public class UniformView<T extends SimpleObject> implements
-		View<GraphConfiguration<T>, BirthDeathModification<T>> {
+public class UniformView<T extends SimpleObject, C extends AbstractGraphConfiguration<T, C, M>, M extends AbstractBirthDeathModification<T, C, M>>
+		implements View<C, M> {
 	/**
 	 * Logger.
 	 */
@@ -131,11 +131,12 @@ public class UniformView<T extends SimpleObject> implements
 	// }
 
 	@Override
-	public double select(boolean direct, RandomGenerator e, GraphConfiguration<T> conf, BirthDeathModification<T> modif) {
-		return direct ? selectDeath(e, conf, modif) : selectBirth(e, conf, modif);
+	public double select(boolean direct, RandomGenerator e, C conf, M modif) {
+		return direct ? selectDeath(e, conf, modif) : selectBirth(e, conf,
+				modif);
 	}
 
-	private double selectDeath(RandomGenerator e, GraphConfiguration<T> conf, BirthDeathModification<T> modif) {
+	private double selectDeath(RandomGenerator e, C conf, M modif) {
 		// FIXME use e
 		int size = conf.size();
 		if (size < this.n) {
@@ -169,7 +170,7 @@ public class UniformView<T extends SimpleObject> implements
 		return 1. / (double) denom;
 	}
 
-	private double selectBirth(RandomGenerator e, GraphConfiguration<T> conf, BirthDeathModification<T> modif) {
+	private double selectBirth(RandomGenerator e, C conf, M modif) {
 		int beg = conf.size() - modif.getDeath().size() + 1;
 		int end = beg + this.n;
 		int denom = 1;
@@ -188,13 +189,13 @@ public class UniformView<T extends SimpleObject> implements
 	}
 
 	@Override
-	public int dimension(boolean direct, GraphConfiguration<T> conf, BirthDeathModification<T> modif) {
+	public int dimension(boolean direct, C conf, M modif) {
 		return this.dimension
 				* (direct ? modif.getDeath().size() : modif.getBirth().size());
 	}
 
 	@Override
-	public void get(GraphConfiguration<T> conf, BirthDeathModification<T> modif, Vector<Double> val0) {
+	public void get(C conf, M modif, Vector<Double> val0) {
 		int index = 0;
 		for (T t : modif.getDeath()) {
 			this.builder.setCoordinates(t,
@@ -204,7 +205,7 @@ public class UniformView<T extends SimpleObject> implements
 	}
 
 	@Override
-	public void set(GraphConfiguration<T> conf, BirthDeathModification<T> modif, Vector<Double> val1) {
+	public void set(C conf, M modif, Vector<Double> val1) {
 		int index = 0;
 		// System.out.println("set " + modif.getBirth().size() + " dim = "
 		// + this.dimension);

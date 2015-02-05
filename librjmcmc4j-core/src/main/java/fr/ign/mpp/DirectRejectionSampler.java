@@ -2,29 +2,29 @@ package fr.ign.mpp;
 
 import org.apache.commons.math3.random.RandomGenerator;
 
-import fr.ign.mpp.configuration.BirthDeathModification;
-import fr.ign.mpp.configuration.GraphConfiguration;
+import fr.ign.mpp.configuration.AbstractBirthDeathModification;
+import fr.ign.mpp.configuration.AbstractGraphConfiguration;
 import fr.ign.mpp.kernel.ObjectSampler;
 import fr.ign.rjmcmc.configuration.ConfigurationModificationPredicate;
 import fr.ign.rjmcmc.distribution.Distribution;
 import fr.ign.rjmcmc.kernel.SimpleObject;
 
-public class DirectRejectionSampler<O extends SimpleObject> extends
-		DirectSampler<O> {
-	ConfigurationModificationPredicate<GraphConfiguration<O>, BirthDeathModification<O>> pred;
+public class DirectRejectionSampler<O extends SimpleObject, C extends AbstractGraphConfiguration<O, C, M>, M extends AbstractBirthDeathModification<O, C, M>> extends
+		DirectSampler<O,C,M> {
+	ConfigurationModificationPredicate<C, M> pred;
 
 	public DirectRejectionSampler(
 			Distribution density,
 			ObjectSampler<O> sampler,
-			ConfigurationModificationPredicate<GraphConfiguration<O>, BirthDeathModification<O>> pred) {
+			ConfigurationModificationPredicate<C, M> pred) {
 		super(density, sampler);
 		this.pred = pred;
 	}
 
 	@Override
-	public void init(RandomGenerator e, GraphConfiguration<O> c) {
+	public void init(RandomGenerator e, C c) {
 		c.clear();
-		BirthDeathModification<O> m = c.newModification();
+		M m = c.newModification();
 		do {
 			m.clear();
 			int n = this.density.sample(e);
@@ -45,7 +45,7 @@ public class DirectRejectionSampler<O extends SimpleObject> extends
 	}
 
 	@Override
-	public double pdfRatio(GraphConfiguration<O> c, BirthDeathModification<O> m) {
+	public double pdfRatio(C c, M m) {
 		double ratio = super.pdfRatio(c, m);
 		if (!pred.check(c, m)) {
 			return 0; // sampling failure code

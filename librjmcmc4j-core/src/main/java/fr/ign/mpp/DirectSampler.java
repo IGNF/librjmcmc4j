@@ -3,15 +3,15 @@ package fr.ign.mpp;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
-import fr.ign.mpp.configuration.BirthDeathModification;
-import fr.ign.mpp.configuration.GraphConfiguration;
+import fr.ign.mpp.configuration.AbstractBirthDeathModification;
+import fr.ign.mpp.configuration.AbstractGraphConfiguration;
 import fr.ign.mpp.kernel.ObjectSampler;
 import fr.ign.rjmcmc.distribution.Distribution;
 import fr.ign.rjmcmc.kernel.SimpleObject;
 import fr.ign.rjmcmc.sampler.Density;
 
-public class DirectSampler<O extends SimpleObject>
-		implements Density<GraphConfiguration<O>, BirthDeathModification<O>> {
+public class DirectSampler<O extends SimpleObject, C extends AbstractGraphConfiguration<O, C, M>, M extends AbstractBirthDeathModification<O, C, M>>
+		implements Density<C, M> {
 	/**
 	 * Logger.
 	 */
@@ -26,7 +26,7 @@ public class DirectSampler<O extends SimpleObject>
 	}
 
 	@Override
-	public void init(RandomGenerator e, GraphConfiguration<O> c) {
+	public void init(RandomGenerator e, C c) {
 		c.clear();
 		int n = this.density.sample(e);
 		System.out.println("density proposed " + n);
@@ -41,7 +41,7 @@ public class DirectSampler<O extends SimpleObject>
 	}
 
 	@Override
-	public double pdfRatio(GraphConfiguration<O> c, BirthDeathModification<O> m) {
+	public double pdfRatio(C c, M m) {
 		int n0 = c.size();
 		int n1 = n0 + m.getBirth().size() - m.getDeath().size();
 		double ratio = this.density.pdfRatio(n0, n1);

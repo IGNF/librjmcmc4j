@@ -5,8 +5,8 @@ import java.util.Vector;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
-import fr.ign.mpp.configuration.BirthDeathModification;
-import fr.ign.mpp.configuration.GraphConfiguration;
+import fr.ign.mpp.configuration.AbstractBirthDeathModification;
+import fr.ign.mpp.configuration.AbstractGraphConfiguration;
 import fr.ign.mpp.kernel.ObjectBuilder;
 import fr.ign.mpp.kernel.UniformBirth;
 import fr.ign.mpp.kernel.UniformView;
@@ -393,103 +393,5 @@ public class Kernel<C extends Configuration<C, M>, M extends Modification<C, M>>
 			// return jacob * (this.p01 * J01 * phi01) / (this.p10 * J10 *
 			// phi10);
 		}
-	}
-
-	/**
-	 * Make a new uniform birth/death kernel.
-	 * 
-	 * @param builder
-	 *            an object builder
-	 * @param b
-	 *            a uniform birth
-	 * @param p
-	 *            the probability of the kernel
-	 * @param q
-	 *            the probability to choose the direct transform of the kernel
-	 * @return the new kernel
-	 */
-	public static <T extends SimpleObject> Kernel<GraphConfiguration<T>, BirthDeathModification<T>> make_uniform_birth_death_kernel(
-			RandomGenerator rng, ObjectBuilder<T> builder, UniformBirth<T> b,
-			double p, double q) {
-		Kernel<GraphConfiguration<T>, BirthDeathModification<T>> kernel = new Kernel<>(new NullView<GraphConfiguration<T>, BirthDeathModification<T>>(),
-				new UniformView<T>(builder), b.getVariate(), new Variate(
-				/* 0 */rng), b.getTransform(), p, q);
-		kernel.setName("BirthDeath");
-		return kernel;
-	}
-
-	/**
-	 * Make a uniform modification kernel.
-	 * 
-	 * @param builder
-	 *            an object builder
-	 * @param t
-	 *            a transform
-	 * @param p
-	 *            probability of the kernel
-	 * @param name
-	 *            name of the kernel
-	 * @return the new kernel
-	 */
-	public static <T extends SimpleObject> Kernel<GraphConfiguration<T>, BirthDeathModification<T>> make_uniform_modification_kernel(
-			RandomGenerator rng, ObjectBuilder<T> builder, Transform t,
-			double p, String name) {
-		return make_uniform_modification_kernel(rng, builder, t, p, 0.5, name);
-	}
-
-	/**
-	 * Make a uniform modification kernel.
-	 * 
-	 * @param builder
-	 *            an object builder
-	 * @param t
-	 *            a transform
-	 * @param p
-	 *            probability of the kernel
-	 * @param q
-	 *            probability to choose the direct transform
-	 * @param name
-	 *            name of the kernel
-	 * @return the new kernel
-	 */
-	public static <T extends SimpleObject> Kernel<GraphConfiguration<T>, BirthDeathModification<T>> make_uniform_modification_kernel(
-			RandomGenerator rng, ObjectBuilder<T> builder, Transform t,
-			double p, double q, String name) {
-		return Kernel.make_uniform_modification_kernel(rng, builder, t, p, q,
-				1, 1, name);
-	}
-
-	/**
-	 * Make a uniform modification kernel.
-	 * 
-	 * @param builder
-	 *            an object builder
-	 * @param t
-	 *            a transform
-	 * @param p
-	 *            probability of the kernel
-	 * @param q
-	 *            probability to choose the direct transform
-	 * @param name
-	 *            name of the kernel
-	 * @param n0
-	 *            number of objects in view0
-	 * @param n1
-	 *            number of objects in view1
-	 * @return the new kernel
-	 */
-	public static <T extends SimpleObject> Kernel<GraphConfiguration<T>, BirthDeathModification<T>> make_uniform_modification_kernel(
-			RandomGenerator rng, ObjectBuilder<T> builder, Transform t,
-			double p, double q, int n0, int n1, String name) {
-		View<GraphConfiguration<T>, BirthDeathModification<T>> view0 = new UniformView<T>(builder, n0);
-		View<GraphConfiguration<T>, BirthDeathModification<T>> view1 = new UniformView<T>(builder, n1);
-		Variate variate0 = new Variate(
-		/* t.dimension() - n0 * builder.size() */rng);
-		Variate variate1 = new Variate(
-		/* t.dimension() - n1 * builder.size() */rng);
-		Kernel<GraphConfiguration<T>, BirthDeathModification<T>> kernel = new Kernel<>(view0, view1, variate0, variate1, t,
-				p, q);
-		kernel.setName(name);
-		return kernel;
 	}
 }

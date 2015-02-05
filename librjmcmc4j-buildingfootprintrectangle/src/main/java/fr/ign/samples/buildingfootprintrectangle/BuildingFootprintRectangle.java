@@ -29,6 +29,7 @@ import fr.ign.mpp.configuration.BirthDeathModification;
 import fr.ign.mpp.configuration.GraphConfiguration;
 import fr.ign.mpp.energy.ImageGradientUnaryEnergy;
 import fr.ign.mpp.energy.IntersectionAreaBinaryEnergy;
+import fr.ign.mpp.kernel.KernelFactory;
 import fr.ign.mpp.kernel.ObjectBuilder;
 import fr.ign.mpp.kernel.UniformBirth;
 import fr.ign.parameters.Parameters;
@@ -60,7 +61,7 @@ import fr.ign.simulatedannealing.visitor.Visitor;
 public class BuildingFootprintRectangle {
 
 	// [building_footprint_rectangle_init_visitor
-	static void init_visitor(Parameters p, Visitor v) {
+	static void init_visitor(Parameters p, Visitor<?, ?> v) {
 		v.init(p.getInteger("nbdump"), p.getInteger("nbsave"));
 	}
 
@@ -208,37 +209,39 @@ public class BuildingFootprintRectangle {
 		PoissonDistribution distribution = new PoissonDistribution(rng,
 				p.getDouble("poisson"));
 
-		DirectSampler<Rectangle2D> ds = new DirectSampler<>(distribution, birth);
+		DirectSampler<Rectangle2D, GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> ds = new DirectSampler<>(
+				distribution, birth);
 
-		List<Kernel<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>> kernels = new ArrayList<Kernel<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>>(
+		List<Kernel<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>> kernels = new ArrayList<>(
 				3);
-		kernels.add(Kernel.make_uniform_birth_death_kernel(rng, builder, birth,
+		KernelFactory<Rectangle2D, GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> factory = new KernelFactory<>();
+		kernels.add(factory.make_uniform_birth_death_kernel(rng, builder, birth,
 				p_birthdeath, p_birth));
-		kernels.add(Kernel.make_uniform_modification_kernel(rng, builder,
+		kernels.add(factory.make_uniform_modification_kernel(rng, builder,
 				new RectangleEdgeTranslationTransform(0, minratio, maxratio),
 				p_edge, "EdgeTrans0"));
-		kernels.add(Kernel.make_uniform_modification_kernel(rng, builder,
+		kernels.add(factory.make_uniform_modification_kernel(rng, builder,
 				new RectangleEdgeTranslationTransform(1, minratio, maxratio),
 				p_edge, "EdgeTrans1"));
-		kernels.add(Kernel.make_uniform_modification_kernel(rng, builder,
+		kernels.add(factory.make_uniform_modification_kernel(rng, builder,
 				new RectangleEdgeTranslationTransform(2, minratio, maxratio),
 				p_edge, "EdgeTrans2"));
-		kernels.add(Kernel.make_uniform_modification_kernel(rng, builder,
+		kernels.add(factory.make_uniform_modification_kernel(rng, builder,
 				new RectangleEdgeTranslationTransform(3, minratio, maxratio),
 				p_edge, "EdgeTrans3"));
-		kernels.add(Kernel.make_uniform_modification_kernel(rng, builder,
+		kernels.add(factory.make_uniform_modification_kernel(rng, builder,
 				new RectangleCornerTranslationTransform(0), p_corner,
 				"CornTrans0"));
-		kernels.add(Kernel.make_uniform_modification_kernel(rng, builder,
+		kernels.add(factory.make_uniform_modification_kernel(rng, builder,
 				new RectangleCornerTranslationTransform(1), p_corner,
 				"CornTrans1"));
-		kernels.add(Kernel.make_uniform_modification_kernel(rng, builder,
+		kernels.add(factory.make_uniform_modification_kernel(rng, builder,
 				new RectangleCornerTranslationTransform(2), p_corner,
 				"CornTrans2"));
-		kernels.add(Kernel.make_uniform_modification_kernel(rng, builder,
+		kernels.add(factory.make_uniform_modification_kernel(rng, builder,
 				new RectangleCornerTranslationTransform(3), p_corner,
 				"CornTrans3"));
-		kernels.add(Kernel.make_uniform_modification_kernel(rng, builder,
+		kernels.add(factory.make_uniform_modification_kernel(rng, builder,
 				new RectangleSplitMergeTransform(400), p_split_merge, p_split,
 				1, 2, "SplitMerge"));
 		Sampler<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> s = new GreenSampler<>(
@@ -338,8 +341,10 @@ public class BuildingFootprintRectangle {
 		 * required stuffs: a configuration, a sampler, a schedule scheme and an
 		 * end test >
 		 */
-		GraphConfiguration<Rectangle2D> conf = create_configuration(p, grad_view);
-		Sampler<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> samp = create_sampler(p, rng, bbox);
+		GraphConfiguration<Rectangle2D> conf = create_configuration(p,
+				grad_view);
+		Sampler<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> samp = create_sampler(
+				p, rng, bbox);
 		Schedule<SimpleTemperature> sch = create_schedule(p);
 		EndTest end = create_end_test(p);
 		/*

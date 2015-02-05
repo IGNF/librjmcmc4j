@@ -19,10 +19,9 @@ public class RejectionSampler<C extends Configuration<C, M>, M extends Modificat
 	static Logger LOGGER = Logger.getLogger(RejectionSampler.class.getName());
 
 	Sampler<C, M> sampler;
-	ConfigurationPredicate<C, M> predicate;
+	ConfigurationPredicate<C> predicate;
 
-	public RejectionSampler(Sampler<C, M> sampler,
-			ConfigurationPredicate<C, M> pred) {
+	public RejectionSampler(Sampler<C, M> sampler, ConfigurationPredicate<C> pred) {
 		this.sampler = sampler;
 		this.predicate = pred;
 	}
