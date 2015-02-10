@@ -42,7 +42,7 @@ public class Rectangle2DTest {
     double area = r1.intersectionArea(r2);
     System.out.println("area = " + area);
     Assert.assertEquals("", 3.3137, area, 0.001);
-    area = Rectangle2D.intersection_area(r1, r2);
+    area = IntersectionArea.intersection_area(r1, r2);
     System.out.println("area = " + area);
     Assert.assertEquals("", 3.3137, area, 0.001);
   }
