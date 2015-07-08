@@ -7,7 +7,9 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.triangulate.ConformingDelaunayTriangulationBuilder;
@@ -19,13 +21,21 @@ public class PolygonTransform implements Transform {
    * Logger.
    */
   static Logger LOGGER = Logger.getLogger(PolygonTransform.class.getName());
-  Polygon polygon;
+  MultiPolygon polygon;
   List<Double> areas = new ArrayList<>();
   List<Polygon> triangles = new ArrayList<>();
   double totalArea;
 
-  public PolygonTransform(Polygon p, double tolerance) {
-    this.polygon = p;
+  public PolygonTransform(Geometry p, double tolerance) {
+    if (Polygon.class.isInstance(p)) {
+      this.polygon = p.getFactory().createMultiPolygon(new Polygon[] { (Polygon) p });
+    } else {
+      if (MultiPolygon.class.isInstance(p)) {
+        this.polygon = (MultiPolygon) p;
+      } else {
+        throw new IllegalArgumentException("Argument should be of type Polygon or MultiPolygon but was " + p.getClass());
+      }
+    }
     ConformingDelaunayTriangulationBuilder builder = new ConformingDelaunayTriangulationBuilder();
     builder.setSites(polygon);
     builder.setConstraints(polygon);
