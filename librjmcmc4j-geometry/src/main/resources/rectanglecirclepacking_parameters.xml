@@ -13,8 +13,9 @@
 	<param key="maxy" value="1" />
 	<param key="minradius" value="0.02" />
 	<param key="maxradius" value="0.1" />
-	<param key="pbirthdeath" value="1.0" />
+	<param key="pbirthdeath" value="0.5" />
 	<param key="pbirth" value="0.5" />
+	<param key="pcircle" value="0.5" />
 	<param key="surface" value="10000." />
 	<param key="energy" value="-1." />
 </parameters>

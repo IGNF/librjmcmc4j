@@ -8,9 +8,7 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.util.Assert;
 
-import fr.ign.rjmcmc.kernel.SimpleObject;
-
-public class Rectangle2D implements Primitive, SimpleObject {
+public class Rectangle2D implements Primitive {
 	public double centerx;
 	public double centery;
 	public double normalx;
