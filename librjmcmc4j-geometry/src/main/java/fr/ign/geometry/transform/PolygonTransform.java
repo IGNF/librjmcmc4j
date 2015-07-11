@@ -97,6 +97,14 @@ public class PolygonTransform implements Transform {
         break;
       }
     }
+    
+    //Ajout Mickaël : à controler
+    if(triangle == null)
+    {
+        var1.set(0, 0.);
+        var1.set(1, 0.);
+        return totalArea;
+    }
     Coordinate[] coord = triangle.getCoordinates();
     Coordinate p1 = coord[0];
     Coordinate p2 = coord[1];
