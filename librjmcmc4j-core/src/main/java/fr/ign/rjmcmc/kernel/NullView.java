@@ -1,7 +1,5 @@
 package fr.ign.rjmcmc.kernel;
 
-import java.util.Vector;
-
 import org.apache.commons.math3.random.RandomGenerator;
 
 import fr.ign.rjmcmc.configuration.Configuration;
@@ -13,20 +11,12 @@ public class NullView<C extends Configuration<C, M>, M extends Modification<C, M
 	}
 
 	@Override
-	public double select(boolean direct, RandomGenerator e, C c, M modif) {
+	public double select(boolean direct, RandomGenerator e, C c, M modif, double[] val) {
 		return 1;
 	}
 
 	@Override
-	public int dimension(boolean direct, C c, M modif) {
+	public int dimension() {
 		return 0;
-	}
-
-	@Override
-	public void get(C c, M modif, Vector<Double> val0) {
-	}
-
-	@Override
-	public void set(C c, M modif, Vector<Double> val1) {
 	}
 }

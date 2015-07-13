@@ -1,31 +1,28 @@
 package fr.ign.rjmcmc.kernel;
 
-import java.util.Vector;
 
 public class IdentityTransform implements Transform {
 
+  // @Override
+  // public double getAbsJacobian(boolean direct) {
+  // return 1;
+  // }
+  int dimension;
+
   @Override
-  public double getAbsJacobian(boolean direct) {
-    return 1;
+  public int dimension() {
+    return this.dimension;
+  }
+
+  public IdentityTransform(int dim) {
+    this.dimension = dim;
   }
 
   @Override
-  public int dimension(int n0, int n1) {
-    return Math.max(n0, n1);
-  }
-
-  @Override
-  public double apply(boolean direct, Vector<Double> val0, Vector<Double> var0,
-      Vector<Double> val1, Vector<Double> var1) {
-    for (int index = 0; index < val0.size() + var0.size(); index++) {
-      double val = (index < val0.size()) ? val0.get(index) : var0.get(index - val0.size());
-      if (index < val1.size()) {
-        val1.set(index, val);
-      } else {
-        var1.set(index - val1.size(), val);
-      }
+  public double apply(boolean direct, double[] in, double[] out) {
+    for (int index = 0; index < in.length; index++) {
+      out[index] = in[index];
     }
     return 1;
   }
-
 }

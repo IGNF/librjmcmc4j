@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.commons.math3.random.RandomGenerator;
 
@@ -23,7 +22,6 @@ import fr.ign.mpp.energy.IntersectionAreaBinaryEnergy;
 import fr.ign.mpp.kernel.ObjectBuilder;
 import fr.ign.mpp.kernel.ObjectSampler;
 import fr.ign.mpp.kernel.UniformTypeView;
-import fr.ign.mpp.kernel.UniformView;
 import fr.ign.parameters.Parameters;
 import fr.ign.random.Random;
 import fr.ign.rjmcmc.acceptance.MetropolisAcceptance;
@@ -67,8 +65,8 @@ public class RectangleCirclePacking {
 
   static ObjectBuilder<Primitive> circlebuilder = new ObjectBuilder<Primitive>() {
     @Override
-    public Primitive build(Vector<Double> coordinates) {
-      return new Circle2D(coordinates.get(0), coordinates.get(1), coordinates.get(2));
+    public Primitive build(double[] coordinates) {
+      return new Circle2D(coordinates[0], coordinates[1], coordinates[2]);
     }
 
     @Override
@@ -77,18 +75,18 @@ public class RectangleCirclePacking {
     }
 
     @Override
-    public void setCoordinates(Primitive t, List<Double> coordinates) {
+    public void setCoordinates(Primitive t, double[] coordinates) {
       Circle2D circle = (Circle2D) t;
-      coordinates.set(0, circle.center_x);
-      coordinates.set(1, circle.center_y);
-      coordinates.set(2, circle.radius);
+      coordinates[0] = circle.center_x;
+      coordinates[1] = circle.center_y;
+      coordinates[2] = circle.radius;
     }
   };
 
   static ObjectBuilder<Primitive> rectanglebuilder = new ObjectBuilder<Primitive>() {
     @Override
-    public Primitive build(Vector<Double> coordinates) {
-      return new Rectangle2D(coordinates.get(0), coordinates.get(1), coordinates.get(2), coordinates.get(3), 1.);
+    public Primitive build(double[] coordinates) {
+      return new Rectangle2D(coordinates[0], coordinates[1], coordinates[2], coordinates[3], 1.);
     }
 
     @Override
@@ -97,12 +95,12 @@ public class RectangleCirclePacking {
     }
 
     @Override
-    public void setCoordinates(Primitive t, List<Double> coordinates) {
+    public void setCoordinates(Primitive t, double[] coordinates) {
       Rectangle2D rect = (Rectangle2D) t;
-      coordinates.set(0, rect.centerx);
-      coordinates.set(1, rect.centery);
-      coordinates.set(2, rect.normalx);
-      coordinates.set(3, rect.normaly);
+      coordinates[0] = rect.centerx;
+      coordinates[1] = rect.centery;
+      coordinates[2] = rect.normalx;
+      coordinates[3] = rect.normaly;
     }
   };
 
@@ -124,20 +122,20 @@ public class RectangleCirclePacking {
 
     @Override
     public double sample(RandomGenerator e) {
-      Vector<Double> var0 = new Vector<>();
-      Vector<Double> val1 = new Vector<>();
+      double[] var0;
+      double[] val1;
       if (engine.nextDouble() < p_circle) {
-        var0.setSize(3);
-        val1.setSize(3);
-        double phi = this.variate.compute(var0);
-        double jacob = this.transformCircle.apply(true, new Vector<Double>(0), var0, val1, new Vector<Double>(0));
+        var0 = new double[3];
+        val1 = new double[3];
+        double phi = this.variate.compute(var0, 0);
+        double jacob = this.transformCircle.apply(true, var0, val1);
         this.object = circlebuilder.build(val1);
         return phi / jacob;
       }
-      var0.setSize(4);
-      val1.setSize(4);
-      double phi = this.variate.compute(var0);
-      double jacob = this.transformRectangle.apply(true, new Vector<Double>(0), var0, val1, new Vector<Double>(0));
+      var0 = new double[4];
+      val1 = new double[4];
+      double phi = this.variate.compute(var0, 0);
+      double jacob = this.transformRectangle.apply(true, var0, val1);
       this.object = rectanglebuilder.build(val1);
       return phi / jacob;
     }
@@ -145,22 +143,18 @@ public class RectangleCirclePacking {
     @Override
     public double pdf(Primitive t) {
       if (Circle2D.class.isInstance(t)) {
-        Vector<Double> val1 = new Vector<>();
-        val1.setSize(3);
+        double[] val1 = new double[3];
         circlebuilder.setCoordinates(t, val1);
-        Vector<Double> val0 = new Vector<>();
-        val0.setSize(3);
-        double J10 = this.transformCircle.apply(false, val1, new Vector<Double>(0), new Vector<Double>(0), val0);
-        double pdf = this.variate.pdf(val0);
+        double[] val0 = new double[3];
+        double J10 = this.transformCircle.apply(false, val1, val0);
+        double pdf = this.variate.pdf(val0, 0);
         return pdf * J10;
       }
-      Vector<Double> val1 = new Vector<>();
-      val1.setSize(4);
+      double[] val1 = new double[4];
       rectanglebuilder.setCoordinates(t, val1);
-      Vector<Double> val0 = new Vector<>();
-      val0.setSize(4);
-      double J10 = this.transformRectangle.apply(false, val1, new Vector<Double>(0), new Vector<Double>(0), val0);
-      double pdf = this.variate.pdf(val0);
+      double[] val0 = new double[4];
+      double J10 = this.transformRectangle.apply(false, val1, val0);
+      double pdf = this.variate.pdf(val0, 0);
       return pdf * J10;
     }
 
@@ -179,25 +173,11 @@ public class RectangleCirclePacking {
     double maxy = p.getDouble("maxy");
     double minradius = p.getDouble("minradius");
     double maxradius = p.getDouble("maxradius");
-    Vector<Double> v = new Vector<>();
-    v.add(minx);
-    v.add(miny);
-    v.add(minradius);
-    Vector<Double> d = new Vector<>();
-    d.add(maxx - minx);
-    d.add(maxy - miny);
-    d.add(maxradius - minradius);
+    double[] v = new double[]{minx, miny, minradius};
+    double[] d = new double[]{maxx - minx, maxy - miny, maxradius - minradius};
     DiagonalAffineTransform transformCircle = new DiagonalAffineTransform(d, v);
-    v = new Vector<>();
-    v.add(minx);
-    v.add(miny);
-    v.add(minradius);
-    v.add(minradius);
-    d = new Vector<>();
-    d.add(maxx - minx);
-    d.add(maxy - miny);
-    d.add((maxradius - minradius) / 2);
-    d.add((maxradius - minradius) / 2);
+    v = new double[]{minx,miny,minradius,minradius};
+    d = new double[]{maxx - minx, maxy - miny, (maxradius - minradius) / 2, (maxradius - minradius) / 2};
     DiagonalAffineTransform transformRectangle = new DiagonalAffineTransform(d, v);
 
     double p_circle = p.getDouble("pcircle");
@@ -258,28 +238,24 @@ public class RectangleCirclePacking {
 
   public static void main(String[] args) throws IOException {
     /*
-     * < Retrieve the singleton instance of the parameters object... initialize
-     * the parameters object with the default values provided... parse the
-     * command line to eventually change the values >
+     * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default values provided... parse the command line
+     * to eventually change the values >
      */
     Parameters p = initialize_parameters();
     /*
-     * < Input data is an image. We first retrieve from the parameters the
-     * region to process... clip the image to fit this region... and then
-     * compute the gradient and build the attached view>
+     * < Input data is an image. We first retrieve from the parameters the region to process... clip the image to fit this region... and then compute the
+     * gradient and build the attached view>
      */
     RandomGenerator rng = Random.random();
     /*
-     * < Before launching the optimization process, we create all the required
-     * stuffs: a configuration, a sampler, a schedule scheme and an end test >
+     * < Before launching the optimization process, we create all the required stuffs: a configuration, a sampler, a schedule scheme and an end test >
      */
     GraphConfiguration<Primitive> conf = create_configuration(p);
     Sampler<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> samp = create_sampler(p, rng);
     Schedule<SimpleTemperature> sch = create_schedule(p);
     EndTest end = create_end_test(p);
     /*
-     * < Build and initialize simple visitor which prints some data on the
-     * standard output >
+     * < Build and initialize simple visitor which prints some data on the standard output >
      */
     Visitor visitor = new OutputStreamVisitor(System.out);
     Visitor shpVisitor = new ShapefileVisitor("./target/rectanglecircle_result", new GeometryFilter() {
@@ -301,8 +277,7 @@ public class RectangleCirclePacking {
     CompositeVisitor mVisitor = new CompositeVisitor(list);
     init_visitor(p, mVisitor);
     /*
-     * < This is the way to launch the optimization process. Here, the magic
-     * happen... >
+     * < This is the way to launch the optimization process. Here, the magic happen... >
      */
     SimulatedAnnealing.optimize(Random.random(), conf, samp, sch, end, mVisitor);
     return;

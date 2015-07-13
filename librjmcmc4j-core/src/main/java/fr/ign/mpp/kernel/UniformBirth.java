@@ -2,7 +2,6 @@ package fr.ign.mpp.kernel;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Vector;
 
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
@@ -93,15 +92,13 @@ public class UniformBirth<T extends SimpleObject> implements ObjectSampler<T> {
   public <Trans extends Transform> UniformBirth(RandomGenerator rng, T a, T b, ObjectBuilder<T> builder,
       Class<Trans> trans, Predicate pred, Object... o) {
     this.dimension = a.size();
-    Vector<Double> d = new Vector<>();
-    d.setSize(a.size());
+    double[] d = new double[a.size()];
     double[] arrayA = a.toArray();
     double[] arrayB = b.toArray();
     for (int i = 0; i < a.size(); i++) {
-      d.set(i, arrayB[i] - arrayA[i]);
+      d[i] = arrayB[i] - arrayA[i];
     }
-    Vector<Double> coordinates = new Vector<>();
-    coordinates.setSize(a.size());
+    double[] coordinates = new double[a.size()];
     builder.setCoordinates(a, coordinates);
     Constructor<?> cons = trans.getConstructors()[0];
     try {
@@ -128,32 +125,21 @@ public class UniformBirth<T extends SimpleObject> implements ObjectSampler<T> {
 
   @Override
   public double sample(RandomGenerator e) {
-    Vector<Double> var0 = new Vector<>();
-    var0.setSize(this.dimension);
-    Vector<Double> val1 = new Vector<>();
-    val1.setSize(this.dimension);
-    double phi = this.variate.compute(var0);
-    double jacob = this.transform.apply(true, new Vector<Double>(0), var0, val1,
-        new Vector<Double>(0));
+    double[] val0 = new double[this.dimension];
+    double[] val1 = new double[this.dimension];
+    double phi = this.variate.compute(val0, 0);
+    double jacob = this.transform.apply(true, val0, val1);
     this.object = this.builder.build(val1);
-//    System.out.println("sample " + (phi / jacob));
     return phi / jacob;
   }
 
   @Override
   public double pdf(T t) {
-    Vector<Double> val1 = new Vector<>();
-    val1.setSize(this.dimension);
+    double[] val1 = new double[this.dimension];
     this.builder.setCoordinates(t, val1);
-    Vector<Double> val0 = new Vector<>();
-    val0.setSize(this.dimension);
-    double J10 = this.transform.apply(false, val1, new Vector<Double>(0), new Vector<Double>(0),
-        val0);
-    double pdf = this.variate.pdf(val0);
-//    LOGGER.info(t);
-//    LOGGER.info("pdf = " + (pdf * J10) + " = " + pdf + " * " + J10 + " [" + val1 + ", " + val0
-//        + "]");
-//    LOGGER.info(val0.get(0) + " " + val0.get(1));
+    double[] val0 = new double[this.dimension];
+    double J10 = this.transform.apply(false, val1, val0);
+    double pdf = this.variate.pdf(val0, 0);
     return pdf * J10;
   }
 

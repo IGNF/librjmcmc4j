@@ -1,7 +1,5 @@
 package fr.ign.rjmcmc.kernel;
 
-import java.util.Vector;
-
 import org.apache.commons.math3.random.RandomGenerator;
 
 public class RejectionVariate extends Variate {
@@ -9,8 +7,8 @@ public class RejectionVariate extends Variate {
   Predicate m_pred;
   Normalizer m_normalizer;
 
-    public RejectionVariate(/*int d, */RandomGenerator rng, Variate variate, Predicate pred, Normalizer normalizer) {
-    super(/*d*/rng);
+  public RejectionVariate(/* int d, */RandomGenerator rng, Variate variate, Predicate pred, Normalizer normalizer) {
+    super(/* d */rng);
     m_variate = variate;
     m_pred = pred;
     m_normalizer = normalizer;
@@ -159,35 +157,26 @@ public class RejectionVariate extends Variate {
   };
 
   @Override
-  public double compute(Vector<Double> var0) {
-//    int n = var0.size();
-//    Vector<Double> val = new Vector<>();
-//    val.setSize(n);
-    double res = this.m_variate.compute(var0);
-    if (!this.m_pred.check(var0)) {
+  public double compute(double[] var0, int d) {
+    double res = this.m_variate.compute(var0, d);
+    if (!this.m_pred.check(var0, d)) {
       this.m_normalizer.fail();
       return 0; // sampling failure code
     }
-    // System.out.println("pass");
     this.m_normalizer.pass();
-    // std::copy(val,val+dimension,it); // copy is not mandatory if we know we can inspect the
-    // output iterator directly
-//    for (int i = 0; i < n; i++) {
-//      var0.set(i,val.get(i));
-//    }
-    return res * m_normalizer.inv_probability(); // renormalization by the current estimate of the
-                                                 // rejection probability
+    // renormalization by the current estimate of the rejection probability
+    return res * m_normalizer.inv_probability();
   }
 
   // template<typename ForwardIterator>
   // inline double pdf(ForwardIterator it) const {
-//  public double pdf(double[] v) {
-//    if (!m_pred.check(v))
-//      return 0.; // it is outside the support
-//    return m_variate.pdf(v) * m_normalizer.inv_probability(); // renormalization by the current
-//                                                              // estimate of the rejection
-//                                                              // probability
-//  }
+  // public double pdf(double[] v) {
+  // if (!m_pred.check(v))
+  // return 0.; // it is outside the support
+  // return m_variate.pdf(v) * m_normalizer.inv_probability(); // renormalization by the current
+  // // estimate of the rejection
+  // // probability
+  // }
 
   Normalizer normalizer() {
     return m_normalizer;

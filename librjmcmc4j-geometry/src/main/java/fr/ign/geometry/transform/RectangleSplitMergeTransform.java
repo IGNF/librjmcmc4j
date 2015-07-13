@@ -1,7 +1,5 @@
 package fr.ign.geometry.transform;
 
-import java.util.Vector;
-
 import org.apache.log4j.Logger;
 
 import fr.ign.rjmcmc.kernel.Transform;
@@ -11,11 +9,6 @@ public class RectangleSplitMergeTransform implements Transform {
    * Logger.
    */
   static Logger LOGGER = Logger.getLogger(RectangleSplitMergeTransform.class.getName());
-
-  // @Override
-  // public int dimension() {
-  // return 10;
-  // }
 
   double m_d;
   double m_d4;
@@ -30,19 +23,18 @@ public class RectangleSplitMergeTransform implements Transform {
   }
 
   @Override
-  public double apply(boolean direct, Vector<Double> val0, Vector<Double> var0,
-      Vector<Double> val1, Vector<Double> var1) {
+  public double apply(boolean direct, double[] in, double[] out) {
     if (direct) {
-      double x = val0.get(0);
-      double y = val0.get(1);
-      double u = val0.get(2);
-      double v = val0.get(3);
-      double r = val0.get(4);
-      double p = var0.get(0);
-      double q = var0.get(1);
-      double s = var0.get(2);
-      double t = var0.get(3);
-      double g = var0.get(4);
+      double x = in[0];
+      double y = in[1];
+      double u = in[2];
+      double v = in[3];
+      double r = in[4];
+      double p = in[5];
+      double q = in[6];
+      double s = in[7];
+      double t = in[8];
+      double g = in[9];
 
       // split rectangle at fraction f
       // Vector_2 m(-r*n.y(),r*n.x());
@@ -56,17 +48,17 @@ public class RectangleSplitMergeTransform implements Transform {
       double du = m_d * (s - 0.5);
       double dv = m_d * (t - 0.5);
 
-      val1.set(0, x + (r - f) * v);
-      val1.set(1, y - (r - f) * u);
-      val1.set(2, u);
-      val1.set(3, v);
-      val1.set(4, f);
+      out[0]= x + (r - f) * v;
+      out[1]= y - (r - f) * u;
+      out[2]= u;
+      out[3]= v;
+      out[4]= f;
 
-      val1.set(5, x - f * v + dx);
-      val1.set(6, y + f * u + dy);
-      val1.set(7, u + du);
-      val1.set(8, v + dv);
-      val1.set(9, r - f);
+      out[5]= x - f * v + dx;
+      out[6]= y + f * u + dy;
+      out[7]= u + du;
+      out[8]= v + dv;
+      out[9]= r - f;
       // maxima : factor(determinant(jacobian([x+(r-f)*v, y-(r-f)*u, u, v, f, x-f*v+dx, y+f*u+dy,
       // u+du, v+dv, r-f ] ,[x,y,u,v,r,du,dv,dx,dy,f] )));
       // -1
@@ -79,16 +71,16 @@ public class RectangleSplitMergeTransform implements Transform {
       return r * m_d4;
     }
 
-    double x0 = val0.get(0); // x+(r-f)*v
-    double y0 = val0.get(1); // y-(r-f)*u
-    double u = val0.get(2);
-    double v = val0.get(3);
-    double f = val0.get(4);
-    double x1 = val0.get(5); // x-f*v+dx
-    double y1 = val0.get(6); // y+f*u+dy
-    double u1 = val0.get(7); // u+du
-    double v1 = val0.get(8); // v+dv
-    double q = val0.get(9); // r-f
+    double x0 = in[0]; // x+(r-f)*v
+    double y0 = in[1]; // y-(r-f)*u
+    double u = in[2];
+    double v = in[3];
+    double f = in[4];
+    double x1 = in[5]; // x-f*v+dx
+    double y1 = in[6]; // y+f*u+dy
+    double u1 = in[7]; // u+du
+    double v1 = in[8]; // v+dv
+    double q = in[9]; // r-f
 
     double x = x0 - q * v;
     double y = y0 + q * u;
@@ -98,26 +90,26 @@ public class RectangleSplitMergeTransform implements Transform {
     double du = u1 - u;
     double dv = v1 - v;
 
-    val1.set(0, x);
-    val1.set(1, y);
-    val1.set(2, u);
-    val1.set(3, v);
-    val1.set(4, r);
-    var1.set(0, 0.5 + dx / m_d);
-    var1.set(1, 0.5 + dy / m_d);
-    var1.set(2, 0.5 + du / m_d);
-    var1.set(3, 0.5 + dv / m_d);
-    var1.set(4, f / r);
+    out[0]= x;
+    out[1]= y;
+    out[2]= u;
+    out[3]= v;
+    out[4]= r;
+    out[5]= 0.5 + dx / m_d;
+    out[6]= 0.5 + dy / m_d;
+    out[7]= 0.5 + du / m_d;
+    out[8]= 0.5 + dv / m_d;
+    out[9]= f / r;
 
     return 1. / (m_d4 * r);
   }
 
   @Override
-  public int dimension(int n0, int n1) {
+  public int dimension() {
     return 10;
   }
 
-  @Override
+//  @Override
   public double getAbsJacobian(boolean d) {
     return 1;
   }

@@ -119,28 +119,26 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
 				p.getDouble("maxsize"));
 		double maxratio = p.getDouble("maxratio");
 		double minratio = 1 / maxratio;
-		ObjectBuilder<Rectangle2D> builder = new ObjectBuilder<Rectangle2D>() {
-			@Override
-			public Rectangle2D build(Vector<Double> coordinates) {
-				return new Rectangle2D(coordinates.get(0), coordinates.get(1),
-						coordinates.get(2), coordinates.get(3),
-						coordinates.get(4));
-			}
+    ObjectBuilder<Rectangle2D> builder = new ObjectBuilder<Rectangle2D>() {
+      @Override
+      public Rectangle2D build(double[] coordinates) {
+        return new Rectangle2D(coordinates[0], coordinates[1], coordinates[2], coordinates[3], coordinates[4]);
+      }
 
-			@Override
-			public int size() {
-				return 5;
-			}
+      @Override
+      public int size() {
+        return 5;
+      }
 
-			@Override
-			public void setCoordinates(Rectangle2D t, List<Double> coordinates) {
-				coordinates.set(0, t.centerx);
-				coordinates.set(1, t.centery);
-				coordinates.set(2, t.normalx);
-				coordinates.set(3, t.normaly);
-				coordinates.set(4, t.ratio);
-			}
-		};
+      @Override
+      public void setCoordinates(Rectangle2D t, double[] coordinates) {
+        coordinates[0] = t.centerx;
+        coordinates[1] = t.centery;
+        coordinates[2] = t.normalx;
+        coordinates[3] = t.normaly;
+        coordinates[4] = t.ratio;
+      }
+    };
 		Vector2D n = v.negate();
 		UniformBirth<Rectangle2D> birth = new UniformBirth<Rectangle2D>(rng,
 				new Rectangle2D(r.min().x(), r.min().y(), n.x(), n.y(),

@@ -23,13 +23,12 @@ public class Rectangle2D implements Primitive {
 		this.ratio = r;
 	}
 
-	public Rectangle2D(List<Double> v) {
-		Assert.equals(5, v.size());
-		this.centerx = v.get(0).doubleValue();
-		this.centery = v.get(1).doubleValue();
-		this.normalx = v.get(2).doubleValue();
-		this.normaly = v.get(3).doubleValue();
-		this.ratio = v.get(4).doubleValue();
+	public Rectangle2D(double[] v) {
+		this.centerx = v[0];
+		this.centery = v[1];
+		this.normalx = v[2];
+		this.normaly = v[3];
+		this.ratio = v[4];
 	}
 
 	public Segment2D segment(int i) {

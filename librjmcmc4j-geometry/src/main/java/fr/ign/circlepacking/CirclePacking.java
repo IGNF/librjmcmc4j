@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.commons.math3.random.RandomGenerator;
 
@@ -62,8 +61,8 @@ public class CirclePacking {
       RandomGenerator rng) {
     ObjectBuilder<Circle2D> builder = new ObjectBuilder<Circle2D>() {
       @Override
-      public Circle2D build(Vector<Double> coordinates) {
-        return new Circle2D(coordinates.get(0), coordinates.get(1), coordinates.get(2));
+      public Circle2D build(double[] coordinates) {
+        return new Circle2D(coordinates[0], coordinates[1], coordinates[2]);
       }
 
       @Override
@@ -72,10 +71,10 @@ public class CirclePacking {
       }
 
       @Override
-      public void setCoordinates(Circle2D t, List<Double> coordinates) {
-        coordinates.set(0, t.center_x);
-        coordinates.set(1, t.center_y);
-        coordinates.set(2, t.radius);
+      public void setCoordinates(Circle2D t, double[] coordinates) {
+        coordinates[0] = t.center_x;
+        coordinates[1] = t.center_y;
+        coordinates[2] = t.radius;
       }
     };
     double minx = p.getDouble("minx");
@@ -132,28 +131,24 @@ public class CirclePacking {
 
   public static void main(String[] args) throws IOException {
     /*
-     * < Retrieve the singleton instance of the parameters object... initialize
-     * the parameters object with the default values provided... parse the
-     * command line to eventually change the values >
+     * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default values provided... parse the command line
+     * to eventually change the values >
      */
     Parameters p = initialize_parameters();
     /*
-     * < Input data is an image. We first retrieve from the parameters the
-     * region to process... clip the image to fit this region... and then
-     * compute the gradient and build the attached view>
+     * < Input data is an image. We first retrieve from the parameters the region to process... clip the image to fit this region... and then compute the
+     * gradient and build the attached view>
      */
     RandomGenerator rng = Random.random();
     /*
-     * < Before launching the optimization process, we create all the required
-     * stuffs: a configuration, a sampler, a schedule scheme and an end test >
+     * < Before launching the optimization process, we create all the required stuffs: a configuration, a sampler, a schedule scheme and an end test >
      */
     GraphConfiguration<Circle2D> conf = create_configuration(p);
     Sampler<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> samp = create_sampler(p, rng);
     Schedule<SimpleTemperature> sch = create_schedule(p);
     EndTest end = create_end_test(p);
     /*
-     * < Build and initialize simple visitor which prints some data on the
-     * standard output >
+     * < Build and initialize simple visitor which prints some data on the standard output >
      */
     Visitor visitor = new OutputStreamVisitor(System.out);
     Visitor shpVisitor = new ShapefileVisitor("./target/circle_result", new GeometryFilter() {
@@ -175,8 +170,7 @@ public class CirclePacking {
     CompositeVisitor mVisitor = new CompositeVisitor(list);
     init_visitor(p, mVisitor);
     /*
-     * < This is the way to launch the optimization process. Here, the magic
-     * happen... >
+     * < This is the way to launch the optimization process. Here, the magic happen... >
      */
     SimulatedAnnealing.optimize(Random.random(), conf, samp, sch, end, mVisitor);
     return;

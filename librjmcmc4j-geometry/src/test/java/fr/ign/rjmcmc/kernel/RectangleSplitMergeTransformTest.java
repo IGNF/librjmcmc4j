@@ -3,7 +3,6 @@ package fr.ign.rjmcmc.kernel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Assert;
@@ -25,11 +24,8 @@ public class RectangleSplitMergeTransformTest {
   @Before
   public void setUp() throws Exception {
     t = new RectangleSplitMergeTransform(1);
-    Vector<Double> val0 = new Vector<>(Arrays.asList(0., 0., 10., 10., 5.));
-    Vector<Double> var0 = new Vector<>(Arrays.asList(0., 0., 0., 0., 0. ));
-    Vector<Double> val1 = new Vector<>();
-    val1.setSize(10);
-    Vector<Double> var1 = new Vector<>();
+    double[] val0 = new double[] { 0., 0., 10., 10., 5., 0., 0., 0., 0., 0. };
+    double[] val1 = new double[10];
     Rectangle2D r = new Rectangle2D(val0);
     // System.out.println("in " + r.toGeometry());
     // System.out.println("in " + r.toGeometry().getArea());
@@ -38,32 +34,28 @@ public class RectangleSplitMergeTransformTest {
     // String rs = "";
     for (int iter = 0; iter < 100; iter++) {
       for (int i = 0; i < 5; i++) {
-        var0.set(i, ran.nextDouble());
+        val0[5 + i] = ran.nextDouble();
       }
-      double res = t.apply(true, val0, var0, val1, var1);
-      Rectangle2D rout1 = new Rectangle2D(val1.subList(0, 5));
-      Rectangle2D rout2 = new Rectangle2D(val1.subList(5,10));
-      MultiPolygon mp = f
-          .createMultiPolygon(new Polygon[] { rout1.toGeometry(), rout2.toGeometry() });
+      double res = t.apply(true, val0, val1);
+      Rectangle2D rout1 = new Rectangle2D(Arrays.copyOfRange(val1, 0, 5));
+      Rectangle2D rout2 = new Rectangle2D(Arrays.copyOfRange(val1, 5, 10));
+      MultiPolygon mp = f.createMultiPolygon(new Polygon[] { rout1.toGeometry(), rout2.toGeometry() });
       // System.out.println(mp);
       // rs += res + "\n";
-      l.add(Arrays.copyOf(Util.toArray(val1), val1.size()));
+      l.add(Arrays.copyOf(val1, val1.length));
     }
     // System.out.println(rs);
   }
 
   @Test
   public void testDimension() {
-    Assert.assertEquals(10, t.dimension(5,10));
+    Assert.assertEquals(10, t.dimension());
   }
 
   @Test
   public void testApply() {
-    Vector<Double> val0 = new Vector<>(Arrays.asList(0., 0., 10., 10., 5.));
-    Vector<Double> var0 = new Vector<>(Arrays.asList(0., 0., 0., 0., 0. ));
-    Vector<Double> val1 = new Vector<>();
-    val1.setSize(10);
-    Vector<Double> var1 = new Vector<>();
+    double[] val0 = new double[] { 0., 0., 10., 10., 5., 0., 0., 0., 0., 0. };
+    double[] val1 = new double[10];
     Rectangle2D r = new Rectangle2D(val0);
     System.out.println("in " + r.toGeometry());
     System.out.println("in " + r.toGeometry().getArea());
@@ -72,16 +64,15 @@ public class RectangleSplitMergeTransformTest {
     String rs = "";
     for (int iter = 0; iter < 100; iter++) {
       for (int i = 0; i < 5; i++) {
-        var0.set(i, ran.nextDouble());
+        val0[5 + i] = ran.nextDouble();
       }
-      double res = t.apply(true, val0, var0, val1, var1);
-      Rectangle2D rout1 = new Rectangle2D(val1.subList(0, 5));
-      Rectangle2D rout2 = new Rectangle2D(val1.subList(5,10));
-      MultiPolygon mp = f
-          .createMultiPolygon(new Polygon[] { rout1.toGeometry(), rout2.toGeometry() });
+      double res = t.apply(true, val0, val1);
+      Rectangle2D rout1 = new Rectangle2D(Arrays.copyOfRange(val1, 0, 5));
+      Rectangle2D rout2 = new Rectangle2D(Arrays.copyOfRange(val1, 5, 10));
+      MultiPolygon mp = f.createMultiPolygon(new Polygon[] { rout1.toGeometry(), rout2.toGeometry() });
       System.out.println(mp);
       rs += res + "\n";
-      l.add(Arrays.copyOf(Util.toArray(val1), val1.size()));
+      l.add(Arrays.copyOf(val1, val1.length));
     }
     System.out.println(rs);
     // t.apply(in, out);
@@ -132,28 +123,22 @@ public class RectangleSplitMergeTransformTest {
     // Rectangle2D rinv = new Rectangle2D(inv[0], inv[1], inv[2], inv[3], inv[4]);
     // System.out.println(rinv.toGeometry());
     // }
-    Vector<Double> val0 = new Vector<>(Arrays.asList(0., 0., 10., 10., 5.));
-    Vector<Double> var0 = new Vector<>(Arrays.asList(0., 0., 0., 0., 0. ));
-    Vector<Double> val1 = new Vector<>();
-    val1.setSize(10);
-    Vector<Double> var1 = new Vector<>();
-    Vector<Double> val2 = new Vector<>();
-    val2.setSize(5);
-    Vector<Double> var2 = new Vector<>();
-    var2.setSize(5);
-//    Vector<Double> in = new double[] { 0, 0, 10, 10, 5, 0, 0, 0, 0, 0 };
-//    Vector<Double> out = new double[t.dimension()];
-//    Vector<Double> outInv = new double[t.dimension()];
+    double[] val0 = new double[] { 0., 0., 10., 10., 5., 0., 0., 0., 0., 0. };
+    double[] val1 = new double[10];
+    double[] val2 = new double[10];
+    // Vector<Double> in = new double[] { 0, 0, 10, 10, 5, 0, 0, 0, 0, 0 };
+    // Vector<Double> out = new double[t.dimension()];
+    // Vector<Double> outInv = new double[t.dimension()];
     RandomGenerator ran = Random.random();
     // GeometryFactory f = new GeometryFactory();
     String rs = "";
     for (int iter = 0; iter < 100; iter++) {
       for (int i = 0; i < 5; i++) {
-        var0.set(i, ran.nextDouble());
+        val0[5 + i] = ran.nextDouble();
       }
-      double res = t.apply(true, val0, var0, val1, var1);
-      double resInv = t.apply(false, val1, var1, val2, var2);
-      Assert.assertArrayEquals(Util.toArray(val0), Util.toArray(val2), 0.001);
+      double res = t.apply(true, val0, val1);
+      double resInv = t.apply(false, val1, val2);
+      Assert.assertArrayEquals(val0, val2, 0.001);
       Assert.assertEquals(1.0, res * resInv, 0.001);
       // Rectangle2D rout1 = new Rectangle2D(out[0], out[1], out[2], out[3], out[4]);
       // Rectangle2D rout2 = new Rectangle2D(out[5], out[6], out[7], out[8], out[9]);
@@ -174,18 +159,15 @@ public class RectangleSplitMergeTransformTest {
         -14.44145394655585, 1.494921419193108);
     System.out.println(r1.toGeometry());
     System.out.println(r2.toGeometry());
-    Vector<Double> in = new Vector<>(Arrays.asList(185.78318200148792, 585.5502705986888, 13.716023316068624,
+    double[] in = new double[] { 185.78318200148792, 585.5502705986888, 13.716023316068624,
         10.921384479841755, 3.6718006372070646, 109.36479888023415, 13.385514899653394,
-        -13.558616306495155, -14.44145394655585, 1.494921419193108));
-    Vector<Double> out = new Vector<>();
-    out.setSize(5);
-    Vector<Double> var1 = new Vector<>();
-    var1.setSize(5);
-    t.apply(false, in, new Vector<Double>(), out, var1);
+        -13.558616306495155, -14.44145394655585, 1.494921419193108 };
+    double[] out = new double[10];
+    t.apply(false, in, out);
     Rectangle2D r = new Rectangle2D(out);
-//    for (int i = 0; i < 5; i++) {
-//      System.out.println(out[5 + i]);
-//    }
+    // for (int i = 0; i < 5; i++) {
+    // System.out.println(out[5 + i]);
+    // }
     System.out.println(r.toGeometry());
   }
 }

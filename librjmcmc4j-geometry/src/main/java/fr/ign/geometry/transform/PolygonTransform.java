@@ -2,7 +2,6 @@ package fr.ign.geometry.transform;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
@@ -55,10 +54,10 @@ public class PolygonTransform implements Transform {
   }
 
   @Override
-  public double apply(boolean direct, Vector<Double> val0, Vector<Double> var0, Vector<Double> val1, Vector<Double> var1) {
+  public double apply(boolean direct, double[] val0, double[] val1) {
     if (direct) {
-      double s = var0.get(0) * totalArea;
-      double t = var0.get(1);
+      double s = val0[0] * totalArea;
+      double t = val0[1];
       int triangleIndex = -1;
       for (int i = 0; i < areas.size() && triangleIndex == -1; i++) {
         if (s < areas.get(i))
@@ -83,12 +82,12 @@ public class PolygonTransform implements Transform {
       double y3 = p3.y;
       double x = a * x1 + b * x2 + c * x3;
       double y = a * y1 + b * y2 + c * y3;
-      val1.set(0, x);
-      val1.set(1, y);
+      val1[0] = x;
+      val1[1] = y;
       return 1. / totalArea;
     }
-    double s = val0.get(0);
-    double t = val0.get(1);
+    double s = val0[0];
+    double t = val0[1];
     Point point = polygon.getFactory().createPoint(new Coordinate(s, t));
     Polygon triangle = null;
     for (Polygon tr : triangles) {
@@ -96,6 +95,9 @@ public class PolygonTransform implements Transform {
         triangle = tr;
         break;
       }
+    }
+    if (triangle == null) {
+      return 0;
     }
     Coordinate[] coord = triangle.getCoordinates();
     Coordinate p1 = coord[0];
@@ -112,18 +114,18 @@ public class PolygonTransform implements Transform {
     int ind = triangles.indexOf(triangle);
     double prev = (ind == 0) ? 0. : areas.get(ind - 1);
     double d = (r1 * (areas.get(ind) - prev) + prev) / totalArea;
-    var1.set(0, d);
-    var1.set(1, (Double.isNaN(r2)) ? 0. : r2);
+    val1[0] = d;
+    val1[1] = (Double.isNaN(r2)) ? 0. : r2;
     return totalArea;
   }
 
-  @Override
+//  @Override
   public double getAbsJacobian(boolean direct) {
     return (direct) ? 1 / totalArea : totalArea;
   }
 
   @Override
-  public int dimension(int n0, int n1) {
+  public int dimension() {
     return 2;
   }
 }

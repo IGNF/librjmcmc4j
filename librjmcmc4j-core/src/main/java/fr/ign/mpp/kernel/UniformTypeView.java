@@ -1,8 +1,6 @@
 package fr.ign.mpp.kernel;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.Iterator;
-import java.util.Vector;
 
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -42,11 +40,11 @@ public class UniformTypeView<T extends SimpleObject, C extends AbstractGraphConf
   }
 
   @Override
-  public double select(boolean direct, RandomGenerator e, C conf, M modif) {
-    return direct ? selectDeath(e, conf, modif) : selectBirth(e, conf, modif);
+  public double select(boolean direct, RandomGenerator e, C conf, M modif, double[] v) {
+    return direct ? selectDeath(e, conf, modif, v) : selectBirth(e, conf, modif, v);
   }
 
-  private double selectDeath(RandomGenerator e, C conf, M modif) {
+  private double selectDeath(RandomGenerator e, C conf, M modif, double[] out) {
     int size = conf.size(clazz);
     if (size < this.n) {
       return 0.;
@@ -68,56 +66,57 @@ public class UniformTypeView<T extends SimpleObject, C extends AbstractGraphConf
       }
       T t = it.next();
       modif.insertDeath(t);
-      // double[] outTmp = new double[this.builder.size()];
-      // this.builder.setCoordinates(t, outTmp);
-      // for (int j = 0; j < this.builder.size(); j++) {
-      // out[i * this.builder.size() + j] = outTmp[j];
-      // }
+      double[] outTmp = new double[this.builder.size()];
+      this.builder.setCoordinates(t, outTmp);
+      for (int j = 0; j < this.builder.size(); j++) {
+        out[i * this.builder.size() + j] = outTmp[j];
+      }
       denom *= size;
     }
     return 1. / (double) denom;
   }
 
-  private double selectBirth(RandomGenerator e, C conf, M modif) {
-    int beg = conf.size() - modif.getDeath().size() + 1;
+  private double selectBirth(RandomGenerator e, C conf, M modif, double[] in) {
+    int beg = conf.size(clazz) - modif.getDeath().size() + 1;
     int end = beg + this.n;
     int denom = 1;
+    int current = 0;
     for (int size = beg; size < end; ++size) {
-      Vector<Double> v = new Vector<Double>();
-      v.setSize(this.dimension);
+      double[] v = new double[this.dimension];
       for (int i = 0; i < this.dimension; i++) {
-        v.set(i, 0.);
+        v[i] = in[i + current];
       }
       modif.insertBirth(this.builder.build(v));
+      current += this.dimension;
       denom *= size;
     }
     return 1. / (double) denom;
   }
 
   @Override
-  public int dimension(boolean direct, C conf, M modif) {
-    return this.dimension * (direct ? modif.getDeath().size() : modif.getBirth().size());
+  public int dimension() {
+    return this.dimension;
   }
 
-  @Override
-  public void get(C conf, M modif, Vector<Double> val0) {
-    int index = 0;
-    for (T t : modif.getDeath()) {
-      this.builder.setCoordinates(t, val0.subList(index, index + this.dimension));
-      index += this.dimension;
-    }
-  }
-
-  @Override
-  public void set(C conf, M modif, Vector<Double> val1) {
-    int index = 0;
-    // System.out.println("set " + modif.getBirth().size() + " dim = "
-    // + this.dimension);
-    for (T t : modif.getBirth()) {
-      // System.out.println(val1.size() + " " + index + " "
-      // + (index + this.dimension));
-      t.set(val1.subList(index, index + this.dimension));
-      index += this.dimension;
-    }
-  }
+  // @Override
+  // public void get(C conf, M modif, Vector<Double> val0) {
+  // int index = 0;
+  // for (T t : modif.getDeath()) {
+  // this.builder.setCoordinates(t, val0.subList(index, index + this.dimension));
+  // index += this.dimension;
+  // }
+  // }
+  //
+  // @Override
+  // public void set(C conf, M modif, Vector<Double> val1) {
+  // int index = 0;
+  // // System.out.println("set " + modif.getBirth().size() + " dim = "
+  // // + this.dimension);
+  // for (T t : modif.getBirth()) {
+  // // System.out.println(val1.size() + " " + index + " "
+  // // + (index + this.dimension));
+  // t.set(val1.subList(index, index + this.dimension));
+  // index += this.dimension;
+  // }
+  // }
 }

@@ -1,8 +1,5 @@
 package fr.ign.rjmcmc.kernel;
 
-import java.util.Arrays;
-import java.util.Vector;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,21 +17,17 @@ public class RectangleScaledEdgeTransformTest {
 
   @Test
   public void testDimension() {
-    Assert.assertEquals(6, t.dimension(5,5));
+    Assert.assertEquals("Dimension problem", 6, t.dimension());
   }
 
   @Test
   public void testApply() {
-    Vector<Double> val0 = new Vector<>(Arrays.asList(0., 0., 1., 0., 1.));
-    Vector<Double> var0 = new Vector<>(Arrays.asList(1.));
-    Vector<Double> val1 = new Vector<>();
-    val1.setSize(5);
-    Vector<Double> var1 = new Vector<>();
-    var1.setSize(1);
+    double[] val0 = new double[]{0., 0., 1., 0., 1.,1.};
+    double[] val1 = new double[6];
     Rectangle2D r = new Rectangle2D(val0);
     System.out.println("in " + r.toGeometry());
     System.out.println("in " + r.toGeometry().getArea());
-    t.apply(true, val0, var0, val1, var1);
+    t.apply(true, val0, val1);
 //    for (int i = 0; i < t.dimension(); i++) {
 //      System.out.println(out[i]);
 //    }
@@ -50,34 +43,27 @@ public class RectangleScaledEdgeTransformTest {
 
   @Test
   public void testInverse() {
-    Vector<Double> val0 = new Vector<>(Arrays.asList(0., 0., 1., 0., 1.));
-    Vector<Double> var0 = new Vector<>(Arrays.asList(1.));
-    Vector<Double> val1 = new Vector<>();
-    val1.setSize(5);
-    Vector<Double> var1 = new Vector<>();
-    var1.setSize(1);
+    double[] val0 = new double[]{0., 0., 1., 0., 1., 1.};
+    double[] val1 = new double[6];
     Rectangle2D r = new Rectangle2D(val0);
     System.out.println("in" + r.toGeometry());
     System.out.println("in " + r.toGeometry().getArea());
-    t.apply(true, val0, var0, val1, var1);
+    t.apply(true, val0, val1);
 //    for (int i = 0; i < t.dimension(); i++) {
 //      System.out.println(out[i]);
 //    }
     Rectangle2D rout = new Rectangle2D(val1);
     System.out.println("out" + rout.toGeometry());
     System.out.println("out " + rout.toGeometry().getArea());
-    Vector<Double> val2 = new Vector<>();
-    val2.setSize(5);
-    Vector<Double> var2 = new Vector<>();
-    var2.setSize(1);
-    t.apply(false, val1, var1, val2, var2);
+    double[] val2 = new double[6];
+    t.apply(false, val1, val2);
 //    for (int i = 0; i < t.dimension(); i++) {
 //      System.out.println(outInv[i]);
 //    }
     Rectangle2D routInv = new Rectangle2D(val2);
     System.out.println("outInv" + routInv.toGeometry());
     System.out.println("outInv " + routInv.toGeometry().getArea());
-    Assert.assertArrayEquals(Util.toArray(val0), Util.toArray(val2), 0.001);
+    Assert.assertArrayEquals(val0, val2, 0.001);
   }
 
 }

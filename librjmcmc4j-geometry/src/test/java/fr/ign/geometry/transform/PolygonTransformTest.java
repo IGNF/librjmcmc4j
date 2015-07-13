@@ -1,7 +1,5 @@
 package fr.ign.geometry.transform;
 
-import java.util.Vector;
-
 import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,45 +38,32 @@ public class PolygonTransformTest {
 
   public void testApply() {
     for (int iter = 0; iter < 1000; iter++) {
-      Vector<Double> val0 = new Vector<>();
-      Vector<Double> var0 = new Vector<>();
-      Vector<Double> val1 = new Vector<>();
-      Vector<Double> var1 = new Vector<>();
+      double[] val0 = new double[2];
+      double[] val1 = new double[2];
       RandomGenerator generator = Random.random();
       double[] expectedVar = new double[] { generator.nextDouble(), generator.nextDouble() };
-      var0.add(expectedVar[0]);
-      var0.add(expectedVar[1]);
+      val0[0] = expectedVar[0];
+      val0[1] = expectedVar[1];
       // System.out.println(var0.get(0) + ", " + var0.get(1));
-      val1.setSize(2);
-      pt.apply(true, val0, var0, val1, var1);
+      pt.apply(true, val0, val1);
       // System.out.println(r + " => " + factory.createPoint(new
       // Coordinate(val1.get(0), val1.get(1))));
-      System.out.println(factory.createPoint(new Coordinate(val1.get(0), val1.get(1))));
+      System.out.println(factory.createPoint(new Coordinate(val1[0], val1[1])));
 
-      double[] expectedVal = new double[] { val1.get(0), val1.get(1) };
+      double[] expectedVal = new double[] { val1[0], val1[1] };
 
-      val0 = new Vector<>();
-      var0 = new Vector<>();
-      val1 = new Vector<>();
-      var1 = new Vector<>();
-      var0.setSize(2);
-      val1.add(expectedVal[0]);
-      val1.add(expectedVal[1]);
-      pt.apply(false, val1, var1, val0, var0);
-      double[] actualVar = new double[] { var0.get(0), var0.get(1) };
+      val1[0] = expectedVal[0];
+      val1[1] = expectedVal[1];
+      pt.apply(false, val1, val0);
+      double[] actualVar = new double[] { val0[0], val0[1] };
       // System.out.println(r + " => " + var0.get(0) + ", " + var0.get(1));
 
-      val0 = new Vector<>();
-      var0 = new Vector<>();
-      val1 = new Vector<>();
-      var1 = new Vector<>();
-      val1.setSize(2);
-      var0.add(actualVar[0]);
-      var0.add(actualVar[1]);
-      pt.apply(true, val0, var0, val1, var1);
+      val0[0] = actualVar[0];
+      val0[1] = actualVar[1];
+      pt.apply(true, val0, val1);
       // System.out.println(r + " => " + factory.createPoint(new
       // Coordinate(val1.get(0), val1.get(1))));
-      double[] actualVal = new double[] { val1.get(0), val1.get(1) };
+      double[] actualVal = new double[] { val1[0], val1[1] };
       Assert.assertArrayEquals("The apply method is not reversible", expectedVar, actualVar, 0.000001);
       Assert.assertArrayEquals("The apply method is not reversible", expectedVal, actualVal, 0.000001);
     }
