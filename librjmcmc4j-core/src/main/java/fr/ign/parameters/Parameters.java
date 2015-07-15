@@ -31,9 +31,37 @@ public class Parameters extends ParameterComponent {
 		entry.add(p);
 	}
 
-	public void set(String key, Object c) {
-		Parameter p = new Parameter(key, c);
-		entry.add(p);
+	public boolean set(String key, Object c) {
+		
+		boolean modificationDone = false;
+		if (entry != null) {
+			int nbEntry = entry.size();
+			for (int i=0;i<nbEntry;i++) {
+				ParameterComponent paramComp  = entry.get(i);
+				if (paramComp instanceof Parameter) {
+					// System.out.println("parameter");
+					if (((Parameter) paramComp).getKey().equals(key)) {
+						 entry.remove(paramComp);
+						 i--;
+						 nbEntry--;
+					} else {
+						// System.out.println(((Parameter)paramComp).getKey());
+					}
+				} else if (paramComp instanceof Parameters) {
+					// System.out.println("parameters");
+						((Parameters) paramComp).set(key,c);
+						modificationDone= true;
+				}
+			}
+		}
+	
+		if(! modificationDone){
+			Parameter p = new Parameter(key, c);
+			entry.add(p);
+		}
+	
+		
+		return modificationDone;
 	}
 
 	public Object get(String key) {
