@@ -7,11 +7,6 @@ import java.util.List;
 
 import org.apache.commons.math3.random.RandomGenerator;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.CoordinateFilter;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFilter;
-
 import fr.ign.geometry.Circle2D;
 import fr.ign.geometry.Primitive;
 import fr.ign.geometry.Rectangle2D;
@@ -24,6 +19,7 @@ import fr.ign.mpp.kernel.ObjectSampler;
 import fr.ign.mpp.kernel.UniformTypeView;
 import fr.ign.parameters.Parameters;
 import fr.ign.random.Random;
+import fr.ign.rjmcmc.acceptance.Acceptance;
 import fr.ign.rjmcmc.acceptance.MetropolisAcceptance;
 import fr.ign.rjmcmc.distribution.PoissonDistribution;
 import fr.ign.rjmcmc.energy.BinaryEnergy;
@@ -173,11 +169,11 @@ public class RectangleCirclePacking {
     double maxy = p.getDouble("maxy");
     double minradius = p.getDouble("minradius");
     double maxradius = p.getDouble("maxradius");
-    double[] v = new double[]{minx, miny, minradius};
-    double[] d = new double[]{maxx - minx, maxy - miny, maxradius - minradius};
+    double[] v = new double[] { minx, miny, minradius };
+    double[] d = new double[] { maxx - minx, maxy - miny, maxradius - minradius };
     DiagonalAffineTransform transformCircle = new DiagonalAffineTransform(d, v);
-    v = new double[]{minx,miny,minradius,minradius};
-    d = new double[]{maxx - minx, maxy - miny, (maxradius - minradius) / 2, (maxradius - minradius) / 2};
+    v = new double[] { minx, miny, minradius, minradius };
+    d = new double[] { maxx - minx, maxy - miny, (maxradius - minradius) / 2, (maxradius - minradius) / 2 };
     DiagonalAffineTransform transformRectangle = new DiagonalAffineTransform(d, v);
 
     double p_circle = p.getDouble("pcircle");
@@ -193,46 +189,20 @@ public class RectangleCirclePacking {
     Kernel<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> kernel1 = new Kernel<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(
         new NullView<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(),
         new UniformTypeView<Primitive, GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(
-            Circle2D.class, circlebuilder), new Variate(rng), new Variate(rng), transformCircle, p_birthdeath, p_birth);
-    kernel1.setName("BirthDeathCircle");
+            Circle2D.class, circlebuilder), new Variate(rng), new Variate(rng), transformCircle, p_birthdeath, p_birth, "Circle");
     kernels.add(kernel1);
     Kernel<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> kernel2 = new Kernel<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(
         new NullView<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(),
         new UniformTypeView<Primitive, GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(
             Rectangle2D.class, rectanglebuilder), new Variate(rng), new Variate(rng), transformRectangle,
-        1 - p_birthdeath, p_birth);
-    kernel2.setName("BirthDeathRectangle");
+        p_birthdeath, p_birth, "Rectangle");
     kernels.add(kernel2);
 
     // kernels.add(factory.make_uniform_modification_kernel(rng, builder,
     // new RectangleEdgeTranslationTransform(0, minratio, maxratio),
     // p_edge, "EdgeTrans0"));
-    // kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-    // new RectangleEdgeTranslationTransform(1, minratio, maxratio),
-    // p_edge, "EdgeTrans1"));
-    // kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-    // new RectangleEdgeTranslationTransform(2, minratio, maxratio),
-    // p_edge, "EdgeTrans2"));
-    // kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-    // new RectangleEdgeTranslationTransform(3, minratio, maxratio),
-    // p_edge, "EdgeTrans3"));
-    // kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-    // new RectangleCornerTranslationTransform(0), p_corner,
-    // "CornTrans0"));
-    // kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-    // new RectangleCornerTranslationTransform(1), p_corner,
-    // "CornTrans1"));
-    // kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-    // new RectangleCornerTranslationTransform(2), p_corner,
-    // "CornTrans2"));
-    // kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-    // new RectangleCornerTranslationTransform(3), p_corner,
-    // "CornTrans3"));
-    // kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-    // new RectangleSplitMergeTransform(400), p_split_merge, p_split,
-    // 1, 2, "SplitMerge"));
-    Sampler<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> s = new GreenSampler<>(rng, ds,
-        new MetropolisAcceptance<SimpleTemperature>(), kernels);
+    Acceptance<SimpleTemperature> acceptance = new MetropolisAcceptance<>();
+    Sampler<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> s = new GreenSampler<>(rng, ds, acceptance, kernels);
     return s;
   }
 
@@ -242,11 +212,8 @@ public class RectangleCirclePacking {
      * to eventually change the values >
      */
     Parameters p = initialize_parameters();
-    /*
-     * < Input data is an image. We first retrieve from the parameters the region to process... clip the image to fit this region... and then compute the
-     * gradient and build the attached view>
-     */
     RandomGenerator rng = Random.random();
+    rng.setSeed(0);
     /*
      * < Before launching the optimization process, we create all the required stuffs: a configuration, a sampler, a schedule scheme and an end test >
      */
@@ -257,24 +224,12 @@ public class RectangleCirclePacking {
     /*
      * < Build and initialize simple visitor which prints some data on the standard output >
      */
-    Visitor visitor = new OutputStreamVisitor(System.out);
-    Visitor shpVisitor = new ShapefileVisitor("./target/rectanglecircle_result", new GeometryFilter() {
-      CoordinateFilter coordFilter = new CoordinateFilter() {
-        @Override
-        public void filter(Coordinate coord) {
-          coord.y *= -1;
-        }
-      };
-
-      @Override
-      public void filter(Geometry geom) {
-        geom.apply(coordFilter);
-      }
-    });
-    List<Visitor> list = new ArrayList<Visitor>();
+    Visitor<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> visitor = new OutputStreamVisitor<>(System.out);
+    Visitor<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> shpVisitor = new ShapefileVisitor<>("./target/rectanglecircle_result");
+    List<Visitor<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>> list = new ArrayList<Visitor<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>>();
     list.add(visitor);
     list.add(shpVisitor);
-    CompositeVisitor mVisitor = new CompositeVisitor(list);
+    CompositeVisitor<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> mVisitor = new CompositeVisitor<>(list);
     init_visitor(p, mVisitor);
     /*
      * < This is the way to launch the optimization process. Here, the magic happen... >

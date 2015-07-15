@@ -7,6 +7,7 @@ import org.junit.Test;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
@@ -37,32 +38,25 @@ public class PolygonTransformTest {
   }
 
   public void testApply() {
-    for (int iter = 0; iter < 1000; iter++) {
+    for (int iter = 0; iter < 100; iter++) {
       double[] val0 = new double[2];
       double[] val1 = new double[2];
       RandomGenerator generator = Random.random();
       double[] expectedVar = new double[] { generator.nextDouble(), generator.nextDouble() };
       val0[0] = expectedVar[0];
       val0[1] = expectedVar[1];
-      // System.out.println(var0.get(0) + ", " + var0.get(1));
       pt.apply(true, val0, val1);
-      // System.out.println(r + " => " + factory.createPoint(new
-      // Coordinate(val1.get(0), val1.get(1))));
-      System.out.println(factory.createPoint(new Coordinate(val1[0], val1[1])));
-
+      Point p = factory.createPoint(new Coordinate(val1[0], val1[1]));
+      System.out.println(p);
+      Assert.assertTrue("Point not in polygon", pt.polygon.contains(p));
       double[] expectedVal = new double[] { val1[0], val1[1] };
-
       val1[0] = expectedVal[0];
       val1[1] = expectedVal[1];
       pt.apply(false, val1, val0);
       double[] actualVar = new double[] { val0[0], val0[1] };
-      // System.out.println(r + " => " + var0.get(0) + ", " + var0.get(1));
-
       val0[0] = actualVar[0];
       val0[1] = actualVar[1];
       pt.apply(true, val0, val1);
-      // System.out.println(r + " => " + factory.createPoint(new
-      // Coordinate(val1.get(0), val1.get(1))));
       double[] actualVal = new double[] { val1[0], val1[1] };
       Assert.assertArrayEquals("The apply method is not reversible", expectedVar, actualVar, 0.000001);
       Assert.assertArrayEquals("The apply method is not reversible", expectedVal, actualVal, 0.000001);
