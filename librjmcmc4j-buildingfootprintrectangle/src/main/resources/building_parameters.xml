@@ -7,11 +7,14 @@
 	<param key="nbdump" value="10000" />
 	<param key="nbsave" value="100000" />
 	<param key="poisson" value="200" />
+	<param key="maxobjects" value="1000" />
+	<param key="minsize" value="10" />
 	<param key="maxsize" value="20" />
+	<param key="minratio" value="0.5" />
 	<param key="maxratio" value="5" />
 	<param key="pbirthdeath" value="1.0" />
-	<param key="pedge" value="4.0" />
-	<param key="pcorner" value="4.0" />
+	<param key="pedge" value="1.0" />
+	<param key="pcorner" value="1.0" />
 	<param key="psplitmerge" value="1.0" />
 	<param key="pbirth" value="0.5" />
 	<param key="psplit" value="0.5" />

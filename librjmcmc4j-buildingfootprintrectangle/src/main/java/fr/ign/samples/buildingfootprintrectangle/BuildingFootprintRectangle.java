@@ -31,8 +31,10 @@ import fr.ign.mpp.energy.IntersectionAreaBinaryEnergy;
 import fr.ign.mpp.kernel.KernelFactory;
 import fr.ign.mpp.kernel.ObjectBuilder;
 import fr.ign.mpp.kernel.UniformBirth;
+import fr.ign.mpp.kernel.UniformView;
 import fr.ign.parameters.Parameters;
 import fr.ign.random.Random;
+import fr.ign.rjmcmc.acceptance.Acceptance;
 import fr.ign.rjmcmc.acceptance.MetropolisAcceptance;
 import fr.ign.rjmcmc.distribution.PoissonDistribution;
 import fr.ign.rjmcmc.energy.BinaryEnergy;
@@ -43,7 +45,11 @@ import fr.ign.rjmcmc.energy.MultipliesUnaryEnergy;
 import fr.ign.rjmcmc.energy.UnaryEnergy;
 import fr.ign.rjmcmc.kernel.DiagonalAffineTransform;
 import fr.ign.rjmcmc.kernel.Kernel;
+import fr.ign.rjmcmc.kernel.KernelProbability;
+import fr.ign.rjmcmc.kernel.KernelProposalRatio;
+import fr.ign.rjmcmc.kernel.NullView;
 import fr.ign.rjmcmc.kernel.Transform;
+import fr.ign.rjmcmc.kernel.Variate;
 import fr.ign.rjmcmc.sampler.GreenSampler;
 import fr.ign.rjmcmc.sampler.Sampler;
 import fr.ign.simulatedannealing.SimulatedAnnealing;
@@ -58,13 +64,9 @@ import fr.ign.simulatedannealing.visitor.ShapefileVisitor;
 import fr.ign.simulatedannealing.visitor.Visitor;
 
 public class BuildingFootprintRectangle {
-
-  // [building_footprint_rectangle_init_visitor
   static void init_visitor(Parameters p, Visitor<?, ?> v) {
     v.init(p.getInteger("nbdump"), p.getInteger("nbsave"));
   }
-
-  // ]
 
   public static GraphConfiguration<Rectangle2D> create_configuration(
       Parameters p, OrientedView grad) {
@@ -103,27 +105,20 @@ public class BuildingFootprintRectangle {
     // minus_energy<constant_energy<>,multiplies_energy<constant_energy<>,unary_energy>
     // >,
     // multiplies_energy<constant_energy<>,binary_energy>
-    ConstantEnergy<Rectangle2D, Rectangle2D> c1 = new ConstantEnergy<Rectangle2D, Rectangle2D>(
-        p.getDouble("energy"));
-    ConstantEnergy<Rectangle2D, Rectangle2D> c2 = new ConstantEnergy<Rectangle2D, Rectangle2D>(
-        p.getDouble("ponderation_grad"));
-    UnaryEnergy<Rectangle2D> u1 = new ImageGradientUnaryEnergy<Rectangle2D>(
-        grad);
-    UnaryEnergy<Rectangle2D> u2 = new MultipliesUnaryEnergy<Rectangle2D>(
-        c2, u1);
+    ConstantEnergy<Rectangle2D, Rectangle2D> c1 = new ConstantEnergy<Rectangle2D, Rectangle2D>(p.getDouble("energy"));
+    ConstantEnergy<Rectangle2D, Rectangle2D> c2 = new ConstantEnergy<Rectangle2D, Rectangle2D>(p.getDouble("ponderation_grad"));
+    UnaryEnergy<Rectangle2D> u1 = new ImageGradientUnaryEnergy<Rectangle2D>(grad);
+    UnaryEnergy<Rectangle2D> u2 = new MultipliesUnaryEnergy<Rectangle2D>(c2, u1);
     UnaryEnergy<Rectangle2D> u3 = new MinusUnaryEnergy<Rectangle2D>(c1, u2);
-    ConstantEnergy<Rectangle2D, Rectangle2D> c3 = new ConstantEnergy<Rectangle2D, Rectangle2D>(
-        p.getDouble("ponderation_surface"));
+    ConstantEnergy<Rectangle2D, Rectangle2D> c3 = new ConstantEnergy<Rectangle2D, Rectangle2D>(p.getDouble("ponderation_surface"));
     BinaryEnergy<Rectangle2D, Rectangle2D> b1 = new IntersectionAreaBinaryEnergy<Rectangle2D>();
-    BinaryEnergy<Rectangle2D, Rectangle2D> b2 = new MultipliesBinaryEnergy<Rectangle2D, Rectangle2D>(
-        c3, b1);
+    BinaryEnergy<Rectangle2D, Rectangle2D> b2 = new MultipliesBinaryEnergy<Rectangle2D, Rectangle2D>(c3, b1);
     // c1 - c2*u1
     // u3 = c1 - u2 = energy - c2 * u1 = energy - ponderation_grad *
     // ImageGradientUnaryEnergy
     // b2 = c3*b1 = ponderation_surface * IntersectionAreaBinaryEnergy
     // empty initial configuration
-    GraphConfiguration<Rectangle2D> conf = new GraphConfiguration<Rectangle2D>(
-        u3, b2);
+    GraphConfiguration<Rectangle2D> conf = new GraphConfiguration<Rectangle2D>(u3, b2);
     conf.setSpecs("the_geom:Polygon");
     return conf;
   }
@@ -151,12 +146,10 @@ public class BuildingFootprintRectangle {
   }
 
   // [building_footprint_rectangle_create_sampler
-  static Sampler<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> create_sampler(
-      Parameters p, RandomGenerator rng, final IsoRectangle2D r) {
-    Vector2D v = new Vector2D(p.getDouble("maxsize"),
-        p.getDouble("maxsize"));
+  static Sampler<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> create_sampler(Parameters p, RandomGenerator rng, final IsoRectangle2D r) {
+    Vector2D v = new Vector2D(p.getDouble("maxsize"), p.getDouble("maxsize"));
     double maxratio = p.getDouble("maxratio");
-    double minratio = 1 / maxratio;
+    double minratio = p.getDouble("minratio");
     ObjectBuilder<Rectangle2D> builder = new ObjectBuilder<Rectangle2D>() {
       @Override
       public Rectangle2D build(double[] coordinates) {
@@ -192,159 +185,86 @@ public class BuildingFootprintRectangle {
     // };
 
     UniformBirth<Rectangle2D> birth = new UniformBirth<Rectangle2D>(rng,
-        new Rectangle2D(r.min().x(), r.min().y(), n.x(), n.y(),
-            minratio), new Rectangle2D(r.max().x(), r.max().y(),
-            v.x(), v.y(), maxratio), builder);
+        new Rectangle2D(r.min().x(), r.min().y(), n.x(), n.y(), minratio),
+        new Rectangle2D(r.max().x(), r.max().y(), v.x(), v.y(), maxratio), builder);
 
-    double p_birthdeath = p.getDouble("pbirthdeath");
-    double p_birth = p.getDouble("pbirth");
+    final double p_birthdeath = p.getDouble("pbirthdeath");
+    // double p_birth = p.getDouble("pbirth");
     double p_edge = 0.25 * p.getDouble("pedge");
     double p_corner = 0.25 * p.getDouble("pcorner");
     double p_split_merge = p.getDouble("psplitmerge");
     double p_split = p.getDouble("psplit");
+    final int maxobjects = p.getInteger("maxobjects");
 
-    PoissonDistribution distribution = new PoissonDistribution(rng,
-        p.getDouble("poisson"));
+    final PoissonDistribution distribution = new PoissonDistribution(rng, p.getDouble("poisson"));
 
-    DirectSampler<Rectangle2D, GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> ds = new DirectSampler<>(
-        distribution, birth);
+    DirectSampler<Rectangle2D, GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> ds = new DirectSampler<>(distribution, birth);
 
-    List<Kernel<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>> kernels = new ArrayList<>(
-        3);
+    List<Kernel<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>> kernels = new ArrayList<>(3);
     KernelFactory<Rectangle2D, GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> factory = new KernelFactory<>();
-    kernels.add(factory.make_uniform_birth_death_kernel(rng, builder, birth,
-        p_birthdeath, p_birth));
-    kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-        new RectangleEdgeTranslationTransform(0, minratio, maxratio),
-        p_edge, "EdgeTrans0"));
-    kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-        new RectangleEdgeTranslationTransform(1, minratio, maxratio),
-        p_edge, "EdgeTrans1"));
-    kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-        new RectangleEdgeTranslationTransform(2, minratio, maxratio),
-        p_edge, "EdgeTrans2"));
-    kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-        new RectangleEdgeTranslationTransform(3, minratio, maxratio),
-        p_edge, "EdgeTrans3"));
-    kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-        new RectangleCornerTranslationTransform(0), p_corner,
-        "CornTrans0"));
-    kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-        new RectangleCornerTranslationTransform(1), p_corner,
-        "CornTrans1"));
-    kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-        new RectangleCornerTranslationTransform(2), p_corner,
-        "CornTrans2"));
-    kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-        new RectangleCornerTranslationTransform(3), p_corner,
-        "CornTrans3"));
-    kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-        new RectangleSplitMergeTransform(400), p_split_merge, p_split,
-        1, 2, "SplitMerge"));
-    Sampler<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> s = new GreenSampler<>(
-        rng, ds, new MetropolisAcceptance<SimpleTemperature>(), kernels);
+    KernelProbability<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> kpp = new KernelProbability<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>() {
+      @Override
+      public double probability(GraphConfiguration<Rectangle2D> c) {
+        return p_birthdeath;
+      }
+    };
+    KernelProposalRatio<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> kpr = new KernelProposalRatio<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>() {
+      @Override
+      public double probability(boolean d, GraphConfiguration<Rectangle2D> c) {
+        if (d)
+          return (c.size() == 0) ? 1. : distribution.pdfRatio(c.size(), c.size() + 1);
+        return (c.size() == maxobjects) ? 1. : distribution.pdfRatio(c.size(), c.size() - 1);
+      }
+    };
+    Kernel<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> k = new Kernel<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>(
+        new NullView<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>(),
+        new UniformView<Rectangle2D, GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>(builder),
+        birth.getVariate(), new Variate(rng), birth.getTransform(), kpp, kpr, "BirthDeath");
+    kernels.add(k);
+    // kernels.add(factory.make_uniform_birth_death_kernel(rng, builder, birth, p_birthdeath, p_birth, "BirthDeath"));
+    kernels.add(factory.make_uniform_modification_kernel(rng, builder, new RectangleEdgeTranslationTransform(0, minratio, maxratio), p_edge, "EdgeTrans0"));
+    kernels.add(factory.make_uniform_modification_kernel(rng, builder, new RectangleEdgeTranslationTransform(1, minratio, maxratio), p_edge, "EdgeTrans1"));
+    kernels.add(factory.make_uniform_modification_kernel(rng, builder, new RectangleEdgeTranslationTransform(2, minratio, maxratio), p_edge, "EdgeTrans2"));
+    kernels.add(factory.make_uniform_modification_kernel(rng, builder, new RectangleEdgeTranslationTransform(3, minratio, maxratio), p_edge, "EdgeTrans3"));
+    kernels.add(factory.make_uniform_modification_kernel(rng, builder, new RectangleCornerTranslationTransform(0), p_corner, "CornTrans0"));
+    kernels.add(factory.make_uniform_modification_kernel(rng, builder, new RectangleCornerTranslationTransform(1), p_corner, "CornTrans1"));
+    kernels.add(factory.make_uniform_modification_kernel(rng, builder, new RectangleCornerTranslationTransform(2), p_corner, "CornTrans2"));
+    kernels.add(factory.make_uniform_modification_kernel(rng, builder, new RectangleCornerTranslationTransform(3), p_corner, "CornTrans3"));
+    kernels.add(factory.make_uniform_modification_kernel(rng, builder, new RectangleSplitMergeTransform(400), p_split_merge, p_split, 1, 2, "SplitMerge"));
+    Acceptance<SimpleTemperature> acceptance = new MetropolisAcceptance<>();
+    Sampler<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> s = new GreenSampler<>(rng, ds, acceptance, kernels);
     return s;
   }
 
-  // ]
-
-  void go() {
-    // load dsm
-    // Iso_rectangle_2 bbox = get_bbox(m_param);
-    // std::string dsm_file =
-    // m_param->get<boost::filesystem::path>("dsm").string();
-    // clip_bbox(bbox,dsm_file );
-    //
-    // gradient_functor gf(m_param->get<double>("sigmaD"));
-    // oriented_gradient_view grad_view(dsm_file, bbox, gf);
-    // m_grad = grad_view.img();
-    // std::string mask_file =
-    // m_param->get<boost::filesystem::path>("mask").string();
-
-    // load_image(dsm_file );
-    // load_image(mask_file);
-    //
-    // set_bbox(m_param,bbox);
-    // wxPoint p0(wxCoord(bbox.min().x()),wxCoord(bbox.min().y()));
-    // wxPoint p1(wxCoord(bbox.max().x()),wxCoord(bbox.max().y()));
-    // m_confg_visitor->set_bbox(wxRect(p0,p1));
-    Parameters m_param = initialize_parameters();
-    List<Visitor> list = new ArrayList<Visitor>();
-    // simulated_annealing::wx::log_visitor*,
-    // simulated_annealing::wx::configuration_visitor*,
-    // simulated_annealing::wx::parameters_visitor*,
-    // simulated_annealing::wx::chart_visitor*,
-    // simulated_annealing::wx::controler_visitor*
-    CompositeVisitor mVisitor = new CompositeVisitor(list);
-    init_visitor(m_param, mVisitor);
-    // create_configuration(m_param,grad_view,m_config);
-    // <-
-    // estimate_initial_temperature(p,100,*m_config);
-    // ->
-    // create_sampler (m_param,m_sampler);
-    // create_schedule (m_param,m_schedule);
-    // create_end_test (m_param,m_end_test);
-
-    // std::cout << "Salamon initial schedule : " <<
-    // salamon_initial_schedule(m_sampler->density(),*m_config,1000) <<
-    // std::endl;
-    // m_config->clear();
-    //
-    // typedef rjmcmc::any_sampler<configuration> any_sampler;
-    // typedef simulated_annealing::any_visitor<configuration,any_sampler>
-    // any_visitor;
-    //
-    // any_sampler *sampler = new any_sampler(*m_sampler);
-    // any_visitor *visitor = new any_visitor(*m_visitor);
-    //
-    // m_thread = new boost::thread(
-    // simulated_annealing::optimize<configuration,any_sampler,schedule,end_test,any_visitor>,
-    // boost::ref(*m_config), boost::ref(*sampler),
-    // boost::ref(*m_schedule), boost::ref(*m_end_test),
-    // boost::ref(*visitor) );
-
-  }
-
-  // [building_footprint_rectangle_cli_main
   public static void main(String[] args) throws IOException {
     /*
      * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default values provided... parse the command line
      * to eventually change the values >
      */
     Parameters p = initialize_parameters();
-
     /*
      * < Input data is an image. We first retrieve from the parameters the region to process... clip the image to fit this region... and then compute the
      * gradient and build the attached view>
      */
     IsoRectangle2D bbox = get_bbox(p);
     String dsm_file = p.getString("dsm");
-
-    // GradientFunctor gf = new
-    // GradientFunctor(Double.parseDouble(p.get("sigmaD")));
-    OrientedView grad_view = new OrientedPlanarImageWrapper(dsm_file,
-        p.getFloat("sigmaD"));
-
+    OrientedView grad_view = new OrientedPlanarImageWrapper(dsm_file, p.getFloat("sigmaD"));
     clip_bbox(bbox, grad_view);
     // p.put("bbox", bbox);
-
     // set_bbox(p,bbox);
-
     RandomGenerator rng = Random.random();
     /*
      * < Before launching the optimization process, we create all the required stuffs: a configuration, a sampler, a schedule scheme and an end test >
      */
-    GraphConfiguration<Rectangle2D> conf = create_configuration(p,
-        grad_view);
-    Sampler<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> samp = create_sampler(
-        p, rng, bbox);
+    GraphConfiguration<Rectangle2D> conf = create_configuration(p, grad_view);
+    Sampler<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> samp = create_sampler(p, rng, bbox);
     Schedule<SimpleTemperature> sch = create_schedule(p);
     EndTest end = create_end_test(p);
     /*
      * < Build and initialize simple visitor which prints some data on the standard output >
      */
-    Visitor visitor = new OutputStreamVisitor(System.out);
-    Visitor shpVisitor = new ShapefileVisitor("target\\building_result",
+    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> visitor = new OutputStreamVisitor<>(System.out);
+    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> shpVisitor = new ShapefileVisitor<>("target\\building_result",
         new GeometryFilter() {
           CoordinateFilter coordFilter = new CoordinateFilter() {
             @Override
@@ -358,21 +278,19 @@ public class BuildingFootprintRectangle {
             geom.apply(coordFilter);
           }
         });
-    List<Visitor> list = new ArrayList<Visitor>();
+    List<Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>> list = new ArrayList<Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>>();
     list.add(visitor);
     list.add(shpVisitor);
-    CompositeVisitor mVisitor = new CompositeVisitor(list);
+    CompositeVisitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> mVisitor = new CompositeVisitor<>(list);
     init_visitor(p, mVisitor);
     /*
      * < This is the way to launch the optimization process. Here, the magic happen... >
      */
-    SimulatedAnnealing.optimize(Random.random(), conf, samp, sch, end,
-        mVisitor);
+    SimulatedAnnealing.optimize(Random.random(), conf, samp, sch, end, mVisitor);
     return;
   }
 
-  private static void clip_bbox(IsoRectangle2D bbox, int x0, int y0, int x1,
-      int y1) {
+  private static void clip_bbox(IsoRectangle2D bbox, int x0, int y0, int x1, int y1) {
     bbox.setMinX((int) Math.max(bbox.min().x(), x0));
     bbox.setMinY((int) Math.max(bbox.min().y(), y0));
     bbox.setMaxX((int) Math.min(bbox.max().x(), x1));
@@ -388,46 +306,35 @@ public class BuildingFootprintRectangle {
   }
 
   private static Schedule<SimpleTemperature> create_schedule(Parameters p) {
-    return new GeometricSchedule<SimpleTemperature>(new SimpleTemperature(
-        p.getDouble("temp")), p.getDouble("deccoef"));
+    return new GeometricSchedule<SimpleTemperature>(new SimpleTemperature(p.getDouble("temp")), p.getDouble("deccoef"));
   }
 
   private static Parameters initialize_parameters() {
     try {
-      return Parameters.unmarshall(new File(
-          "./src/main/resources/building_parameters.xml"));
+      return Parameters.unmarshall(new File("./src/main/resources/building_parameters.xml"));
     } catch (Exception e) {
       e.printStackTrace();
     }
     return null;
   }
 
-  // ]
   UnaryEnergy<Rectangle2D> unaryEnergy = null;
   BinaryEnergy<Rectangle2D, Rectangle2D> binaryEnergy = null;
   DiagonalAffineTransform transform = null;
   RandomGenerator e;
   Transform[] transforms;
 
-  public BuildingFootprintRectangle(File dsmFile, float sigmaD,
-      double energy, double ponderationGrad, double ponderationSurface,
-      double maxsize, double maxratio) throws IOException {
-    OrientedView grad_view = new OrientedPlanarImageWrapperImageIO(dsmFile,
-        sigmaD);
-    ConstantEnergy<Rectangle2D, Rectangle2D> c1 = new ConstantEnergy<Rectangle2D, Rectangle2D>(
-        energy);
-    ConstantEnergy<Rectangle2D, Rectangle2D> c2 = new ConstantEnergy<Rectangle2D, Rectangle2D>(
-        ponderationGrad);
-    UnaryEnergy<Rectangle2D> u1 = new ImageGradientUnaryEnergy<Rectangle2D>(
-        grad_view);
-    UnaryEnergy<Rectangle2D> u2 = new MultipliesUnaryEnergy<Rectangle2D>(
-        c2, u1);
+  public BuildingFootprintRectangle(File dsmFile, float sigmaD, double energy, double weightGrad, double weightSurface, double maxsize, double maxratio)
+      throws IOException {
+    OrientedView grad_view = new OrientedPlanarImageWrapperImageIO(dsmFile, sigmaD);
+    ConstantEnergy<Rectangle2D, Rectangle2D> c1 = new ConstantEnergy<Rectangle2D, Rectangle2D>(energy);
+    ConstantEnergy<Rectangle2D, Rectangle2D> c2 = new ConstantEnergy<Rectangle2D, Rectangle2D>(weightGrad);
+    UnaryEnergy<Rectangle2D> u1 = new ImageGradientUnaryEnergy<Rectangle2D>(grad_view);
+    UnaryEnergy<Rectangle2D> u2 = new MultipliesUnaryEnergy<Rectangle2D>(c2, u1);
     UnaryEnergy<Rectangle2D> u3 = new MinusUnaryEnergy<Rectangle2D>(c1, u2);
-    ConstantEnergy<Rectangle2D, Rectangle2D> c3 = new ConstantEnergy<Rectangle2D, Rectangle2D>(
-        ponderationSurface);
+    ConstantEnergy<Rectangle2D, Rectangle2D> c3 = new ConstantEnergy<Rectangle2D, Rectangle2D>(weightSurface);
     BinaryEnergy<Rectangle2D, Rectangle2D> b1 = new IntersectionAreaBinaryEnergy<Rectangle2D>();
-    BinaryEnergy<Rectangle2D, Rectangle2D> b2 = new MultipliesBinaryEnergy<Rectangle2D, Rectangle2D>(
-        c3, b1);
+    BinaryEnergy<Rectangle2D, Rectangle2D> b2 = new MultipliesBinaryEnergy<Rectangle2D, Rectangle2D>(c3, b1);
     // c1 - c2*u1
     // u3 = c1 - u2 = energy - c2 * u1 = energy - ponderation_grad *
     // ImageGradientUnaryEnergy
@@ -445,14 +352,10 @@ public class BuildingFootprintRectangle {
     this.transform = new DiagonalAffineTransform(d, coordinates);
     this.e = Random.random();
     this.transforms = new Transform[8];
-    this.transforms[0] = new RectangleEdgeTranslationTransform(0, minratio,
-        maxratio);
-    this.transforms[1] = new RectangleEdgeTranslationTransform(1, minratio,
-        maxratio);
-    this.transforms[2] = new RectangleEdgeTranslationTransform(2, minratio,
-        maxratio);
-    this.transforms[3] = new RectangleEdgeTranslationTransform(3, minratio,
-        maxratio);
+    this.transforms[0] = new RectangleEdgeTranslationTransform(0, minratio, maxratio);
+    this.transforms[1] = new RectangleEdgeTranslationTransform(1, minratio, maxratio);
+    this.transforms[2] = new RectangleEdgeTranslationTransform(2, minratio, maxratio);
+    this.transforms[3] = new RectangleEdgeTranslationTransform(3, minratio, maxratio);
     this.transforms[4] = new RectangleCornerTranslationTransform(0);
     this.transforms[5] = new RectangleCornerTranslationTransform(1);
     this.transforms[6] = new RectangleCornerTranslationTransform(2);
@@ -488,25 +391,17 @@ public class BuildingFootprintRectangle {
   // return conf.getEnergy();
   // }
 
-  public double getEnergy(double[] parameterArray) {
-    Assert.assertTrue(
-        "Number of values in the parameter array is not a multiple of 5",
-        parameterArray.length % 5 == 0);
-    GraphConfiguration<Rectangle2D> conf = new GraphConfiguration<Rectangle2D>(
-        this.unaryEnergy, this.binaryEnergy);
-    for (int index = 0; index < parameterArray.length;) {
+  public double getEnergy(double[] param) {
+    Assert.assertTrue("Number of values in the parameter array is not a multiple of 5", param.length % 5 == 0);
+    GraphConfiguration<Rectangle2D> conf = new GraphConfiguration<Rectangle2D>(this.unaryEnergy, this.binaryEnergy);
+    for (int index = 0; index < param.length;) {
       BirthDeathModification<Rectangle2D> modif = new BirthDeathModification<>();
       Rectangle2D rectangle = new Rectangle2D(
-          parameterArray[index++] * this.transform.getMat()[0]
-              + this.transform.getDelta()[0],
-          parameterArray[index++] * this.transform.getMat()[1]
-              + this.transform.getDelta()[1],
-          parameterArray[index++] * this.transform.getMat()[2]
-              + this.transform.getDelta()[2],
-          parameterArray[index++] * this.transform.getMat()[3]
-              + this.transform.getDelta()[3],
-          parameterArray[index++] * this.transform.getMat()[4]
-              + this.transform.getDelta()[4]);
+          param[index++] * this.transform.getMat()[0] + this.transform.getDelta()[0],
+          param[index++] * this.transform.getMat()[1] + this.transform.getDelta()[1],
+          param[index++] * this.transform.getMat()[2] + this.transform.getDelta()[2],
+          param[index++] * this.transform.getMat()[3] + this.transform.getDelta()[3],
+          param[index++] * this.transform.getMat()[4] + this.transform.getDelta()[4]);
       modif.insertBirth(rectangle);
       /* double delta = */conf.deltaEnergy(modif);
       // conf.apply(modif);
@@ -517,25 +412,17 @@ public class BuildingFootprintRectangle {
     return conf.getEnergy();
   }
 
-  public void writeToShapefile(double[] parameterArray, File outputFile) {
-    Assert.assertTrue(
-        "Number of values in the parameter array is not a multiple of 5",
-        parameterArray.length % 5 == 0);
-    GraphConfiguration<Rectangle2D> conf = new GraphConfiguration<Rectangle2D>(
-        this.unaryEnergy, this.binaryEnergy);
+  public void writeToShapefile(double[] param, File outputFile) {
+    Assert.assertTrue("Number of values in the parameter array is not a multiple of 5", param.length % 5 == 0);
+    GraphConfiguration<Rectangle2D> conf = new GraphConfiguration<Rectangle2D>(this.unaryEnergy, this.binaryEnergy);
     BirthDeathModification<Rectangle2D> modif = new BirthDeathModification<>();
-    for (int index = 0; index < parameterArray.length;) {
+    for (int index = 0; index < param.length;) {
       Rectangle2D rectangle = new Rectangle2D(
-          parameterArray[index++] * this.transform.getMat()[0]
-              + this.transform.getDelta()[0],
-          parameterArray[index++] * this.transform.getMat()[1]
-              + this.transform.getDelta()[1],
-          parameterArray[index++] * this.transform.getMat()[2]
-              + this.transform.getDelta()[2],
-          parameterArray[index++] * this.transform.getMat()[3]
-              + this.transform.getDelta()[3],
-          parameterArray[index++] * this.transform.getMat()[4]
-              + this.transform.getDelta()[4]);
+          param[index++] * this.transform.getMat()[0] + this.transform.getDelta()[0],
+          param[index++] * this.transform.getMat()[1] + this.transform.getDelta()[1],
+          param[index++] * this.transform.getMat()[2] + this.transform.getDelta()[2],
+          param[index++] * this.transform.getMat()[3] + this.transform.getDelta()[3],
+          param[index++] * this.transform.getMat()[4] + this.transform.getDelta()[4]);
       modif.insertBirth(rectangle);
     }
     /* double delta = */conf.deltaEnergy(modif);
@@ -575,16 +462,11 @@ public class BuildingFootprintRectangle {
     double[] result = new double[rectangleArray.length * 5];
     for (int index = 0; index < rectangleArray.length; index++) {
       Rectangle2D r = rectangleArray[index];
-      result[index * 5] = r.centerx * this.transform.getMatInv()[0]
-          + this.transform.getDeltaInv()[0];
-      result[index * 5 + 1] = r.centery * this.transform.getMatInv()[1]
-          + this.transform.getDeltaInv()[1];
-      result[index * 5 + 2] = r.normalx * this.transform.getMatInv()[2]
-          + this.transform.getDeltaInv()[2];
-      result[index * 5 + 3] = r.normaly * this.transform.getMatInv()[3]
-          + this.transform.getDeltaInv()[3];
-      result[index * 5 + 4] = r.ratio * this.transform.getMatInv()[4]
-          + this.transform.getDeltaInv()[4];
+      result[index * 5] = r.centerx * this.transform.getMatInv()[0] + this.transform.getDeltaInv()[0];
+      result[index * 5 + 1] = r.centery * this.transform.getMatInv()[1] + this.transform.getDeltaInv()[1];
+      result[index * 5 + 2] = r.normalx * this.transform.getMatInv()[2] + this.transform.getDeltaInv()[2];
+      result[index * 5 + 3] = r.normaly * this.transform.getMatInv()[3] + this.transform.getDeltaInv()[3];
+      result[index * 5 + 4] = r.ratio * this.transform.getMatInv()[4] + this.transform.getDeltaInv()[4];
     }
     // for (int index = 0; index < result.length; index++) {
     // Assert.assertTrue("Result is not in [0,1] : " + result[index],
@@ -599,9 +481,7 @@ public class BuildingFootprintRectangle {
    * @return
    */
   public double[] transform(double[] parameterArray) {
-    Assert.assertTrue(
-        "Number of values in the parameter array is not a multiple of 5",
-        parameterArray.length % 5 == 0);
+    Assert.assertTrue("Number of values in the parameter array is not a multiple of 5", parameterArray.length % 5 == 0);
     double[] val0 = new double[5];
     double[] val1 = new double[5];
     int index = (int) Math.floor((this.transforms.length * e.nextDouble()));
@@ -625,7 +505,7 @@ public class BuildingFootprintRectangle {
   Sampler<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> samp;
   Schedule<SimpleTemperature> sch;
   EndTest end;
-  CompositeVisitor mVisitor;
+  CompositeVisitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> mVisitor;
 
   public BuildingFootprintRectangle(long seed, File dsmFile, float sigmaD,
       double energy, double ponderationGrad, double ponderationSurface,
@@ -639,8 +519,7 @@ public class BuildingFootprintRectangle {
     p.set("energy", energy);
     p.set("ponderation_grad", ponderationGrad);
     p.set("ponderation_surface", ponderationSurface);
-    this.conf = (GraphConfiguration<Rectangle2D>) create_configuration(p,
-        grad_view);
+    this.conf = (GraphConfiguration<Rectangle2D>) create_configuration(p, grad_view);
 
     p.set("maxsize", maxsize);
     p.set("maxratio", maxratio);
@@ -675,13 +554,12 @@ public class BuildingFootprintRectangle {
     p.set("nbiter", nbiter);
     this.end = create_end_test(p);
 
-    List<Visitor> list = new ArrayList<Visitor>();
-    this.mVisitor = new CompositeVisitor(list);
+    List<Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>> list = new ArrayList<Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>>();
+    this.mVisitor = new CompositeVisitor<>(list);
   }
 
   public double optimize(File output) {
-    SimulatedAnnealing.optimize(Random.random(), conf, samp, sch, end,
-        mVisitor);
+    SimulatedAnnealing.optimize(Random.random(), conf, samp, sch, end, mVisitor);
     ShapefileWriter shpWriter = new ShapefileWriter(new GeometryFilter() {
       CoordinateFilter coordFilter = new CoordinateFilter() {
         @Override
