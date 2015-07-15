@@ -1,15 +1,18 @@
 package fr.ign.geometry;
 
 public class SquaredDistance {
-  Primitive a;
-  Primitive b;
+  Rectangle2D a;
+  Rectangle2D b;
 
-  public SquaredDistance(Primitive a, Primitive b) {
+  public SquaredDistance(Rectangle2D a, Rectangle2D b) {
     this.a = a;
     this.b = b;
   }
+  public double getSquaredDistance() {
+    return squared_distance(a, b);
+  }
 
-  double squared_distance(Rectangle2D r, Point2D q) {
+  static double squared_distance(Rectangle2D r, Point2D q) {
     Vector2D v = new Vector2D(q.minus(r.center()));
     double n2 = r.normal().squared_length();
     double x = Math.max(0., Math.abs(r.normal().dotProduct(v)) - n2);
@@ -17,7 +20,7 @@ public class SquaredDistance {
     return (x * x + y * y) / n2;
   }
 
-  double squared_distance(Point2D q, Rectangle2D r) {
+  static double squared_distance(Point2D q, Rectangle2D r) {
     return squared_distance(r, q);
   }
 
@@ -26,7 +29,7 @@ public class SquaredDistance {
    * min(squared_distance(b.point(2)),squared_distance(b.point(3))) ),min( min(b.squared_distance(point(0)),b.squared_distance(point(1))),
    * min(b.squared_distance(point(2)),b.squared_distance(point(3))) ));
    */
-  double squared_distance(Rectangle2D a, Rectangle2D b) {
+  static double squared_distance(Rectangle2D a, Rectangle2D b) {
     Vector2D v = new Vector2D(a.center(), b.center());
     Vector2D an = new Vector2D(a.normal());
     Vector2D bn = new Vector2D(b.normal());
