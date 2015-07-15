@@ -48,6 +48,10 @@ public class Vector2D {
 		return this.x * v.x + this.y * v.y;
 	}
 
+	public double crossProduct(final Vector2D v) {
+    return this.x * v.y - this.y * v.x;
+  }
+
 	public Vector2D scalarMultiply(double d) {
 		return new Vector2D(d * this.x, d * this.y);
 	}
