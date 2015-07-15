@@ -90,8 +90,7 @@ public class GreenSampler<C extends Configuration<C, M>, M extends Modification<
 		long start = System.currentTimeMillis();
 		M modif = config.newModification();
 		KernelFunctor<C, M> kf = new KernelFunctor<>(e, config, modif);
-		RandomApplyResult randomApplyResult = RandomApply.randomApply(
-				this.die.sample(), this.kernels, kf);
+		RandomApplyResult randomApplyResult = RandomApply.randomApply(this.die.sample(), this.kernels, kf);
 		long end = System.currentTimeMillis();
 		this.timeRandomApply = (end - start);
 		start = end;

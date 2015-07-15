@@ -11,16 +11,14 @@ public class Kernel<C extends Configuration<C, M>, M extends Modification<C, M>>
    * Logger.
    */
   static Logger logger = Logger.getLogger(Kernel.class.getName());
-
-  double p;
-  double p01;
-  double p10;
   View<C, M> view0;
   View<C, M> view1;
   Variate variate0;
   Variate variate1;
   Transform transform;
   int kernelId;
+  KernelProbability<C, M> prob;
+  KernelProposalRatio<C, M> ratio;
 
   /**
    * Construct a new Kernel.
@@ -40,46 +38,14 @@ public class Kernel<C extends Configuration<C, M>, M extends Modification<C, M>>
    * @param q
    *          probability to choose the direct transform
    */
-  public Kernel(View<C, M> v0, View<C, M> v1, Variate x0, Variate x1,
-      Transform t, double p, double q) {
+  public Kernel(View<C, M> v0, View<C, M> v1, Variate x0, Variate x1, Transform t, KernelProbability<C, M> p, KernelProposalRatio<C, M> ratio, String name) {
     this.view0 = v0;
     this.view1 = v1;
     this.variate0 = x0;
     this.variate1 = x1;
     this.transform = t;
-    this.p01 = p * q;
-    this.p10 = p * (1 - q);
-    this.p = p;
-  }
-
-  /**
-   * Construct a new Kernel.
-   * 
-   * @param v0
-   *          a view
-   * @param v1
-   *          another view
-   * @param x0
-   *          a variate
-   * @param x1
-   *          another variate
-   * @param t
-   *          a transform
-   * @param p
-   *          probability to apply the kernel
-   * @param q
-   *          probability to choose the direct transform
-   */
-  public Kernel(View<C, M> v0, View<C, M> v1, Variate x0, Variate x1,
-      Transform t, double p, double q, String name) {
-    this.view0 = v0;
-    this.view1 = v1;
-    this.variate0 = x0;
-    this.variate1 = x1;
-    this.transform = t;
-    this.p01 = p * q;
-    this.p10 = p * (1 - q);
-    this.p = p;
+    this.prob = p;
+    this.ratio = ratio;
     this.name = name;
   }
 
@@ -96,10 +62,32 @@ public class Kernel<C extends Configuration<C, M>, M extends Modification<C, M>>
    *          another variate
    * @param t
    *          a transform
+   * @param p
+   *          probability to apply the kernel
+   * @param q
+   *          probability to choose the direct transform
    */
-  public Kernel(View<C, M> v0, View<C, M> v1, Variate x0, Variate x1,
-      Transform t) {
-    this(v0, v1, x0, x1, t, 1.0, 0.5);
+  public Kernel(View<C, M> v0, View<C, M> v1, Variate x0, Variate x1, Transform t, double p, double q, String name) {
+    this.view0 = v0;
+    this.view1 = v1;
+    this.variate0 = x0;
+    this.variate1 = x1;
+    this.transform = t;
+    final double prob = p;
+    this.prob = new KernelProbability<C, M>() {
+      @Override
+      public double probability(C c) {
+        return prob;
+      }
+    };
+    final double r = q;
+    this.ratio = new KernelProposalRatio<C, M>() {
+      @Override
+      public double probability(boolean direct, C c) {
+        return r;
+      }
+    };
+    this.name = name;
   }
 
   public int getKernelId() {
@@ -131,8 +119,8 @@ public class Kernel<C extends Configuration<C, M>, M extends Modification<C, M>>
   /**
    * @return the probability of the kernel.
    */
-  public double probability() {
-    return this.p;
+  public double probability(C c) {
+    return this.prob.probability(c);
   }
 
   /**
@@ -151,7 +139,11 @@ public class Kernel<C extends Configuration<C, M>, M extends Modification<C, M>>
   public double operator(RandomGenerator e, double probability, C c, M modif) {
     double[] val0 = new double[this.transform.dimension()];
     double[] val1 = new double[this.transform.dimension()];
-    if (probability < this.p01) { // branch probability : m_p01
+    double ratio01 = this.ratio.probability(true, c);
+    double ratio10 = this.ratio.probability(false, c);
+    double p01 = ratio01 / (ratio01 + ratio10);
+//    System.out.println(this.name + " " + probability + " (" + p01 + ", " + p10 + ")");
+    if (probability < p01) { // branch probability : m_p01
       this.kernelId = 0;
       // returns the discrete probability that samples the portion of the configuration that is being modified (stored in the modif input)
       double J01 = view0.select(true, e, c, modif, val0);
@@ -171,7 +163,10 @@ public class Kernel<C extends Configuration<C, M>, M extends Modification<C, M>>
       double phi10 = variate1.pdf(val1, view1.dimension());
       // returns the discrete probability of the inverse view sampling, arguments are constant except val1 that is encoded in modif
       double J10 = view1.select(false, e, c, modif, val1);
-      return jacob * (p10 * J10 * phi10) / (p01 * J01 * phi01);
+//      System.out.println(J01 + ", "+phi01+", "+jacob+", "+phi10+", "+J10);
+//      System.out.println("jacob = " + (jacob * (p10 * J10 * phi10) / (p01 * J01 * phi01)));
+//      return jacob * (p10 * J10 * phi10) / (p01 * J01 * phi01);
+      return jacob * ratio01 * (J10 * phi10) / (J01 * phi01);
     } else { // branch probability : m_p10
       this.kernelId = 1;
       // returns the discrete probability of the inverse view sampling, arguments are constant except val1 that is encoded in modif
@@ -192,7 +187,8 @@ public class Kernel<C extends Configuration<C, M>, M extends Modification<C, M>>
       // returns the continuous probability of the variate sampling, arguments are constant
       double phi01 = variate0.pdf(val0, view0.dimension());
       double J01 = view0.select(false, e, c, modif, val0);
-      return jacob * (this.p01 * J01 * phi01) / (this.p10 * J10 * phi10);
+//      return jacob * (p01 * J01 * phi01) / (p10 * J10 * phi10);
+      return jacob * ratio10 * (J01 * phi01) / (J10 * phi10);
     }
   }
 }
