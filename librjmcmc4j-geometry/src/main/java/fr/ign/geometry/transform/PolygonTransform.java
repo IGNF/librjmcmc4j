@@ -13,6 +13,7 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.triangulate.ConformingDelaunayTriangulationBuilder;
 
+import fr.ign.geometry.PointInTriangle;
 import fr.ign.rjmcmc.kernel.Transform;
 
 public class PolygonTransform implements Transform {
@@ -91,7 +92,10 @@ public class PolygonTransform implements Transform {
     Point point = polygon.getFactory().createPoint(new Coordinate(s, t));
     Polygon triangle = null;
     for (Polygon tr : triangles) {
-      if (tr.contains(point)) {
+      Coordinate a = tr.getCoordinates()[0];
+      Coordinate b = tr.getCoordinates()[1];
+      Coordinate c = tr.getCoordinates()[2];
+      if (PointInTriangle.isPointInTriangle(a.x, a.y, b.x, b.y, c.x, c.y, point.getX(), point.getY())) {
         triangle = tr;
         break;
       }
