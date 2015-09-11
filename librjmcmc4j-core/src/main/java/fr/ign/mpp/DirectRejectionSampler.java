@@ -47,7 +47,7 @@ public class DirectRejectionSampler<O extends SimpleObject, C extends AbstractGr
 	@Override
 	public double pdfRatio(C c, M m) {
 		double ratio = super.pdfRatio(c, m);
-		if (!pred.check(c, m)) {
+		if (ratio == 0 || !pred.check(c, m)) {
 			return 0; // sampling failure code
 		}
 		return ratio;
