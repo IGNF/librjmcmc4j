@@ -37,91 +37,93 @@ public class ParameterComponent {
 
   /**
    * Unmarshal XML data from the specified Parameters file.
-   * @param XML data file
+   * 
+   * @param XML
+   *          data file
    * @return the resulting content tree in Parameters
    * @throws Exception
    */
-  public static Parameters unmarshall(File file) throws Exception { 
-    try {
-      JAXBContext context = JAXBContext.newInstance(Parameters.class, Parameter.class);
-      Unmarshaller unmarshaller = context.createUnmarshaller(); 
-      Parameters root = (Parameters) unmarshaller.unmarshal(file); return root; 
-    } catch (Exception e1) { 
-      e1.printStackTrace(); throw e1; 
-    } 
+  public static Parameters unmarshall(File file) throws Exception {
+    JAXBContext context = JAXBContext.newInstance("fr.ign.parameters", ParameterComponent.class.getClassLoader());
+    Unmarshaller unmarshaller = context.createUnmarshaller();
+    Parameters root = (Parameters) unmarshaller.unmarshal(file);
+    return root;
   }
-   
 
   /**
    * Validate and Unmarshal XML data from the specified Parameters file.
-   * @param XML data file
+   * 
+   * @param XML
+   *          data file
    * @param xsdSchema
    * @return the resulting content tree in Parameters
    * @throws Exception
    */
-  public static Parameters unmarshall(File file, Schema xsdSchema) throws Exception { 
-    try { 
-      JAXBContext context = JAXBContext.newInstance(Parameters.class, Parameter.class); 
-      Unmarshaller unmarshaller = context.createUnmarshaller(); 
-      // Validation : setting a schema on the marshaller instance to activate validation against given XML schema
-      unmarshaller.setSchema(xsdSchema); Parameters root = (Parameters)
-          unmarshaller.unmarshal(file); 
-      return root; 
+  public static Parameters unmarshall(File file, Schema xsdSchema) throws Exception {
+    try {
+      JAXBContext context = JAXBContext.newInstance(Parameters.class, Parameter.class);
+      Unmarshaller unmarshaller = context.createUnmarshaller();
+      // Validation : setting a schema on the marshaller instance to activate
+      // validation against given XML schema
+      unmarshaller.setSchema(xsdSchema);
+      Parameters root = (Parameters) unmarshaller.unmarshal(file);
+      return root;
     } catch (Exception e1) {
-      e1.printStackTrace(); 
+      e1.printStackTrace();
       throw e1;
     }
   }
-  
 
   /**
    * Unmarshal data from XML text.
+   * 
    * @param inputXML
    * @return the resulting content tree in Parameters
    * @throws Exception
    */
-  public static Parameters unmarshall(String inputXML) throws Exception { 
-    try { 
+  public static Parameters unmarshall(String inputXML) throws Exception {
+    try {
       JAXBContext context = JAXBContext.newInstance(Parameters.class, Parameter.class);
-      Unmarshaller msh = context.createUnmarshaller(); 
-      StringReader reader = new StringReader(inputXML); 
-      Parameters root = (Parameters)msh.unmarshal(reader); 
-      return root; 
+      Unmarshaller msh = context.createUnmarshaller();
+      StringReader reader = new StringReader(inputXML);
+      Parameters root = (Parameters) msh.unmarshal(reader);
+      return root;
     } catch (Exception e1) {
-      e1.printStackTrace(); 
+      e1.printStackTrace();
       throw e1;
     }
   }
-   
 
   /**
    * Validate and Unmarshal data from XML text.
+   * 
    * @param inputXML
    * @param xsdSchema
    * @return the resulting content tree in Parameters
    * @throws Exception
    */
-  public static Parameters unmarshall(String inputXML, Schema xsdSchema) throws Exception { 
-    try { 
-      JAXBContext context = JAXBContext.newInstance(Parameters.class, Parameter.class); 
-      Unmarshaller msh = context.createUnmarshaller(); 
-      // Validation : setting a schema on the marshaller instance to activate validation against given XML schema
-      msh.setSchema(xsdSchema); 
+  public static Parameters unmarshall(String inputXML, Schema xsdSchema) throws Exception {
+    try {
+      JAXBContext context = JAXBContext.newInstance(Parameters.class, Parameter.class);
+      Unmarshaller msh = context.createUnmarshaller();
+      // Validation : setting a schema on the marshaller instance to activate
+      // validation against given XML schema
+      msh.setSchema(xsdSchema);
       StringReader reader = new StringReader(inputXML);
-      Parameters root = (Parameters) msh.unmarshal(reader); 
-      return root; 
-    } catch (Exception e1) { 
-      throw e1; 
+      Parameters root = (Parameters) msh.unmarshal(reader);
+      return root;
+    } catch (Exception e1) {
+      throw e1;
     }
   }
-    
-   
 
   /**
    * Parse une requête XML de paramètres.
    * 
-   * @param inputXML valeurToParse Le contenu du XML à parser
-   * @param inputXSD document Le document de validation
+   * @param inputXML
+   *          valeurToParse Le contenu du XML à parser
+   * @param inputXSD
+   *          document Le document de validation
    * @return Les paramètres
    * @throws Exception
    */
