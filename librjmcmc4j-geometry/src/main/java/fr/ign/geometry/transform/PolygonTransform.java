@@ -3,8 +3,6 @@ package fr.ign.geometry.transform;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -17,10 +15,6 @@ import fr.ign.geometry.PointInTriangle;
 import fr.ign.rjmcmc.kernel.Transform;
 
 public class PolygonTransform implements Transform {
-  /**
-   * Logger.
-   */
-  static Logger LOGGER = Logger.getLogger(PolygonTransform.class.getName());
   MultiPolygon polygon;
   List<Double> areas = new ArrayList<>();
   List<Polygon> triangles = new ArrayList<>();
@@ -123,7 +117,7 @@ public class PolygonTransform implements Transform {
     return totalArea;
   }
 
-//  @Override
+  // @Override
   public double getAbsJacobian(boolean direct) {
     return (direct) ? 1 / totalArea : totalArea;
   }

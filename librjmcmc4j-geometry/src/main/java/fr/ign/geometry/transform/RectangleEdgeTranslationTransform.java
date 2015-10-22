@@ -1,15 +1,8 @@
 package fr.ign.geometry.transform;
 
-import org.apache.log4j.Logger;
-
 import fr.ign.rjmcmc.kernel.Transform;
 
 public class RectangleEdgeTranslationTransform implements Transform {
-  /**
-   * Logger.
-   */
-  static Logger LOGGER = Logger.getLogger(RectangleEdgeTranslationTransform.class.getName());
-
   int edgeNumber;
   double m_rmin;
   double m_rrange;

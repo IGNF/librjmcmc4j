@@ -1,15 +1,8 @@
 package fr.ign.geometry.transform;
 
-import org.apache.log4j.Logger;
-
 import fr.ign.rjmcmc.kernel.Transform;
 
 public class RectangleCornerTranslationTransform implements Transform {
-  /**
-   * Logger.
-   */
-  static Logger LOGGER = Logger.getLogger(RectangleCornerTranslationTransform.class.getName());
-
   public RectangleCornerTranslationTransform(int n) {
     this(n, 10);
   }

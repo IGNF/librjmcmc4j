@@ -3,10 +3,10 @@ package fr.ign.geometry.integrated_flux;
 import java.awt.image.DataBuffer;
 import java.awt.image.SampleModel;
 import java.io.File;
+import java.util.logging.Logger;
 
 import javax.media.jai.PlanarImage;
 
-import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

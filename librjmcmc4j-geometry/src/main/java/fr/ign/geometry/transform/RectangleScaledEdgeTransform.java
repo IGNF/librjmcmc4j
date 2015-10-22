@@ -1,15 +1,8 @@
 package fr.ign.geometry.transform;
 
-import org.apache.log4j.Logger;
-
 import fr.ign.rjmcmc.kernel.Transform;
 
 public class RectangleScaledEdgeTransform implements Transform {
-  /**
-   * Logger.
-   */
-  static Logger LOGGER = Logger.getLogger(RectangleScaledEdgeTransform.class.getName());
-
   public RectangleScaledEdgeTransform() {
   }
 
@@ -38,7 +31,7 @@ public class RectangleScaledEdgeTransform implements Transform {
     return 6;
   }
 
-//  @Override
+  // @Override
   public double getAbsJacobian(boolean d) {
     return 1;
   }
