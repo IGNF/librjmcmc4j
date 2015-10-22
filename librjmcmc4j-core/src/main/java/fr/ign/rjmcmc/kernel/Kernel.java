@@ -1,7 +1,8 @@
 package fr.ign.rjmcmc.kernel;
 
+import java.util.logging.Logger;
+
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.log4j.Logger;
 
 import fr.ign.rjmcmc.configuration.Configuration;
 import fr.ign.rjmcmc.configuration.Modification;

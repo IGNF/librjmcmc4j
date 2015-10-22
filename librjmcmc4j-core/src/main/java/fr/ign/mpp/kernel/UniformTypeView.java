@@ -1,10 +1,11 @@
 package fr.ign.mpp.kernel;
 
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.log4j.Logger;
 
 import fr.ign.mpp.configuration.AbstractBirthDeathModification;
 import fr.ign.mpp.configuration.AbstractGraphConfiguration;
@@ -58,7 +59,7 @@ public class UniformTypeView<T extends SimpleObject, C extends AbstractGraphConf
           ++d[i]; // skip already selected indices
       for (int j = 0; j < i; ++j)
         if (d[j] == d[i]) {
-          LOGGER.error("sampled " + d[i] + " twice");
+          LOGGER.log(Level.SEVERE, "sampled " + d[i] + " twice");
         }
       Iterator<T> it = conf.iterator(clazz);
       for (int j = 0; j < d[i]; j++) {

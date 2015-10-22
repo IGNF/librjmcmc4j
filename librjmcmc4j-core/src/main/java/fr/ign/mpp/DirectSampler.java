@@ -1,7 +1,9 @@
 package fr.ign.mpp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.log4j.Logger;
 
 import fr.ign.mpp.configuration.AbstractBirthDeathModification;
 import fr.ign.mpp.configuration.AbstractGraphConfiguration;
@@ -29,7 +31,7 @@ public class DirectSampler<O extends SimpleObject, C extends AbstractGraphConfig
 	public void init(RandomGenerator e, C c) {
 		c.clear();
 		int n = this.density.sample(e);
-		System.out.println("density proposed " + n);
+		LOGGER.log(Level.FINE, "density proposed " + n);
 		for (int i = 0; i < n; ++i) {
 			double v = 0;
 			while (v == 0) {

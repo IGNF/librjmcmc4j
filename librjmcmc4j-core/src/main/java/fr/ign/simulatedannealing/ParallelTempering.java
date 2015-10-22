@@ -1,8 +1,9 @@
 package fr.ign.simulatedannealing;
 
+import java.util.logging.Logger;
+
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.log4j.Logger;
 import org.junit.Assert;
 
 import fr.ign.rjmcmc.configuration.Configuration;

@@ -2,9 +2,9 @@ package fr.ign.mpp.kernel;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Logger;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.log4j.Logger;
 
 import fr.ign.rjmcmc.kernel.DiagonalAffineTransform;
 import fr.ign.rjmcmc.kernel.Predicate;

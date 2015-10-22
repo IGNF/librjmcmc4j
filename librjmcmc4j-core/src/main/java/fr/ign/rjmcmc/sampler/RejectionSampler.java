@@ -1,9 +1,10 @@
 package fr.ign.rjmcmc.sampler;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.log4j.Logger;
 
 import fr.ign.rjmcmc.configuration.Configuration;
 import fr.ign.rjmcmc.configuration.ConfigurationPredicate;
@@ -36,10 +37,10 @@ public class RejectionSampler<C extends Configuration<C, M>, M extends Modificat
 			check = this.predicate.check(config);
 			n++;
 			if (check) {
-				LOGGER.debug("Sampled " + n + " configurations before checking");
+				LOGGER.log(Level.FINE, "Sampled " + n + " configurations before checking");
 			} else {
 				if (n % 10000 == 0) {
-					LOGGER.debug("Sampled " + n + " configurations");
+					LOGGER.log(Level.FINE, "Sampled " + n + " configurations");
 				}
 			}
 		} while (!check);

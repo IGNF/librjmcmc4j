@@ -1,11 +1,11 @@
 package fr.ign.rjmcmc.sampler;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.apache.commons.math3.distribution.AbstractRealDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.log4j.Logger;
 
 import fr.ign.rjmcmc.acceptance.Acceptance;
 import fr.ign.rjmcmc.configuration.Configuration;
