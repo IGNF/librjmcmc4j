@@ -1,7 +1,6 @@
 package fr.ign.circlepacking;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,18 +11,20 @@ import fr.ign.geometry.Circle2D;
 import fr.ign.mpp.DirectSampler;
 import fr.ign.mpp.configuration.BirthDeathModification;
 import fr.ign.mpp.configuration.GraphConfiguration;
+import fr.ign.mpp.energy.AreaUnaryEnergy;
 import fr.ign.mpp.energy.IntersectionAreaBinaryEnergy;
 import fr.ign.mpp.kernel.KernelFactory;
 import fr.ign.mpp.kernel.ObjectBuilder;
 import fr.ign.mpp.kernel.UniformBirth;
 import fr.ign.parameters.Parameters;
-import fr.ign.random.Random;
 import fr.ign.rjmcmc.acceptance.Acceptance;
 import fr.ign.rjmcmc.acceptance.MetropolisAcceptance;
 import fr.ign.rjmcmc.distribution.PoissonDistribution;
 import fr.ign.rjmcmc.energy.BinaryEnergy;
 import fr.ign.rjmcmc.energy.ConstantEnergy;
 import fr.ign.rjmcmc.energy.MultipliesBinaryEnergy;
+import fr.ign.rjmcmc.energy.MultipliesUnaryEnergy;
+import fr.ign.rjmcmc.energy.UnaryEnergy;
 import fr.ign.rjmcmc.kernel.Kernel;
 import fr.ign.rjmcmc.sampler.GreenSampler;
 import fr.ign.rjmcmc.sampler.Sampler;
@@ -40,12 +41,14 @@ import fr.ign.simulatedannealing.visitor.Visitor;
 
 public class CirclePacking {
   public static GraphConfiguration<Circle2D> create_configuration(Parameters p) {
-    ConstantEnergy<Circle2D, Circle2D> c1 = new ConstantEnergy<Circle2D, Circle2D>(p.getDouble("energy"));
-    ConstantEnergy<Circle2D, Circle2D> c2 = new ConstantEnergy<Circle2D, Circle2D>(p.getDouble("surface"));
-    BinaryEnergy<Circle2D, Circle2D> b1 = new IntersectionAreaBinaryEnergy<Circle2D>();
-    BinaryEnergy<Circle2D, Circle2D> b2 = new MultipliesBinaryEnergy<Circle2D, Circle2D>(c2, b1);
+    ConstantEnergy<Circle2D, Circle2D> c1 = new ConstantEnergy<>(p.getDouble("energy"));
+    ConstantEnergy<Circle2D, Circle2D> c2 = new ConstantEnergy<>(p.getDouble("surface"));
+    UnaryEnergy<Circle2D> u1 = new AreaUnaryEnergy<>();
+    UnaryEnergy<Circle2D> u2 = new MultipliesUnaryEnergy<>(c1, u1);
+    BinaryEnergy<Circle2D, Circle2D> b1 = new IntersectionAreaBinaryEnergy<>();
+    BinaryEnergy<Circle2D, Circle2D> b2 = new MultipliesBinaryEnergy<>(c2, b1);
     // empty initial configuration
-    GraphConfiguration<Circle2D> conf = new GraphConfiguration<Circle2D>(c1, b2);
+    GraphConfiguration<Circle2D> conf = new GraphConfiguration<Circle2D>(u2, b2);
     conf.setSpecs("the_geom:Polygon");
     return conf;
   }
@@ -92,12 +95,12 @@ public class CirclePacking {
     return s;
   }
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws Exception {
     /*
      * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default values provided... parse the command line
      * to eventually change the values >
      */
-    Parameters p = initialize_parameters();
+    Parameters p = Parameters.unmarshall(new File("./src/main/resources/circlepacking_parameters.xml"));
     RandomGenerator rng = new MersenneTwister(42);
     /*
      * < Before launching the optimization process, we create all the required stuffs: a configuration, a sampler, a schedule scheme and an end test >
@@ -109,26 +112,15 @@ public class CirclePacking {
     /*
      * < Build and initialize simple visitor which prints some data on the standard output >
      */
-    Visitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> visitor = new OutputStreamVisitor<>(System.out);
-    Visitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> shpVisitor = new ShapefileVisitor<>("./target/circle_result");
-    List<Visitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>> list = new ArrayList<Visitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>>();
-    list.add(visitor);
-    list.add(shpVisitor);
+    List<Visitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>> list = new ArrayList<>();
+    list.add(new OutputStreamVisitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>(System.out));
+    list.add(new ShapefileVisitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>("./target/circle_result"));
     CompositeVisitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> mVisitor = new CompositeVisitor<>(list);
     mVisitor.init(p.getInteger("nbdump"), p.getInteger("nbsave"));
     /*
      * < This is the way to launch the optimization process. Here, the magic happen... >
      */
-    SimulatedAnnealing.optimize(Random.random(), conf, samp, sch, end, mVisitor);
+    SimulatedAnnealing.optimize(rng, conf, samp, sch, end, mVisitor);
     return;
-  }
-
-  private static Parameters initialize_parameters() {
-    try {
-      return Parameters.unmarshall(new File("./src/main/resources/circlepacking_parameters.xml"));
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return null;
   }
 }

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <parameters>
-	<param key="temp" value="200" />
+	<param key="temp" value="2000" />
 	<param key="temp_exponent" value="1.3" />
 	<param key="deccoef" value="0.999999" />
-	<param key="nbiter" value="10000000" />
-	<param key="nbdump" value="100000" />
-	<param key="nbsave" value="1000000" />
+	<param key="nbiter" value="100000000" />
+	<param key="nbdump" value="1000000" />
+	<param key="nbsave" value="10000000" />
 	<param key="poisson" value="200" />
 	<param key="minx" value="0" />
 	<param key="maxx" value="1" />

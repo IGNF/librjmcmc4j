@@ -81,4 +81,7 @@ public class Circle2D implements Primitive, SimpleObject {
 	public double radius() {
 		return this.radius;
 	}
+	public double getArea() {
+		return this.squared_radius() * Math.PI;
+	}
 }
