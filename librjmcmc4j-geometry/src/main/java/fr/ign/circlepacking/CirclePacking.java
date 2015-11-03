@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import fr.ign.geometry.Circle2D;
@@ -38,10 +39,6 @@ import fr.ign.simulatedannealing.visitor.ShapefileVisitor;
 import fr.ign.simulatedannealing.visitor.Visitor;
 
 public class CirclePacking {
-  static void init_visitor(Parameters p, Visitor<?, ?> v) {
-    v.init(p.getInteger("nbdump"), p.getInteger("nbsave"));
-  }
-
   public static GraphConfiguration<Circle2D> create_configuration(Parameters p) {
     ConstantEnergy<Circle2D, Circle2D> c1 = new ConstantEnergy<Circle2D, Circle2D>(p.getDouble("energy"));
     ConstantEnergy<Circle2D, Circle2D> c2 = new ConstantEnergy<Circle2D, Circle2D>(p.getDouble("surface"));
@@ -79,12 +76,11 @@ public class CirclePacking {
     double maxy = p.getDouble("maxy");
     double minradius = p.getDouble("minradius");
     double maxradius = p.getDouble("maxradius");
-    UniformBirth<Circle2D> birth = new UniformBirth<Circle2D>(rng, new Circle2D(minx, miny, minradius), new Circle2D(maxx, maxy, maxradius), builder);
     double p_birthdeath = p.getDouble("pbirthdeath");
     double p_birth = p.getDouble("pbirth");
+    UniformBirth<Circle2D> birth = new UniformBirth<Circle2D>(rng, new Circle2D(minx, miny, minradius), new Circle2D(maxx, maxy, maxradius), builder);
     PoissonDistribution distribution = new PoissonDistribution(rng, p.getDouble("poisson"));
-    DirectSampler<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> ds = new DirectSampler<>(
-        distribution, birth);
+    DirectSampler<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> ds = new DirectSampler<>(distribution, birth);
     List<Kernel<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>> kernels = new ArrayList<>(3);
     KernelFactory<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> factory = new KernelFactory<>();
     kernels.add(factory.make_uniform_birth_death_kernel(rng, builder, birth, p_birthdeath, p_birth, "BirthDeath"));
@@ -102,14 +98,14 @@ public class CirclePacking {
      * to eventually change the values >
      */
     Parameters p = initialize_parameters();
-    RandomGenerator rng = Random.random();
+    RandomGenerator rng = new MersenneTwister(42);
     /*
      * < Before launching the optimization process, we create all the required stuffs: a configuration, a sampler, a schedule scheme and an end test >
      */
     GraphConfiguration<Circle2D> conf = create_configuration(p);
     Sampler<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> samp = create_sampler(p, rng);
-    Schedule<SimpleTemperature> sch = create_schedule(p);
-    EndTest end = create_end_test(p);
+    Schedule<SimpleTemperature> sch = new GeometricSchedule<>(new SimpleTemperature(p.getDouble("temp")), p.getDouble("deccoef"));
+    EndTest end = new MaxIterationEndTest(p.getInteger("nbiter"));
     /*
      * < Build and initialize simple visitor which prints some data on the standard output >
      */
@@ -119,20 +115,12 @@ public class CirclePacking {
     list.add(visitor);
     list.add(shpVisitor);
     CompositeVisitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> mVisitor = new CompositeVisitor<>(list);
-    init_visitor(p, mVisitor);
+    mVisitor.init(p.getInteger("nbdump"), p.getInteger("nbsave"));
     /*
      * < This is the way to launch the optimization process. Here, the magic happen... >
      */
     SimulatedAnnealing.optimize(Random.random(), conf, samp, sch, end, mVisitor);
     return;
-  }
-
-  private static EndTest create_end_test(Parameters p) {
-    return new MaxIterationEndTest(p.getInteger("nbiter"));
-  }
-
-  private static Schedule<SimpleTemperature> create_schedule(Parameters p) {
-    return new GeometricSchedule<SimpleTemperature>(new SimpleTemperature(p.getDouble("temp")), p.getDouble("deccoef"));
   }
 
   private static Parameters initialize_parameters() {
