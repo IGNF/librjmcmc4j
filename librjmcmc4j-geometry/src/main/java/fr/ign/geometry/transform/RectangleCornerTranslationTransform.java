@@ -53,11 +53,6 @@ public class RectangleCornerTranslationTransform implements Transform {
     return 1.0;
   }
 
-  // @Override
-  public double getAbsJacobian(boolean d) {
-    return 1;
-  }
-
   @Override
   public int dimension() {
     return 7;

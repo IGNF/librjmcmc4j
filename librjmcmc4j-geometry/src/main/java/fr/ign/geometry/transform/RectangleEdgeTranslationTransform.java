@@ -73,11 +73,6 @@ public class RectangleEdgeTranslationTransform implements Transform {
     return 1;
   }
 
-//  @Override
-  public double getAbsJacobian(boolean d) {
-    return 1;
-  }
-
   @Override
   public int dimension() {
     return 6;

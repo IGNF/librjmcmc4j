@@ -30,9 +30,4 @@ public class RectangleScaledEdgeTransform implements Transform {
   public int dimension() {
     return 6;
   }
-
-  // @Override
-  public double getAbsJacobian(boolean d) {
-    return 1;
-  }
 }

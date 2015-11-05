@@ -38,11 +38,6 @@ public class RectangleCornerTranslationTransformTest {
   }
 
   @Test
-  public void testGetAbsJacobian() {
-    Assert.assertEquals(1d, t.getAbsJacobian(true), 0.001);
-  }
-
-  @Test
   public void testInverse() {
     double[] val0 = new double[]{0., 0., 1., 0., 1.,1., 1. };
     double[] val1 = new double[7];
