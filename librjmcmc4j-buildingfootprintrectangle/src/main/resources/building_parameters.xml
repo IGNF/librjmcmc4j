@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <parameters>
 	<param key="temp" value="150" />
+	<param key="replicas" value="20" />
 	<param key="temp_exponent" value="1.3" />
 	<param key="deccoef" value="0.999999" />
 	<param key="nbiter" value="20000000" />

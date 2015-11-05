@@ -161,14 +161,13 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
   }
 
   public static void main(String[] args) {
-    // TODO get that from parameters?
-    int nReplicas = 20;
     /*
      * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default values provided... parse the command line
      * to eventually change the values >
      */
     Parameters p = initialize_parameters();
     RandomGenerator rng = Random.random();
+    int nReplicas = p.getInteger("replicas");
     /*
      * < Input data is an image. We first retrieve from the parameters the region to process... clip the image to fit this region... and then compute the
      * gradient and build the attached view>
@@ -198,7 +197,8 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
     @SuppressWarnings("unchecked")
     Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>[] visitors = new Visitor[nReplicas];
     Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> visitor = new OutputStreamVisitor<>(System.out);
-    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> shpVisitor = new ShapefileVisitor<>("result",
+    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> shpVisitor = new ShapefileVisitor<Rectangle2D, GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>("building_parallel_result", conf[0].getSpecs(),
+
         new GeometryFilter() {
           CoordinateFilter coordFilter = new CoordinateFilter() {
             @Override
@@ -218,7 +218,7 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
     CompositeVisitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> mVisitor = new CompositeVisitor<>(list);
     init_visitor(p, mVisitor);
     visitors[0] = mVisitor;
-    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> shpVisitorMiddle = new ShapefileVisitor<>("result_" + (nReplicas / 2),
+    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> shpVisitorMiddle = new ShapefileVisitor<Rectangle2D, GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>("building_parallel_result_"+ (nReplicas / 2)+"_", conf[nReplicas / 2].getSpecs(),
         new GeometryFilter() {
           CoordinateFilter coordFilter = new CoordinateFilter() {
             @Override
@@ -236,7 +236,7 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
 
     visitors[nReplicas / 2] = shpVisitorMiddle;
 
-    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> shpVisitorLast = new ShapefileVisitor<>("result_" + (nReplicas - 1),
+    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> shpVisitorLast = new ShapefileVisitor<Rectangle2D, GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>("building_parallel_result_"+ (nReplicas - 1)+"_", conf[nReplicas - 1].getSpecs(),
         new GeometryFilter() {
           CoordinateFilter coordFilter = new CoordinateFilter() {
             @Override

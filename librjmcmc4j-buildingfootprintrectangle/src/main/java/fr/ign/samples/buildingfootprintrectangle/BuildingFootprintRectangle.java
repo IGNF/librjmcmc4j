@@ -264,7 +264,7 @@ public class BuildingFootprintRectangle {
      * < Build and initialize simple visitor which prints some data on the standard output >
      */
     Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> visitor = new OutputStreamVisitor<>(System.out);
-    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> shpVisitor = new ShapefileVisitor<>("target\\building_result",
+    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> shpVisitor = new ShapefileVisitor<Rectangle2D, GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>("target\\building_result", conf.getSpecs(),
         new GeometryFilter() {
           CoordinateFilter coordFilter = new CoordinateFilter() {
             @Override
