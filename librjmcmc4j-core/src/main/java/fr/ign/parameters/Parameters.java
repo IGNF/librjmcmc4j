@@ -160,6 +160,14 @@ public class Parameters extends ParameterComponent {
 		return Integer.parseInt(value.toString());
 	}
 
+	public long getLong(String name) {
+    Object value = this.get(name);
+    if (value == null) {
+      return 0;
+    }
+    return Long.parseLong(value.toString());
+  }
+
 	public float getFloat(String name) {
 		Object value = this.get(name);
 		if (value == null) {
