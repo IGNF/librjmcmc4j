@@ -1,5 +1,6 @@
 package fr.ign.rjmcmc.kernel;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.math3.random.RandomGenerator;
@@ -11,7 +12,7 @@ public class Kernel<C extends Configuration<C, M>, M extends Modification<C, M>>
   /**
    * Logger.
    */
-  static Logger logger = Logger.getLogger(Kernel.class.getName());
+  static Logger LOGGER = Logger.getLogger(Kernel.class.getName());
   View<C, M> view0;
   View<C, M> view1;
   Variate variate0;
@@ -143,9 +144,12 @@ public class Kernel<C extends Configuration<C, M>, M extends Modification<C, M>>
     double ratio01 = this.ratio.probability(true, c);
     double ratio10 = this.ratio.probability(false, c);
     double p01 = ratio01 / (ratio01 + ratio10);
-//    System.out.println(this.name + " " + probability + " (" + p01 + ", " + p10 + ")");
+    LOGGER.log(Level.FINEST, this.name + " " + probability + " (" + p01 + ", " + (1 - p01) + ") (" + ratio01 + ", " + ratio10 + ")");
     if (probability < p01) { // branch probability : m_p01
       this.kernelId = 0;
+      if (ratio01 == 0) {
+        return 0;
+      }
       // returns the discrete probability that samples the portion of the configuration that is being modified (stored in the modif input)
       double J01 = view0.select(true, e, c, modif, val0);
       if (J01 == 0) {
@@ -164,12 +168,14 @@ public class Kernel<C extends Configuration<C, M>, M extends Modification<C, M>>
       double phi10 = variate1.pdf(val1, view1.dimension());
       // returns the discrete probability of the inverse view sampling, arguments are constant except val1 that is encoded in modif
       double J10 = view1.select(false, e, c, modif, val1);
-//      System.out.println(J01 + ", "+phi01+", "+jacob+", "+phi10+", "+J10);
-//      System.out.println("jacob = " + (jacob * (p10 * J10 * phi10) / (p01 * J01 * phi01)));
-//      return jacob * (p10 * J10 * phi10) / (p01 * J01 * phi01);
+      LOGGER.log(Level.FINEST, "Move 0 " + J01 + ", "+phi01+", "+jacob+", "+phi10+", "+J10);
+      LOGGER.log(Level.FINEST, "jacob = " + (jacob * ratio01 * (J10 * phi10) / (J01 * phi01)));
       return jacob * ratio01 * (J10 * phi10) / (J01 * phi01);
     } else { // branch probability : m_p10
       this.kernelId = 1;
+      if (ratio10 == 0) {
+        return 0;
+      }
       // returns the discrete probability of the inverse view sampling, arguments are constant except val1 that is encoded in modif
       double J10 = view1.select(true, e, c, modif, val1);
       // returns the discrete probability that samples the portion of the configuration that is being modified (stored in the modif input)
@@ -188,7 +194,8 @@ public class Kernel<C extends Configuration<C, M>, M extends Modification<C, M>>
       // returns the continuous probability of the variate sampling, arguments are constant
       double phi01 = variate0.pdf(val0, view0.dimension());
       double J01 = view0.select(false, e, c, modif, val0);
-//      return jacob * (p01 * J01 * phi01) / (p10 * J10 * phi10);
+      LOGGER.log(Level.FINEST, "Move 1 " + J01 + ", "+phi01+", "+jacob+", "+phi10+", "+J10);
+      LOGGER.log(Level.FINEST, "jacob = " + jacob * ratio10 * (J01 * phi01) / (J10 * phi10));
       return jacob * ratio10 * (J01 * phi01) / (J10 * phi10);
     }
   }
