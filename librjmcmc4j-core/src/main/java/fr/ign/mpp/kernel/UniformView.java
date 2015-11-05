@@ -34,20 +34,17 @@ public class UniformView<T extends SimpleObject, C extends AbstractGraphConfigur
   }
 
   private int sample(RandomGenerator rng, int n) {
-    UniformIntegerDistribution distribution = new UniformIntegerDistribution(
-        rng, 0, n - 1);
-    return distribution.sample();
+    return new UniformIntegerDistribution(rng, 0, n - 1).sample();
   }
 
   @Override
   public double select(boolean direct, RandomGenerator e, C conf, M modif, double[] val) {
-    return direct ? selectDeath(e, conf, modif, val) : selectBirth(e, conf,
-        modif, val);
+    return direct ? selectDeath(e, conf, modif, val) : selectBirth(e, conf, modif, val);
   }
 
   private double selectDeath(RandomGenerator e, C conf, M modif, double[] out) {
     int size = conf.size();
-    if (size < this.n) {
+    if (size < this.n) {// not enough objects to remove in the configuration
       return 0.;
     }
     int denom = 1;
@@ -99,26 +96,26 @@ public class UniformView<T extends SimpleObject, C extends AbstractGraphConfigur
     return this.dimension;
   }
 
-//  @Override
-//  public void get(C conf, M modif, Vector<Double> val0) {
-//    int index = 0;
-//    for (T t : modif.getDeath()) {
-//      this.builder.setCoordinates(t,
-//          val0.subList(index, index + this.dimension));
-//      index += this.dimension;
-//    }
-//  }
-//
-//  @Override
-//  public void set(C conf, M modif, Vector<Double> val1) {
-//    int index = 0;
-//    // System.out.println("set " + modif.getBirth().size() + " dim = "
-//    // + this.dimension);
-//    for (T t : modif.getBirth()) {
-//      // System.out.println(val1.size() + " " + index + " "
-//      // + (index + this.dimension));
-//      t.set(val1.subList(index, index + this.dimension));
-//      index += this.dimension;
-//    }
-//  }
+  // @Override
+  // public void get(C conf, M modif, Vector<Double> val0) {
+  // int index = 0;
+  // for (T t : modif.getDeath()) {
+  // this.builder.setCoordinates(t,
+  // val0.subList(index, index + this.dimension));
+  // index += this.dimension;
+  // }
+  // }
+  //
+  // @Override
+  // public void set(C conf, M modif, Vector<Double> val1) {
+  // int index = 0;
+  // // System.out.println("set " + modif.getBirth().size() + " dim = "
+  // // + this.dimension);
+  // for (T t : modif.getBirth()) {
+  // // System.out.println(val1.size() + " " + index + " "
+  // // + (index + this.dimension));
+  // t.set(val1.subList(index, index + this.dimension));
+  // index += this.dimension;
+  // }
+  // }
 }

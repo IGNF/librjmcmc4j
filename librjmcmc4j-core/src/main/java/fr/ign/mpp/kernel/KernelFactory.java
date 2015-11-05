@@ -91,8 +91,8 @@ public class KernelFactory<T extends SimpleObject, C extends AbstractGraphConfig
   public Kernel<C, M> make_uniform_modification_kernel(RandomGenerator rng, ObjectBuilder<T> builder, Transform t, double p, double q, int n0, int n1, String name) {
     View<C, M> view0 = new UniformView<T, C, M>(builder, n0);
     View<C, M> view1 = new UniformView<T, C, M>(builder, n1);
-    Variate variate0 = new Variate(/* t.dimension() - n0 * builder.size() */rng);
-    Variate variate1 = new Variate(/* t.dimension() - n1 * builder.size() */rng);
+    Variate variate0 = new Variate(rng);
+    Variate variate1 = new Variate(rng);
     return new Kernel<>(view0, view1, variate0, variate1, t, p, q, name);
   }
 }

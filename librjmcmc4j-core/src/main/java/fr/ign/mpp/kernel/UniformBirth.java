@@ -1,7 +1,6 @@
 package fr.ign.mpp.kernel;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Logger;
 
 import org.apache.commons.math3.random.RandomGenerator;
@@ -17,6 +16,7 @@ import fr.ign.rjmcmc.kernel.Variate;
  * A uniform birth sampler.
  * <p>
  * \(J_{F{-1}}(F(p)) = J_{F}(p)^{-1}\).
+ * 
  * @author Julien Perret
  * @param <T>
  */
@@ -26,79 +26,74 @@ public class UniformBirth<T extends SimpleObject> implements ObjectSampler<T> {
    */
   static Logger LOGGER = Logger.getLogger(UniformBirth.class.getName());
 
-  Transform transform;
-  int dimension;
-  ObjectBuilder<T> builder;
-  Variate variate;
-  T object;
-
-  @Override
-  public T getObject() {
-    return this.object;
-  }
+  private Transform transform;
+  private int dimension;
+  private ObjectBuilder<T> builder;
+  private Variate variate;
+  private T object;
 
   /**
    * Constructs a uniform birth.
+   * 
    * @param a
-   *        an object
+   *          an object
    * @param b
-   *        another object
+   *          another object
    * @param builder
-   *        an object builder
+   *          an object builder
    */
   public UniformBirth(RandomGenerator rng, T a, T b, ObjectBuilder<T> builder) {
-      this(rng, a, b, builder, DiagonalAffineTransform.class, (Object[]) null);
+    this(rng, a, b, builder, DiagonalAffineTransform.class, (Object[]) null);
   }
 
   /**
    * Constructs a uniform birth.
    * <p>
-   * The constructor takes a tranform class and a list of parameters to be given to the transform
-   * constructor.
+   * The constructor takes a tranform class and a list of parameters to be given to the transform constructor.
+   * 
    * @param a
-   *        an object
+   *          an object
    * @param b
-   *        another object
+   *          another object
    * @param builder
-   *        an object builder
+   *          an object builder
    * @param trans
-   *        a transform class
+   *          a transform class
    * @param o
-   *        a generic array of parameters to be given to the transform constructor
+   *          a generic array of parameters to be given to the transform constructor
    */
-  public <Trans extends Transform> UniformBirth(RandomGenerator rng, T a, T b, ObjectBuilder<T> builder,
-      Class<Trans> trans, Object... o) {
-      this(rng, a, b, builder, trans, null, o);
+  public <Trans extends Transform> UniformBirth(RandomGenerator rng, T a, T b, ObjectBuilder<T> builder, Class<Trans> trans, Object... o) {
+    this(rng, a, b, builder, trans, null, o);
   }
 
   /**
    * Constructs a uniform birth.
    * <p>
-   * The constructor takes a predicate if given (and thus builds a rejectionVariate to hold it) as
-   * well as a tranform class and a list of parameters to be given to the transform constructor.
+   * The constructor takes a predicate if given (and thus builds a rejectionVariate to hold it) as well as a tranform
+   * class and a list of parameters to be given to the transform constructor.
+   * 
    * @param a
-   *        an object
+   *          an object
    * @param b
-   *        another object
+   *          another object
    * @param builder
-   *        an object builder
+   *          an object builder
    * @param trans
-   *        a transform class
+   *          a transform class
    * @param pred
-   *        a predicate
+   *          a predicate
    * @param o
-   *        a generic array of parameters to be given to the transform constructor
+   *          a generic array of parameters to be given to the transform constructor
    */
-  public <Trans extends Transform> UniformBirth(RandomGenerator rng, T a, T b, ObjectBuilder<T> builder,
-      Class<Trans> trans, Predicate pred, Object... o) {
-    this.dimension = a.size();
-    double[] d = new double[a.size()];
+  public <Trans extends Transform> UniformBirth(RandomGenerator rng, T a, T b, ObjectBuilder<T> builder, Class<Trans> trans, Predicate pred, Object... o) {
+    this.dimension = builder.size();
+    double[] d = new double[this.dimension];
     double[] arrayA = a.toArray();
     double[] arrayB = b.toArray();
-    for (int i = 0; i < a.size(); i++) {
+    for (int i = 0; i < this.dimension; i++) {
       d[i] = arrayB[i] - arrayA[i];
     }
-    double[] coordinates = new double[a.size()];
+    double[] coordinates = new double[this.dimension];
     builder.setCoordinates(a, coordinates);
     Constructor<?> cons = trans.getConstructors()[0];
     try {
@@ -112,15 +107,13 @@ public class UniformBirth<T extends SimpleObject> implements ObjectSampler<T> {
         }
       }
       this.transform = (Transform) cons.newInstance(parameters);
-    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-        | InvocationTargetException e) {
+    } catch (Exception e) {
       this.transform = new DiagonalAffineTransform(d, coordinates);
       e.printStackTrace();
     }
     this.builder = builder;
-    Variate internalVariate = new Variate(/* this.builder.size() */rng);
-    this.variate = (pred == null) ? internalVariate : new RejectionVariate(/* this.builder.size(), */
-									   rng, internalVariate, pred, new RejectionVariate.monte_carlo());
+    Variate internalVariate = new Variate(rng);
+    this.variate = (pred == null) ? internalVariate : new RejectionVariate(rng, internalVariate, pred, new RejectionVariate.monte_carlo());
   }
 
   @Override
@@ -141,6 +134,11 @@ public class UniformBirth<T extends SimpleObject> implements ObjectSampler<T> {
     double J10 = this.transform.apply(false, val1, val0);
     double pdf = this.variate.pdf(val0, 0);
     return pdf * J10;
+  }
+
+  @Override
+  public T getObject() {
+    return this.object;
   }
 
   /**
