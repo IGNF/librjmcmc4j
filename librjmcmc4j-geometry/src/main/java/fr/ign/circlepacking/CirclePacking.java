@@ -48,13 +48,12 @@ public class CirclePacking {
     BinaryEnergy<Circle2D, Circle2D> b1 = new IntersectionAreaBinaryEnergy<>();
     BinaryEnergy<Circle2D, Circle2D> b2 = new MultipliesBinaryEnergy<>(c2, b1);
     // empty initial configuration
-    GraphConfiguration<Circle2D> conf = new GraphConfiguration<Circle2D>(u2, b2);
+    boolean useArea = false;
+    GraphConfiguration<Circle2D> conf = new GraphConfiguration<Circle2D>(useArea ? u2 : c1, b2);
     conf.setSpecs("the_geom:Polygon");
     return conf;
   }
-
-  static Sampler<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> create_sampler(Parameters p,
-      RandomGenerator rng) {
+  static DirectSampler<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> create_sampler(Parameters p, RandomGenerator rng) {
     ObjectBuilder<Circle2D> builder = new ObjectBuilder<Circle2D>() {
       @Override
       public Circle2D build(double[] coordinates) {
@@ -79,17 +78,22 @@ public class CirclePacking {
     double maxy = p.getDouble("maxy");
     double minradius = p.getDouble("minradius");
     double maxradius = p.getDouble("maxradius");
-    double p_birthdeath = p.getDouble("pbirthdeath");
-    double p_birth = p.getDouble("pbirth");
     UniformBirth<Circle2D> birth = new UniformBirth<Circle2D>(rng, new Circle2D(minx, miny, minradius), new Circle2D(maxx, maxy, maxradius), builder);
     PoissonDistribution distribution = new PoissonDistribution(rng, p.getDouble("poisson"));
-    DirectSampler<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> ds = new DirectSampler<>(distribution, birth);
+    return new DirectSampler<>(distribution, birth);    
+  }
+  static Sampler<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> create_sampler(Parameters p, RandomGenerator rng, DirectSampler<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> ds) {
     List<Kernel<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>> kernels = new ArrayList<>(3);
     KernelFactory<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> factory = new KernelFactory<>();
-    kernels.add(factory.make_uniform_birth_death_kernel(rng, builder, birth, p_birthdeath, p_birth, "BirthDeath"));
-    // kernels.add(factory.make_uniform_modification_kernel(rng, builder,
-    // new RectangleSplitMergeTransform(400), p_split_merge, p_split,
-    // 1, 2, "SplitMerge"));
+    double p_birthdeath = p.getDouble("pbirthdeath");
+    UniformBirth<Circle2D> birth = (UniformBirth<Circle2D>) ds.getSampler();
+    kernels.add(factory.make_uniform_birth_death_kernel(rng, birth.getBuilder(), birth, p_birthdeath, 1.0, "BirthDeath"));
+    CircleRadiusTransform rTransform = new CircleRadiusTransform(p.getDouble("radiusrange"));
+    double p_radius = p.getDouble("pradius");
+    kernels.add(factory.make_uniform_modification_kernel(rng, birth.getBuilder(), rTransform, p_radius, 1.0, "Radius"));
+    CircleCenterTransform cTransform = new CircleCenterTransform(p.getDouble("range"));
+    double p_translate = p.getDouble("ptranslate");
+    kernels.add(factory.make_uniform_modification_kernel(rng, birth.getBuilder(), cTransform, p_translate, 1.0, "Translate"));
     Acceptance<SimpleTemperature> acceptance = new MetropolisAcceptance<>();
     Sampler<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> s = new GreenSampler<>(rng, ds, acceptance, kernels);
     return s;
@@ -97,16 +101,18 @@ public class CirclePacking {
 
   public static void main(String[] args) throws Exception {
     /*
-     * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default values provided... parse the command line
-     * to eventually change the values >
+     * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default
+     * values provided... parse the command line to eventually change the values >
      */
     Parameters p = Parameters.unmarshall(new File("./src/main/resources/circlepacking_parameters.xml"));
     RandomGenerator rng = new MersenneTwister(42);
     /*
-     * < Before launching the optimization process, we create all the required stuffs: a configuration, a sampler, a schedule scheme and an end test >
+     * < Before launching the optimization process, we create all the required stuffs: a configuration, a sampler, a
+     * schedule scheme and an end test >
      */
     GraphConfiguration<Circle2D> conf = create_configuration(p);
-    Sampler<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> samp = create_sampler(p, rng);
+    DirectSampler<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> ds = create_sampler(p, rng);
+    Sampler<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> samp = create_sampler(p, rng, ds);
     Schedule<SimpleTemperature> sch = new GeometricSchedule<>(new SimpleTemperature(p.getDouble("temp")), p.getDouble("deccoef"));
     EndTest end = new MaxIterationEndTest(p.getInteger("nbiter"));
     /*
@@ -114,9 +120,11 @@ public class CirclePacking {
      */
     List<Visitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>> list = new ArrayList<>();
     list.add(new OutputStreamVisitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>(System.out));
-    list.add(new ShapefileVisitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>("./target/circle_result"));
+    list.add(new ShapefileVisitor<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>("./target/circle_result", conf.getSpecs()));
     CompositeVisitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> mVisitor = new CompositeVisitor<>(list);
     mVisitor.init(p.getInteger("nbdump"), p.getInteger("nbsave"));
+//    double temp = SalamonInitialSchedule.salamon_initial_schedule(rng, ds, conf, 10000);
+//    System.out.println(temp);
     /*
      * < This is the way to launch the optimization process. Here, the magic happen... >
      */

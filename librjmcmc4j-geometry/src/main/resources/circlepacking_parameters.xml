@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <parameters>
-	<param key="temp" value="2000" />
+	<param key="seed" value="21" />
+	<param key="temp" value="200" />
 	<param key="temp_exponent" value="1.3" />
 	<param key="deccoef" value="0.999999" />
-	<param key="nbiter" value="100000000" />
-	<param key="nbdump" value="1000000" />
-	<param key="nbsave" value="10000000" />
+	<param key="nbiter" value="15000000" />
+	<param key="nbdump" value="100000" />
+	<param key="nbsave" value="1000000" />
 	<param key="poisson" value="200" />
 	<param key="minx" value="0" />
 	<param key="maxx" value="1" />
@@ -13,8 +14,11 @@
 	<param key="maxy" value="1" />
 	<param key="minradius" value="0.02" />
 	<param key="maxradius" value="0.1" />
-	<param key="pbirthdeath" value="1.0" />
-	<param key="pbirth" value="0.5" />
+	<param key="pbirthdeath" value="8.0" />
+	<param key="pradius" value="1.0" />
+	<param key="radiusrange" value="0.1"/>
+	<param key="ptranslate" value="1.0" />
+	<param key="range" value="0.1"/>
 	<param key="surface" value="10000." />
 	<param key="energy" value="-1." />
 </parameters>
