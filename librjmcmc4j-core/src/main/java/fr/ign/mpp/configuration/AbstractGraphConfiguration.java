@@ -73,7 +73,7 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
   Map<T, GraphVertex<T>> vertexMap;
 
   boolean dirty;
-  boolean useCache;
+  boolean useCache = false;
 
   @Override
   public void clear() {

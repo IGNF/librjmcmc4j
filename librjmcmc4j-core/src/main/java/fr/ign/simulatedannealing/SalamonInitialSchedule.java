@@ -4,11 +4,11 @@ import org.apache.commons.math3.random.RandomGenerator;
 
 import fr.ign.rjmcmc.configuration.Configuration;
 import fr.ign.rjmcmc.configuration.Modification;
-import fr.ign.rjmcmc.sampler.Density;
+import fr.ign.rjmcmc.sampler.DirectSampler;
 
 public class SalamonInitialSchedule {
 	public static <C extends Configuration<C, M>, M extends Modification<C, M>> double salamon_initial_schedule(
-			RandomGenerator rg, Density<C, M> sampler, C c, int iterations) {
+			RandomGenerator rg, DirectSampler<C, M> sampler, C c, int iterations) {
 		double e1 = 0;
 		double e2 = 0;
 		double inv = 1. / iterations;

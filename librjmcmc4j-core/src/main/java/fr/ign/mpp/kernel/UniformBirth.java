@@ -154,4 +154,7 @@ public class UniformBirth<T extends SimpleObject> implements ObjectSampler<T> {
   public Variate getVariate() {
     return this.variate;
   }
+  public ObjectBuilder<T> getBuilder() {
+    return builder;
+  }
 }

@@ -10,17 +10,16 @@ import fr.ign.mpp.configuration.AbstractGraphConfiguration;
 import fr.ign.mpp.kernel.ObjectSampler;
 import fr.ign.rjmcmc.distribution.Distribution;
 import fr.ign.rjmcmc.kernel.SimpleObject;
-import fr.ign.rjmcmc.sampler.Density;
 
 public class DirectSampler<O extends SimpleObject, C extends AbstractGraphConfiguration<O, C, M>, M extends AbstractBirthDeathModification<O, C, M>>
-    implements Density<C, M> {
+    implements fr.ign.rjmcmc.sampler.DirectSampler<C, M> {
   /**
    * Logger.
    */
   static Logger LOGGER = Logger.getLogger(DirectSampler.class.getName());
 
-  Distribution density;
-  ObjectSampler<O> sampler;
+  protected Distribution density;
+  protected ObjectSampler<O> sampler;
 
   public DirectSampler(Distribution density, ObjectSampler<O> sampler) {
     this.density = density;
@@ -64,5 +63,13 @@ public class DirectSampler<O extends SimpleObject, C extends AbstractGraphConfig
       ratio /= pdf;
     }
     return ratio;
+  }
+
+  public Distribution getDensity() {
+    return density;
+  }
+
+  public ObjectSampler<O> getSampler() {
+    return sampler;
   }
 }
