@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
 
-import fr.ign.circlepacking.test.RadiusTransform;
 import fr.ign.mpp.kernel.ObjectBuilder;
 import fr.ign.parameters.Parameters;
 import fr.ign.rjmcmc.acceptance.Acceptance;
@@ -81,7 +80,8 @@ public class FixedPositionsCirclePacking {
     // final Distribution distribution = new PoissonDistribution(rng, 4);
     final Distribution distribution = new UniformDistribution(rng, 0, map.size() - 1);
     Variate variate = new Variate(rng);
-    Density<CirclePackingFixedConfiguration, CirclePackingFixedModification> ds = new CirclePackingFixedDensity(distribution, rng, transform, variate, builder, map);
+    Density<CirclePackingFixedConfiguration, CirclePackingFixedModification> ds = new CirclePackingFixedDensity(distribution, rng, transform, variate, builder,
+        map);
     List<Kernel<CirclePackingFixedConfiguration, CirclePackingFixedModification>> kernels = new ArrayList<>();
     KernelProbability<CirclePackingFixedConfiguration, CirclePackingFixedModification> kpp = new KernelProbability<CirclePackingFixedConfiguration, CirclePackingFixedModification>() {
       @Override
@@ -107,7 +107,7 @@ public class FixedPositionsCirclePacking {
     Kernel<CirclePackingFixedConfiguration, CirclePackingFixedModification> bdKernel = new Kernel<>(view0, view1, new Variate(rng), new Variate(rng), transform,
         kpp, kpr, "BirthDeath");
     kernels.add(bdKernel);
-    radiusTransform = new RadiusTransform(0.1, map);
+    radiusTransform = new IndexedCircleRadiusTransform(p.getDouble("radiusrange"));
     CirclePackingFixedView rView0 = new CirclePackingFixedView(builder);
     CirclePackingFixedView rView1 = new CirclePackingFixedView(builder);
     Kernel<CirclePackingFixedConfiguration, CirclePackingFixedModification> rKernel = new Kernel<>(rView0, rView1, new Variate(rng), new Variate(rng),
@@ -118,20 +118,20 @@ public class FixedPositionsCirclePacking {
     return s;
   }
 
-  static RadiusTransform radiusTransform;
+  static IndexedCircleRadiusTransform radiusTransform;
   static CirclePackingFixedView view1;
 
   public static void main(String[] args) throws Exception {
     /*
-     * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default
-     * values provided... parse the command line to eventually change the values >
+     * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default values provided...
+     * parse the command line to eventually change the values >
      */
-    Parameters p = Parameters.unmarshall(new File("./src/main/resources/circlepacking_parameters.xml"));
+    Parameters p = Parameters.unmarshall(new File("./src/main/resources/circlepackingfixed_parameters.xml"));
     long seed = p.getLong("seed");
     RandomGenerator rng = new MersenneTwister(seed);
     /*
-     * < Before launching the optimization process, we create all the required stuffs: a configuration, a sampler, a
-     * schedule scheme and an end test >
+     * < Before launching the optimization process, we create all the required stuffs: a configuration, a sampler, a schedule scheme and an
+     * end test >
      */
     map = new HashMap<>();
     map.put(60, Arrays.asList(1.0, 1.0));

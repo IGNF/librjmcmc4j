@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<parameters>
+	<param key="seed" value="21" />
+	<param key="temp" value="200" />
+	<param key="deccoef" value="0.999999" />
+	<param key="nbiter" value="15000000" />
+	<param key="nbdump" value="100000" />
+	<param key="nbsave" value="1000000" />
+	<param key="poisson" value="200" />
+	<param key="minx" value="0" />
+	<param key="maxx" value="1" />
+	<param key="miny" value="0" />
+	<param key="maxy" value="1" />
+	<param key="minradius" value="0.02" />
+	<param key="maxradius" value="0.5" />
+	<param key="pbirthdeath" value="8.0" />
+	<param key="pradius" value="1.0" />
+	<param key="radiusrange" value="0.1"/>
+	<param key="surface" value="10000." />
+	<param key="energy" value="-1." />
+</parameters>
