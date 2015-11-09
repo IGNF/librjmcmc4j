@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <parameters>
 	<param key="seed" value="21" />
-	<param key="temp" value="1" />
+	<param key="temp" value="10" />
 	<param key="deccoef" value="0.999999" />
 	<param key="nbiter" value="10000000" />
 	<param key="nbdump" value="10000" />
@@ -14,6 +14,6 @@
 	<param key="radius" value="153" />
 	<param key="pbirthdeath" value="1.0" />
 	<param key="ptranslate" value="2.0" />
-	<param key="range" value="10"/>
-	<param key="weight" value="2.0" />
+	<param key="range" value="100"/>
+	<param key="weight" value="1.0" />
 </parameters>

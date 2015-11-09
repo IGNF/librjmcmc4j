@@ -18,7 +18,6 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.operation.union.CascadedPolygonUnion;
 import com.vividsolutions.jts.precision.GeometryPrecisionReducer;
 
-import fr.ign.circlepacking.CircleCenterTransform;
 import fr.ign.geometry.Circle2D;
 import fr.ign.mpp.DirectSampler;
 import fr.ign.mpp.configuration.BirthDeathModification;
@@ -39,6 +38,7 @@ import fr.ign.rjmcmc.energy.UnaryEnergy;
 import fr.ign.rjmcmc.kernel.Kernel;
 import fr.ign.rjmcmc.sampler.GreenSampler;
 import fr.ign.rjmcmc.sampler.Sampler;
+import fr.ign.simulatedannealing.SalamonInitialSchedule;
 import fr.ign.simulatedannealing.SimulatedAnnealing;
 import fr.ign.simulatedannealing.endtest.EndTest;
 import fr.ign.simulatedannealing.endtest.MaxIterationEndTest;
@@ -137,7 +137,7 @@ public class Lamps {
         UnaryEnergy<Circle2D> u1 = new UnaryEnergy<Circle2D>() {
           @Override
           public double getValue(Circle2D t) {
-            return t.toGeometry().intersection(room).getArea();
+            return t.toGeometry().intersection(room).getArea()/totalArea;
           }
         };
         BinaryEnergy<Circle2D, Circle2D> b1 = new BinaryEnergy<Circle2D, Circle2D>() {
@@ -146,9 +146,7 @@ public class Lamps {
             Geometry intersection = t.toGeometry().intersection(u.toGeometry());
             if (intersection != null) {
               intersection = intersection.intersection(room);
-              if (intersection != null) {
-                return intersection.getArea();
-              }
+              if (intersection != null) { return intersection.getArea()/totalArea; }
             }
             return 0;
           }
@@ -212,7 +210,7 @@ public class Lamps {
      * parse the command line to eventually change the values >
      */
     Parameters p = Parameters.unmarshall(new File("./src/main/resources/lamps_parameters.xml"));
-    RandomGenerator rng = new MersenneTwister(42);
+    RandomGenerator rng = new MersenneTwister(p.getLong("seed"));
     /*
      * < Before launching the optimization process, we create all the required stuffs: a configuration, a sampler, a schedule scheme and an
      * end test >
@@ -234,8 +232,8 @@ public class Lamps {
     list.add(new ShapefileVisitor<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>("./target/lamps_discrete", conf.getSpecs()));
     CompositeVisitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> mVisitor = new CompositeVisitor<>(list);
     mVisitor.init(p.getInteger("nbdump"), p.getInteger("nbsave"));
-    // double temp = SalamonInitialSchedule.salamon_initial_schedule(rng, ds, conf, 10000);
-    // System.out.println(temp);
+     double temp = SalamonInitialSchedule.salamon_initial_schedule(rng, ds, conf, 1000);
+     System.out.println(temp);
     /*
      * < This is the way to launch the optimization process. Here, the magic happen... >
      */
