@@ -45,6 +45,7 @@ import fr.ign.simulatedannealing.endtest.MaxIterationEndTest;
 import fr.ign.simulatedannealing.schedule.GeometricSchedule;
 import fr.ign.simulatedannealing.schedule.Schedule;
 import fr.ign.simulatedannealing.temperature.SimpleTemperature;
+import fr.ign.simulatedannealing.visitor.CSVVisitor;
 import fr.ign.simulatedannealing.visitor.CompositeVisitor;
 import fr.ign.simulatedannealing.visitor.OutputStreamVisitor;
 import fr.ign.simulatedannealing.visitor.ShapefileVisitor;
@@ -230,6 +231,7 @@ public class Lamps {
     List<Visitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>> list = new ArrayList<>();
     list.add(new OutputStreamVisitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>(System.out));
     list.add(new ShapefileVisitor<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>("./target/lamps_discrete", conf.getSpecs()));
+    list.add(new CSVVisitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>("./target/lamps.csv"));
     CompositeVisitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> mVisitor = new CompositeVisitor<>(list);
     mVisitor.init(p.getInteger("nbdump"), p.getInteger("nbsave"));
      double temp = SalamonInitialSchedule.salamon_initial_schedule(rng, ds, conf, 1000);
