@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <parameters>
 	<param key="seed" value="21" />
-	<param key="temp" value="10" />
+	<param key="salamon" value="false" />
+	<param key="temp" value="10.0" />
 	<param key="deccoef" value="0.999995" />
-	<param key="nbiter" value="2000000" />
+	<param key="nbiter" value="4000000" />
 	<param key="nbdump" value="10000" />
 	<param key="nbsave" value="100000" />
 	<param key="poisson" value="10" />

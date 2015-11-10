@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -52,6 +54,8 @@ import fr.ign.simulatedannealing.visitor.ShapefileVisitor;
 import fr.ign.simulatedannealing.visitor.Visitor;
 
 public class Lamps {
+  static Logger LOGGER = Logger.getLogger(Lamps.class.getName());
+
   public static GraphConfiguration<Circle2D> create_configuration(final double minX, final double minY, final double maxX, final double maxY, Parameters p) {
     PrecisionModel pm = new PrecisionModel(10000);
     final GeometryFactory factory = new GeometryFactory(pm);
@@ -63,7 +67,7 @@ public class Lamps {
     CollectionEnergy<Circle2D> g;
     final double weight = p.getDouble("weight");
     boolean usePrecise = false;
-    boolean useDiscrete = false;
+    boolean useDiscrete = true;
     final double totalArea = room.getArea();
     if (usePrecise) {
       u = new ConstantEnergy<>(0);
@@ -114,14 +118,14 @@ public class Lamps {
               for (int y = (int) minY; y < maxY; y++) {
                 int enlightened = 0;
                 for (Circle2D l : t) {
-                  // double result = Math.pow(l.center_x - x, 2) + Math.pow(l.center_y - y, 2);
-                  // if (result <= Math.pow(l.radius, 2)) {
-                  // enlightened++;
-                  // }
-                  Point p = factory.createPoint(new Coordinate(l.center_x, l.center_y));
-                  if (l.toGeometry().contains(p)) {
+                  double result = Math.pow(l.center_x - x, 2) + Math.pow(l.center_y - y, 2);
+                  if (result <= Math.pow(l.radius, 2)) {
                     enlightened++;
                   }
+                  // Point p = factory.createPoint(new Coordinate(l.center_x, l.center_y));
+                  // if (l.toGeometry().contains(p)) {
+                  // enlightened++;
+                  // }
                 }
                 if (enlightened > 0) {
                   enlightenedArea++;
@@ -138,7 +142,7 @@ public class Lamps {
         UnaryEnergy<Circle2D> u1 = new UnaryEnergy<Circle2D>() {
           @Override
           public double getValue(Circle2D t) {
-            return t.toGeometry().intersection(room).getArea()/totalArea;
+            return t.toGeometry().intersection(room).getArea() / totalArea;
           }
         };
         BinaryEnergy<Circle2D, Circle2D> b1 = new BinaryEnergy<Circle2D, Circle2D>() {
@@ -147,7 +151,7 @@ public class Lamps {
             Geometry intersection = t.toGeometry().intersection(u.toGeometry());
             if (intersection != null) {
               intersection = intersection.intersection(room);
-              if (intersection != null) { return intersection.getArea()/totalArea; }
+              if (intersection != null) { return intersection.getArea() / totalArea; }
             }
             return 0;
           }
@@ -223,19 +227,25 @@ public class Lamps {
     GraphConfiguration<Circle2D> conf = create_configuration(minX, minY, maxX, maxY, p);
     DirectSampler<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> ds = create_sampler(minX, minY, maxX, maxY, p, rng);
     Sampler<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> samp = create_sampler(p, rng, ds);
-    Schedule<SimpleTemperature> sch = new GeometricSchedule<>(new SimpleTemperature(p.getDouble("temp")), p.getDouble("deccoef"));
     EndTest end = new MaxIterationEndTest(p.getInteger("nbiter"));
+    double temp;
+    if (p.getBoolean("salamon")) {
+      temp = SalamonInitialSchedule.getTemperature(rng, ds, conf, 1000);
+      LOGGER.log(Level.INFO, "Initial Temperature = " + temp);
+    } else {
+      temp = p.getDouble("temp");
+    }
+    Schedule<SimpleTemperature> sch = new GeometricSchedule<>(new SimpleTemperature(temp), p.getDouble("deccoef"));
     /*
      * < Build and initialize simple visitor which prints some data on the standard output >
      */
     List<Visitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>> list = new ArrayList<>();
     list.add(new OutputStreamVisitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>(System.out));
-    list.add(new ShapefileVisitor<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>("./target/lamps_discrete", conf.getSpecs()));
-    list.add(new CSVVisitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>("./target/lamps.csv"));
+    list.add(new ShapefileVisitor<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>("./target/lamps_discrete_" + temp + "",
+        conf.getSpecs()));
+    list.add(new CSVVisitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>("./target/lamps_" + temp + ".csv"));
     CompositeVisitor<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> mVisitor = new CompositeVisitor<>(list);
     mVisitor.init(p.getInteger("nbdump"), p.getInteger("nbsave"));
-     double temp = SalamonInitialSchedule.salamon_initial_schedule(rng, ds, conf, 1000);
-     System.out.println(temp);
     /*
      * < This is the way to launch the optimization process. Here, the magic happen... >
      */
