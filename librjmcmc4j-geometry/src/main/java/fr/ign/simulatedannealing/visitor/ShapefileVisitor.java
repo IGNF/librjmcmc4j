@@ -69,7 +69,7 @@ public class ShapefileVisitor<T extends SimpleObject, C extends ListConfiguratio
     }
   }
 
-  private void writeShapefile(String aFileName, C config) {
+  public void writeShapefile(String aFileName, C config) {
     try {
       FileDataStoreFactorySpi factory = new ShapefileDataStoreFactory();
       DataStore dataStore = factory.createDataStore(new File(aFileName).toURI().toURL());
