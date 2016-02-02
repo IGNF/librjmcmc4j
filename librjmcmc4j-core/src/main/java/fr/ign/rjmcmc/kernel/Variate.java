@@ -8,7 +8,7 @@ import org.apache.commons.math3.random.RandomGenerator;
  * @author Julien Perret
  */
 public class Variate {
-  private AbstractRealDistribution rand;
+  protected AbstractRealDistribution rand;
 
   public Variate(RandomGenerator rng) {
     this.rand = new UniformRealDistribution(rng, 0, 1);

@@ -10,6 +10,7 @@ import fr.ign.rjmcmc.kernel.Predicate;
 import fr.ign.rjmcmc.kernel.RejectionVariate;
 import fr.ign.rjmcmc.kernel.SimpleObject;
 import fr.ign.rjmcmc.kernel.Transform;
+import fr.ign.rjmcmc.kernel.TransformedVariate;
 import fr.ign.rjmcmc.kernel.Variate;
 
 /**
@@ -20,17 +21,11 @@ import fr.ign.rjmcmc.kernel.Variate;
  * @author Julien Perret
  * @param <T>
  */
-public class UniformBirth<T extends SimpleObject> implements ObjectSampler<T> {
+public class UniformBirth<T extends SimpleObject> extends ObjectBirth<T> {
   /**
    * Logger.
    */
   static Logger LOGGER = Logger.getLogger(UniformBirth.class.getName());
-
-  private Transform transform;
-  private int dimension;
-  private ObjectBuilder<T> builder;
-  private Variate variate;
-  private T object;
 
   /**
    * Constructs a uniform birth.
@@ -44,6 +39,20 @@ public class UniformBirth<T extends SimpleObject> implements ObjectSampler<T> {
    */
   public UniformBirth(RandomGenerator rng, T a, T b, ObjectBuilder<T> builder) {
     this(rng, a, b, builder, DiagonalAffineTransform.class, (Object[]) null);
+  }
+
+  /**
+   * Constructs a uniform birth.
+   * 
+   * @param a
+   *          an object
+   * @param b
+   *          another object
+   * @param builder
+   *          an object builder
+   */
+  public UniformBirth(RandomGenerator rng, T a, T b, ObjectBuilder<T> builder, Variate v) {
+    this(rng, a, b, builder, v, DiagonalAffineTransform.class, null, (Object[]) null);
   }
 
   /**
@@ -63,14 +72,14 @@ public class UniformBirth<T extends SimpleObject> implements ObjectSampler<T> {
    *          a generic array of parameters to be given to the transform constructor
    */
   public <Trans extends Transform> UniformBirth(RandomGenerator rng, T a, T b, ObjectBuilder<T> builder, Class<Trans> trans, Object... o) {
-    this(rng, a, b, builder, trans, null, o);
+    this(rng, a, b, builder, new Variate(rng), trans, null, o);
   }
 
   /**
    * Constructs a uniform birth.
    * <p>
-   * The constructor takes a predicate if given (and thus builds a rejectionVariate to hold it) as well as a tranform
-   * class and a list of parameters to be given to the transform constructor.
+   * The constructor takes a predicate if given (and thus builds a rejectionVariate to hold it) as well as a tranform class and a list of parameters to be given
+   * to the transform constructor.
    * 
    * @param a
    *          an object
@@ -85,17 +94,24 @@ public class UniformBirth<T extends SimpleObject> implements ObjectSampler<T> {
    * @param o
    *          a generic array of parameters to be given to the transform constructor
    */
-  public <Trans extends Transform> UniformBirth(RandomGenerator rng, T a, T b, ObjectBuilder<T> builder, Class<Trans> trans, Predicate pred, Object... o) {
-    this.dimension = builder.size();
-    double[] d = new double[this.dimension];
+  public <Trans extends Transform> UniformBirth(RandomGenerator rng, T a, T b, ObjectBuilder<T> builder, Variate v, Class<Trans> trans, Predicate pred,
+      Object... o) {
+    super(builder, getVariate(rng, a, b, builder, v, trans, pred, o));
+  }
+
+  private static <T extends SimpleObject, Trans extends Transform> Variate getVariate(RandomGenerator rng, T a, T b, ObjectBuilder<T> builder, Variate v,
+      Class<Trans> trans, Predicate pred, Object... o) {
+    int dimension = builder.size();
+    double[] d = new double[dimension];
     double[] arrayA = a.toArray();
     double[] arrayB = b.toArray();
-    for (int i = 0; i < this.dimension; i++) {
+    for (int i = 0; i < dimension; i++) {
       d[i] = arrayB[i] - arrayA[i];
     }
-    double[] coordinates = new double[this.dimension];
+    double[] coordinates = new double[dimension];
     builder.setCoordinates(a, coordinates);
     Constructor<?> cons = trans.getConstructors()[0];
+    Transform transform;
     try {
       int length = 2 + ((o == null) ? 0 : o.length);
       Object[] parameters = new Object[length];
@@ -106,55 +122,12 @@ public class UniformBirth<T extends SimpleObject> implements ObjectSampler<T> {
           parameters[2 + i] = o[i];
         }
       }
-      this.transform = (Transform) cons.newInstance(parameters);
+      transform = (Transform) cons.newInstance(parameters);
     } catch (Exception e) {
-      this.transform = new DiagonalAffineTransform(d, coordinates);
+      transform = new DiagonalAffineTransform(d, coordinates);
       e.printStackTrace();
     }
-    this.builder = builder;
-    Variate internalVariate = new Variate(rng);
-    this.variate = (pred == null) ? internalVariate : new RejectionVariate(rng, internalVariate, pred, new RejectionVariate.monte_carlo());
-  }
-
-  @Override
-  public double sample(RandomGenerator e) {
-    double[] val0 = new double[this.dimension];
-    double[] val1 = new double[this.dimension];
-    double phi = this.variate.compute(val0, 0);
-    double jacob = this.transform.apply(true, val0, val1);
-    this.object = this.builder.build(val1);
-    return phi / jacob;
-  }
-
-  @Override
-  public double pdf(T t) {
-    double[] val1 = new double[this.dimension];
-    this.builder.setCoordinates(t, val1);
-    double[] val0 = new double[this.dimension];
-    double J10 = this.transform.apply(false, val1, val0);
-    double pdf = this.variate.pdf(val0, 0);
-    return pdf * J10;
-  }
-
-  @Override
-  public T getObject() {
-    return this.object;
-  }
-
-  /**
-   * @return the transform used to build objects
-   */
-  public Transform getTransform() {
-    return this.transform;
-  }
-
-  /**
-   * @return the variate
-   */
-  public Variate getVariate() {
-    return this.variate;
-  }
-  public ObjectBuilder<T> getBuilder() {
-    return builder;
+    Variate internalVariate = new TransformedVariate(rng, transform, v);
+    return (pred == null) ? internalVariate : new RejectionVariate(rng, internalVariate, pred, new RejectionVariate.monte_carlo());
   }
 }
