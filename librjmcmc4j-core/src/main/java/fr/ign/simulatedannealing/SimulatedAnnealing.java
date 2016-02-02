@@ -20,12 +20,8 @@ public class SimulatedAnnealing {
 		if (visitor != null) {
 			visitor.begin(config, sampler, t);
 		}
-
-		for (; !endTest.evaluate(config, sampler, t); t = (!sampler
-				.blockTemperature()) ? schedule.next().getTemperature() : t) {
-
+		for (; !endTest.evaluate(config, sampler, t); t = !sampler.blockTemperature() ? schedule.next().getTemperature() : t) {
 			sampler.sample(e, config, t);
-
 			if (visitor != null) {
 				visitor.visit(config, sampler, t);
 			}
