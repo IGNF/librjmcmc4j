@@ -6,11 +6,11 @@
 	<parent>
 		<groupId>fr.ign</groupId>
 		<artifactId>librjmcmc4j</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>${librjmcmc4j.version}</version>
 	</parent>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<geotools.version>8.4</geotools.version>
+		<geotools.version>14.4</geotools.version>
 	</properties>
 	<scm>
 		<connection>scm:git:https://github.com/IGNF/librjmcmc4j.git</connection>
@@ -25,6 +25,10 @@
 		<repository>
 			<id>download.java.net.repos</id>
 			<url>http://download.java.net/maven/2/</url>
+		</repository>
+		<repository>
+			<id>geosolution.it</id>
+			<url>http://maven.geo-solutions.it/</url>
 		</repository>
 		<repository>
 			<snapshots>
@@ -115,7 +119,7 @@
 		<dependency>
 			<groupId>it.geosolutions.imageio-ext</groupId>
 			<artifactId>imageio-ext-tiff</artifactId>
-			<version>1.1.7</version>
+			<version>1.1.15</version>
 		</dependency>
 	</dependencies>
 	<build>
