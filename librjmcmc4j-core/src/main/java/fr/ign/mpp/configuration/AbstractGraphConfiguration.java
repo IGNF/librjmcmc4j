@@ -64,13 +64,13 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
     return this.unary + this.binary + this.global;
   }
 
-  SimpleWeightedGraph<GraphVertex<T>, GraphEdge> graph;
+  protected SimpleWeightedGraph<GraphVertex<T>, GraphEdge> graph;
 
   public SimpleWeightedGraph<GraphVertex<T>, GraphEdge> getGraph() {
     return graph;
   }
 
-  Map<T, GraphVertex<T>> vertexMap;
+  protected Map<T, GraphVertex<T>> vertexMap;
 
   boolean dirty;
   boolean useCache = false;
