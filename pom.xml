@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.ign</groupId>
 	<artifactId>librjmcmc4j</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.1-SNAPSHOT</version>
 	<url>https://github.com/IGNF/librjmcmc4j</url>
 	<packaging>pom</packaging>
 	<properties>
-		<librjmcmc4j.version>1.0-SNAPSHOT</librjmcmc4j.version>
+		<librjmcmc4j.version>1.1-SNAPSHOT</librjmcmc4j.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<scm>
@@ -30,14 +30,14 @@
 	</build>
 	<distributionManagement>
 		<repository>
-			<id>iscpif-ign-releases</id>
-			<name>ISCPIF Release repository for IGN</name>
-			<url>http://maven.iscpif.fr/ign-releases/</url>
+			<id>releases</id>
+			<name>Nexus Releases Repository</name>
+			<url>https://forge-cogit.ign.fr/nexus/content/repositories/releases</url>
 		</repository>
 		<snapshotRepository>
-			<id>iscpif-ign-snapshots</id>
-			<name>ISCPIF Snapshot repository for IGN</name>
-			<url>http://maven.iscpif.fr/ign-snapshots/</url>
+			<id>snapshots</id>
+			<name>Nexus Snapshots Repository</name>
+			<url>https://forge-cogit.ign.fr/nexus/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
 </project>
