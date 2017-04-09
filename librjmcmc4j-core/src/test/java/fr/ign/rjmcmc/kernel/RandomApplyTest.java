@@ -9,9 +9,11 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Before;
 import org.junit.Test;
 
+import fr.ign.mpp.configuration.BirthDeathModification;
 import fr.ign.mpp.configuration.GraphConfiguration;
 import fr.ign.random.Random;
 import fr.ign.rjmcmc.configuration.Configuration;
+import fr.ign.rjmcmc.configuration.Modification;
 import fr.ign.rjmcmc.distribution.Distribution;
 import fr.ign.rjmcmc.distribution.PoissonDistribution;
 import static org.mockito.Mockito.*;
@@ -25,7 +27,7 @@ public class RandomApplyTest {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   public void testRandom_apply_normalisation() {
-    List kernels = new ArrayList();
+   List<Kernel< GraphConfiguration<SimpleObject>,BirthDeathModification<SimpleObject>>> kernels = new ArrayList();
     // mock creation
     GraphConfiguration c = mock(GraphConfiguration.class);
     when(c.size()).thenReturn(0);
