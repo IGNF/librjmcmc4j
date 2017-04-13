@@ -19,6 +19,8 @@ public class PolygonTransform implements Transform {
   List<Double> areas = new ArrayList<>();
   List<Polygon> triangles = new ArrayList<>();
   double totalArea;
+  
+  private boolean isValid = true;
 
   public PolygonTransform(Geometry p, double tolerance) {
     if (Polygon.class.isInstance(p)) {
@@ -34,7 +36,16 @@ public class PolygonTransform implements Transform {
     builder.setSites(polygon);
     builder.setConstraints(polygon);
     builder.setTolerance(tolerance);
-    GeometryCollection triangleCollection = (GeometryCollection) builder.getTriangles(polygon.getFactory());
+    GeometryCollection triangleCollection = null;
+    
+    try{
+    	triangleCollection = (GeometryCollection) builder.getTriangles(polygon.getFactory());
+    }catch (Exception e) {
+		e.printStackTrace();
+		isValid = false;
+		return;
+	}
+    
     double areaSum = 0.;
     for (int index = 0; index < triangleCollection.getNumGeometries(); index++) {
       Polygon t = (Polygon) triangleCollection.getGeometryN(index);
@@ -45,10 +56,19 @@ public class PolygonTransform implements Transform {
         triangles.add(t);
       }
     }
+    if(triangles.isEmpty()){
+    	isValid = false;
+    }
     totalArea = areaSum;
   }
+  
 
-  @Override
+  public boolean isValid() {
+	return isValid;
+}
+
+
+@Override
   public double apply(boolean direct, double[] val0, double[] val1) {
     if (direct) {
       double s = val0[0] * totalArea;
