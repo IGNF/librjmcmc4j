@@ -42,6 +42,7 @@ public class ShapefileReader {
           }
         }
       }
+      featureReader.close();
       store.dispose();
       Rectangle2D[] result = new Rectangle2D[polygons.size()];
       int index = 0;
