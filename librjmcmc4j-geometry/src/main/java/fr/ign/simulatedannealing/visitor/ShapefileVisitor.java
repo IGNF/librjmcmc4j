@@ -103,6 +103,7 @@ public class ShapefileVisitor<T extends SimpleObject, C extends ListConfiguratio
         transaction.rollback();
       } finally {
         transaction.close();
+        dataStore.dispose();
       }
     } catch (MalformedURLException e) {
       e.printStackTrace();

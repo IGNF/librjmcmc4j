@@ -19,17 +19,20 @@ public class PolygonTransform implements Transform {
   List<Double> areas = new ArrayList<>();
   List<Polygon> triangles = new ArrayList<>();
   double totalArea;
-  
+
   private boolean isValid = true;
 
   public PolygonTransform(Geometry p, double tolerance) {
     if (Polygon.class.isInstance(p)) {
-      this.polygon = p.getFactory().createMultiPolygon(new Polygon[] { (Polygon) p });
+      this.polygon = p.getFactory()
+          .createMultiPolygon(new Polygon[] { (Polygon) p });
     } else {
       if (MultiPolygon.class.isInstance(p)) {
         this.polygon = (MultiPolygon) p;
       } else {
-        throw new IllegalArgumentException("Argument should be of type Polygon or MultiPolygon but was " + p.getClass());
+        throw new IllegalArgumentException(
+            "Argument should be of type Polygon or MultiPolygon but was "
+                + p.getClass());
       }
     }
     ConformingDelaunayTriangulationBuilder builder = new ConformingDelaunayTriangulationBuilder();
@@ -37,17 +40,19 @@ public class PolygonTransform implements Transform {
     builder.setConstraints(polygon);
     builder.setTolerance(tolerance);
     GeometryCollection triangleCollection = null;
-    
-    try{
-    	triangleCollection = (GeometryCollection) builder.getTriangles(polygon.getFactory());
-    }catch (Exception e) {
-		e.printStackTrace();
-		isValid = false;
-		return;
-	}
-    
+
+    try {
+      triangleCollection = (GeometryCollection) builder
+          .getTriangles(polygon.getFactory());
+    } catch (Exception e) {
+      e.printStackTrace();
+      isValid = false;
+      return;
+    }
+
     double areaSum = 0.;
-    for (int index = 0; index < triangleCollection.getNumGeometries(); index++) {
+    for (int index = 0; index < triangleCollection
+        .getNumGeometries(); index++) {
       Polygon t = (Polygon) triangleCollection.getGeometryN(index);
       double area = t.getArea();
       if (t.intersection(polygon).getArea() > 0.99 * area) {
@@ -56,19 +61,17 @@ public class PolygonTransform implements Transform {
         triangles.add(t);
       }
     }
-    if(triangles.isEmpty()){
-    	isValid = false;
+    if (triangles.isEmpty()) {
+      isValid = false;
     }
     totalArea = areaSum;
   }
-  
 
   public boolean isValid() {
-	return isValid;
-}
+    return isValid;
+  }
 
-
-@Override
+  @Override
   public double apply(boolean direct, double[] val0, double[] val1) {
     if (direct) {
       double s = val0[0] * totalArea;
@@ -79,7 +82,8 @@ public class PolygonTransform implements Transform {
           triangleIndex = i;
       }
       double area = areas.get(triangleIndex);
-      double previousArea = (triangleIndex > 0) ? areas.get(triangleIndex - 1) : 0.;
+      double previousArea = (triangleIndex > 0) ? areas.get(triangleIndex - 1)
+          : 0.;
       Polygon triangle = triangles.get(triangleIndex);
       double tmp = Math.sqrt((s - previousArea) / (area - previousArea));
       double a = 1 - tmp;
@@ -109,7 +113,8 @@ public class PolygonTransform implements Transform {
       Coordinate a = tr.getCoordinates()[0];
       Coordinate b = tr.getCoordinates()[1];
       Coordinate c = tr.getCoordinates()[2];
-      if (PointInTriangle.isPointInTriangle(a.x, a.y, b.x, b.y, c.x, c.y, point.getX(), point.getY())) {
+      if (PointInTriangle.isPointInTriangle(a.x, a.y, b.x, b.y, c.x, c.y,
+          point.getX(), point.getY())) {
         triangle = tr;
         break;
       }
@@ -146,4 +151,5 @@ public class PolygonTransform implements Transform {
   public int dimension() {
     return 2;
   }
+
 }

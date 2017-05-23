@@ -8,12 +8,8 @@ import fr.ign.simulatedannealing.temperature.Temperature;
 /**
  * 
  *        This software is released under the licence CeCILL
- * 
  *        see LICENSE.TXT
- * 
  *        see <http://www.cecill.info/ http://www.cecill.info/
- * 
- * 
  * 
  * @copyright IGN
  * 
@@ -34,20 +30,15 @@ public class StabilityEndTest<O extends SimpleObject> implements EndTest {
   }
 
   @Override
-  public <C extends Configuration<C, M>, M extends Modification<C, M>> boolean evaluate(
-  		C config, Sampler<C, M> sampler, Temperature t) {
+  public <C extends Configuration<C, M>, M extends Modification<C, M>> boolean evaluate(C config, Sampler<C, M> sampler, Temperature t) {
     double currentEnergy = config.getEnergy();
-
     if (currentEnergy != 0 && Math.abs(currentEnergy - lastEnergy) > delta) {
       lastEnergy = currentEnergy;
       iterationCount = 0;
       return false;
     }
-
     iterationCount++;
-
     return iterationCount > iterations;
-
   }
 
   @Override
