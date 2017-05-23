@@ -13,8 +13,7 @@ public class MaxIterationEndTest implements EndTest {
 	}
 
 	@Override
-	public <C extends Configuration<C, M>, M extends Modification<C, M>> boolean evaluate(
-			C config, Sampler<C, M> sampler, Temperature t) {
+	public <C extends Configuration<C, M>, M extends Modification<C, M>> boolean evaluate(C config, Sampler<C, M> sampler, Temperature t) {
 		return --this.iterations <= 0;
 	}
 
