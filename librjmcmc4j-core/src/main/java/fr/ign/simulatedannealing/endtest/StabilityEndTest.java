@@ -22,6 +22,7 @@ public class StabilityEndTest<O extends SimpleObject> implements EndTest {
   double lastEnergy;
   int iterationCount;
   double delta;
+  int nbTotalIteration = 0;
 
   public StabilityEndTest(int n, double delta) {
     this.iterations = n;
@@ -31,6 +32,7 @@ public class StabilityEndTest<O extends SimpleObject> implements EndTest {
 
   @Override
   public <C extends Configuration<C, M>, M extends Modification<C, M>> boolean evaluate(C config, Sampler<C, M> sampler, Temperature t) {
+    nbTotalIteration++;
     double currentEnergy = config.getEnergy();
     if (currentEnergy != 0 && Math.abs(currentEnergy - lastEnergy) > delta) {
       lastEnergy = currentEnergy;
@@ -44,6 +46,10 @@ public class StabilityEndTest<O extends SimpleObject> implements EndTest {
   @Override
   public void stop() {
     this.iterationCount = 0;
+  }
+  
+  public int getIterations(){
+    return nbTotalIteration;
   }
 
   @Override
