@@ -21,6 +21,10 @@ public class PolygonTransform implements Transform {
   double totalArea;
 
   private boolean isValid = true;
+  
+  protected PolygonTransform() {
+	  
+  }
 
   public PolygonTransform(Geometry p, double tolerance) {
     if (Polygon.class.isInstance(p)) {
