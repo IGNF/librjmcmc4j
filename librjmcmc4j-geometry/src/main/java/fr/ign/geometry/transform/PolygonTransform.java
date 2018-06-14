@@ -82,7 +82,7 @@ public class PolygonTransform implements Transform {
       double t = val0[1];
       int triangleIndex = -1;
       for (int i = 0; i < areas.size() && triangleIndex == -1; i++) {
-        if (s < areas.get(i))
+        if (s <= areas.get(i))
           triangleIndex = i;
       }
       double area = areas.get(triangleIndex);
