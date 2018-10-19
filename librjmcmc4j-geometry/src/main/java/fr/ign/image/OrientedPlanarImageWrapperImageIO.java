@@ -1,7 +1,5 @@
 package fr.ign.image;
 
-import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReaderSpi;
-
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
@@ -13,6 +11,8 @@ import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
+
+import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReaderSpi;
 
 public class OrientedPlanarImageWrapperImageIO implements OrientedView {
 

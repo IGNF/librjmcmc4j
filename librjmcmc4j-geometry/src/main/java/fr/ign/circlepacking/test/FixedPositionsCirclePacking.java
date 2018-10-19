@@ -20,7 +20,6 @@ import fr.ign.mpp.energy.AreaUnaryEnergy;
 import fr.ign.mpp.energy.IntersectionAreaBinaryEnergy;
 import fr.ign.mpp.kernel.KernelFactory;
 import fr.ign.mpp.kernel.ObjectBuilder;
-import fr.ign.mpp.kernel.ObjectSampler;
 import fr.ign.parameters.Parameters;
 import fr.ign.rjmcmc.acceptance.Acceptance;
 import fr.ign.rjmcmc.acceptance.MetropolisAcceptance;

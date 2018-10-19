@@ -1,9 +1,12 @@
 package fr.ign.rjmcmc.kernel;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import junit.framework.Assert;
 
 import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Before;
@@ -13,10 +16,9 @@ import fr.ign.mpp.configuration.BirthDeathModification;
 import fr.ign.mpp.configuration.GraphConfiguration;
 import fr.ign.random.Random;
 import fr.ign.rjmcmc.configuration.Configuration;
-import fr.ign.rjmcmc.configuration.Modification;
 import fr.ign.rjmcmc.distribution.Distribution;
 import fr.ign.rjmcmc.distribution.PoissonDistribution;
-import static org.mockito.Mockito.*;
+import junit.framework.Assert;
 
 public class RandomApplyTest {
 
