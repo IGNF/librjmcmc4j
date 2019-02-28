@@ -20,7 +20,7 @@ import fr.ign.mpp.energy.AreaUnaryEnergy;
 import fr.ign.mpp.energy.IntersectionAreaBinaryEnergy;
 import fr.ign.mpp.kernel.KernelFactory;
 import fr.ign.mpp.kernel.ObjectBuilder;
-import fr.ign.parameters.Parameters;
+import fr.ign.parameters.XmlParameters;
 import fr.ign.rjmcmc.acceptance.Acceptance;
 import fr.ign.rjmcmc.acceptance.MetropolisAcceptance;
 import fr.ign.rjmcmc.distribution.PoissonDistribution;
@@ -54,7 +54,7 @@ public class FixedPositionsCirclePacking {
    */
   static Logger LOGGER = Logger.getLogger(FixedPositionsCirclePacking.class.getName());
 
-  public static GraphConfiguration<IndexedCircle2D> create_configuration(Parameters p) {
+  public static GraphConfiguration<IndexedCircle2D> create_configuration(XmlParameters p) {
     ConstantEnergy<IndexedCircle2D, IndexedCircle2D> c1 = new ConstantEnergy<>(p.getDouble("energy"));
     ConstantEnergy<IndexedCircle2D, IndexedCircle2D> c2 = new ConstantEnergy<>(p.getDouble("surface"));
     UnaryEnergy<IndexedCircle2D> u1 = new AreaUnaryEnergy<IndexedCircle2D>();
@@ -69,7 +69,7 @@ public class FixedPositionsCirclePacking {
 
   static Map<Integer, List<Double>> fixedPositionsMap;
 
-  static Sampler<GraphConfiguration<IndexedCircle2D>, BirthDeathModification<IndexedCircle2D>> create_sampler(Parameters p, RandomGenerator rng) {
+  static Sampler<GraphConfiguration<IndexedCircle2D>, BirthDeathModification<IndexedCircle2D>> create_sampler(XmlParameters p, RandomGenerator rng) {
     fixedPositionsMap = new HashMap<>();
     fixedPositionsMap.put(60, Arrays.asList(1.0, 1.0));
     fixedPositionsMap.put(123, Arrays.asList(1.1, 1.1));
@@ -151,7 +151,7 @@ public class FixedPositionsCirclePacking {
      * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default
      * values provided... parse the command line to eventually change the values >
      */
-    Parameters p = Parameters.unmarshall(new File("./src/main/resources/circlepacking_parameters.xml"));
+    XmlParameters p = XmlParameters.unmarshall(new File("./src/main/resources/circlepacking_parameters.xml"));
     long seed = p.getLong("seed");
     RandomGenerator rng = new MersenneTwister(seed);
     /*

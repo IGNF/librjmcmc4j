@@ -26,7 +26,7 @@ import fr.ign.mpp.energy.IntersectionAreaBinaryEnergy;
 import fr.ign.mpp.kernel.KernelFactory;
 import fr.ign.mpp.kernel.ObjectBuilder;
 import fr.ign.mpp.kernel.UniformBirth;
-import fr.ign.parameters.Parameters;
+import fr.ign.parameters.XmlParameters;
 import fr.ign.random.Random;
 import fr.ign.rjmcmc.acceptance.Acceptance;
 import fr.ign.rjmcmc.acceptance.MetropolisAcceptance;
@@ -54,11 +54,11 @@ import fr.ign.simulatedannealing.visitor.Visitor;
 
 public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject> {
 
-  static void init_visitor(Parameters p, Visitor<?, ?> v) {
+  static void init_visitor(XmlParameters p, Visitor<?, ?> v) {
     v.init(p.getInteger("nbdump"), p.getInteger("nbsave"));
   }
 
-  public static GraphConfiguration<Rectangle2D> create_configuration(Parameters p, OrientedView grad) {
+  public static GraphConfiguration<Rectangle2D> create_configuration(XmlParameters p, OrientedView grad) {
     String mask_file = p.getString("mask");
     if (!mask_file.isEmpty()) {
     }
@@ -82,7 +82,7 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
 
   // ]
   // [building_footprint_rectangle_bbox_accessors
-  static IsoRectangle2D get_bbox(Parameters p) {
+  static IsoRectangle2D get_bbox(XmlParameters p) {
     int x0 = p.getInteger("xmin");
     int x1 = p.getInteger("xmax");
     int y0 = p.getInteger("ymin");
@@ -103,7 +103,7 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
   }
 
   // [building_footprint_rectangle_create_sampler
-  static Sampler<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> create_sampler(Parameters p, RandomGenerator rng, final IsoRectangle2D r) {
+  static Sampler<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> create_sampler(XmlParameters p, RandomGenerator rng, final IsoRectangle2D r) {
     Vector2D v = new Vector2D(p.getDouble("maxsize"), p.getDouble("maxsize"));
     double maxratio = p.getDouble("maxratio");
     double minratio = 1 / maxratio;
@@ -165,7 +165,7 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
      * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default values provided... parse the command line
      * to eventually change the values >
      */
-    Parameters p = initialize_parameters();
+    XmlParameters p = initialize_parameters();
     RandomGenerator rng = Random.random();
     int nReplicas = p.getInteger("replicas");
     /*
@@ -270,17 +270,17 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
     clip_bbox(bbox, v.x0(), v.y0(), v.x0() + v.width(), v.y0() + v.height());
   }
 
-  private static EndTest create_end_test(Parameters p) {
+  private static EndTest create_end_test(XmlParameters p) {
     return new MaxIterationEndTest(p.getInteger("nbiter"));
   }
 
-  private static Schedule<SimpleTemperature> create_schedule(int i, Parameters p) {
+  private static Schedule<SimpleTemperature> create_schedule(int i, XmlParameters p) {
     return new GeometricSchedule<SimpleTemperature>(new SimpleTemperature(Math.pow(p.getDouble("temp_exponent"), i)), p.getDouble("deccoef"));
   }
 
-  private static Parameters initialize_parameters() {
+  private static XmlParameters initialize_parameters() {
     try {
-      return Parameters.unmarshall(new File("./src/main/resources/building_parameters.xml"));
+      return XmlParameters.unmarshall(new File("./src/main/resources/building_parameters.xml"));
     } catch (Exception e) {
       e.printStackTrace();
     }

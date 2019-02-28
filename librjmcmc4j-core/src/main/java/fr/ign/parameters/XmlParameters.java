@@ -8,10 +8,10 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "parameters")
-public class Parameters extends ParameterComponent {
+public class XmlParameters extends XmlParameterComponent {
 
 	@XmlElementRef(name = "parameter")
-	public List<ParameterComponent> entry = new ArrayList<ParameterComponent>();
+	public List<XmlParameterComponent> entry = new ArrayList<XmlParameterComponent>();
 
 	@XmlAttribute(name = "description")
 	public String description;
@@ -19,7 +19,7 @@ public class Parameters extends ParameterComponent {
 	/**
 	 * Constructor.
 	 */
-	public Parameters() {
+	public XmlParameters() {
 		this.description = "";
 	}
 
@@ -27,7 +27,7 @@ public class Parameters extends ParameterComponent {
 		this.description = description;
 	}
 
-	public void add(ParameterComponent p) {
+	public void add(XmlParameterComponent p) {
 		entry.add(p);
 	}
 
@@ -37,26 +37,26 @@ public class Parameters extends ParameterComponent {
 		if (entry != null) {
 			int nbEntry = entry.size();
 			for (int i=0;i<nbEntry;i++) {
-				ParameterComponent paramComp  = entry.get(i);
-				if (paramComp instanceof Parameter) {
+				XmlParameterComponent paramComp  = entry.get(i);
+				if (paramComp instanceof XmlParameter) {
 					// System.out.println("parameter");
-					if (((Parameter) paramComp).getKey().equals(key)) {
+					if (((XmlParameter) paramComp).getKey().equals(key)) {
 						 entry.remove(paramComp);
 						 i--;
 						 nbEntry--;
 					} else {
 						// System.out.println(((Parameter)paramComp).getKey());
 					}
-				} else if (paramComp instanceof Parameters) {
+				} else if (paramComp instanceof XmlParameters) {
 					// System.out.println("parameters");
-						((Parameters) paramComp).set(key,c);
+						((XmlParameters) paramComp).set(key,c);
 						modificationDone= true;
 				}
 			}
 		}
 	
 		if(! modificationDone){
-			Parameter p = new Parameter(key, c);
+			XmlParameter p = new XmlParameter(key, c);
 			entry.add(p);
 		}
 	
@@ -67,19 +67,19 @@ public class Parameters extends ParameterComponent {
 	public Object get(String key) {
 		// System.out.println("key = " + key);
 		if (entry != null) {
-			for (ParameterComponent paramComp : entry) {
-				if (paramComp instanceof Parameter) {
+			for (XmlParameterComponent paramComp : entry) {
+				if (paramComp instanceof XmlParameter) {
 					// System.out.println("parameter");
-					if (((Parameter) paramComp).getKey().equals(key)) {
+					if (((XmlParameter) paramComp).getKey().equals(key)) {
 						// System.out.println("--" +
 						// ((Parameter)paramComp).getValue());
-						return ((Parameter) paramComp).getValue();
+						return ((XmlParameter) paramComp).getValue();
 					} else {
 						// System.out.println(((Parameter)paramComp).getKey());
 					}
-				} else if (paramComp instanceof Parameters) {
+				} else if (paramComp instanceof XmlParameters) {
 					// System.out.println("parameters");
-					Object retour = ((Parameters) paramComp).get(key);
+					Object retour = ((XmlParameters) paramComp).get(key);
 					if (retour != null) {
 						return retour;
 					}
@@ -101,10 +101,10 @@ public class Parameters extends ParameterComponent {
 	public Object get(String desc, String key) {
 		// System.out.println("key = " + key);
 		if (entry != null) {
-			for (ParameterComponent paramComp : entry) {
-				if (paramComp instanceof Parameters) {
-					if (((Parameters) paramComp).description.equals(desc)) {
-						return ((Parameters) paramComp).get(key);
+			for (XmlParameterComponent paramComp : entry) {
+				if (paramComp instanceof XmlParameters) {
+					if (((XmlParameters) paramComp).description.equals(desc)) {
+						return ((XmlParameters) paramComp).get(key);
 					}
 				}
 			}

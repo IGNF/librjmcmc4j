@@ -17,7 +17,7 @@ import fr.ign.mpp.energy.IntersectionAreaBinaryEnergy;
 import fr.ign.mpp.kernel.ObjectBuilder;
 import fr.ign.mpp.kernel.ObjectSampler;
 import fr.ign.mpp.kernel.UniformTypeView;
-import fr.ign.parameters.Parameters;
+import fr.ign.parameters.XmlParameters;
 import fr.ign.random.Random;
 import fr.ign.rjmcmc.acceptance.Acceptance;
 import fr.ign.rjmcmc.acceptance.MetropolisAcceptance;
@@ -44,11 +44,11 @@ import fr.ign.simulatedannealing.visitor.ShapefileVisitor;
 import fr.ign.simulatedannealing.visitor.Visitor;
 
 public class RectangleCirclePacking {
-  static void init_visitor(Parameters p, Visitor<?, ?> v) {
+  static void init_visitor(XmlParameters p, Visitor<?, ?> v) {
     v.init(p.getInteger("nbdump"), p.getInteger("nbsave"));
   }
 
-  public static GraphConfiguration<Primitive> create_configuration(Parameters p) {
+  public static GraphConfiguration<Primitive> create_configuration(XmlParameters p) {
     ConstantEnergy<Primitive, Primitive> c1 = new ConstantEnergy<Primitive, Primitive>(p.getDouble("energy"));
     ConstantEnergy<Primitive, Primitive> c2 = new ConstantEnergy<Primitive, Primitive>(p.getDouble("surface"));
     BinaryEnergy<Primitive, Primitive> b1 = new IntersectionAreaBinaryEnergy<Primitive>();
@@ -160,7 +160,7 @@ public class RectangleCirclePacking {
     }
   }
 
-  static Sampler<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> create_sampler(Parameters p, RandomGenerator rng) {
+  static Sampler<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> create_sampler(XmlParameters p, RandomGenerator rng) {
 
     double minx = p.getDouble("minx");
     double miny = p.getDouble("miny");
@@ -207,7 +207,7 @@ public class RectangleCirclePacking {
      * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default
      * values provided... parse the command line to eventually change the values >
      */
-    Parameters p = initialize_parameters();
+    XmlParameters p = initialize_parameters();
     RandomGenerator rng = Random.random();
     rng.setSeed(0);
     /*
@@ -236,17 +236,17 @@ public class RectangleCirclePacking {
     return;
   }
 
-  private static EndTest create_end_test(Parameters p) {
+  private static EndTest create_end_test(XmlParameters p) {
     return new MaxIterationEndTest(p.getInteger("nbiter"));
   }
 
-  private static Schedule<SimpleTemperature> create_schedule(Parameters p) {
+  private static Schedule<SimpleTemperature> create_schedule(XmlParameters p) {
     return new GeometricSchedule<SimpleTemperature>(new SimpleTemperature(p.getDouble("temp")), p.getDouble("deccoef"));
   }
 
-  private static Parameters initialize_parameters() {
+  private static XmlParameters initialize_parameters() {
     try {
-      return Parameters.unmarshall(new File("./src/main/resources/rectanglecirclepacking_parameters.xml"));
+      return XmlParameters.unmarshall(new File("./src/main/resources/rectanglecirclepacking_parameters.xml"));
     } catch (Exception e) {
       e.printStackTrace();
     }

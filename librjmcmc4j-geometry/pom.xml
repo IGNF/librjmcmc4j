@@ -208,12 +208,12 @@
 	</build>
 	<distributionManagement>
 		<repository>
-			<id>ign-releases</id>
+			<id>releases</id>
 			<name>Release repository for IGN</name>
 			<url>https://forge-cogit.ign.fr/nexus/content/repositories/releases/</url>
 		</repository>
 		<snapshotRepository>
-			<id>ign-snapshots</id>
+			<id>snapshots</id>
 			<name>Snapshot repository for IGN</name>
 			<url>https://forge-cogit.ign.fr/nexus/content/repositories/snapshots/</url>
 		</snapshotRepository>

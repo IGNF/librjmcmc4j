@@ -6,9 +6,9 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
  * 
  *
  */
-public class ValueMapAdapter extends XmlAdapter<String, Object> {
+public class XmlValueMapAdapter extends XmlAdapter<String, Object> {
   
-  public ValueMapAdapter() {
+  public XmlValueMapAdapter() {
     super();
   }
   

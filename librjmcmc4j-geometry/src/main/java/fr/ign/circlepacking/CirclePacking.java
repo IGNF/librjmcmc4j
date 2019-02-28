@@ -16,7 +16,7 @@ import fr.ign.mpp.energy.IntersectionAreaBinaryEnergy;
 import fr.ign.mpp.kernel.KernelFactory;
 import fr.ign.mpp.kernel.ObjectBuilder;
 import fr.ign.mpp.kernel.UniformBirth;
-import fr.ign.parameters.Parameters;
+import fr.ign.parameters.XmlParameters;
 import fr.ign.rjmcmc.acceptance.Acceptance;
 import fr.ign.rjmcmc.acceptance.MetropolisAcceptance;
 import fr.ign.rjmcmc.distribution.PoissonDistribution;
@@ -40,7 +40,7 @@ import fr.ign.simulatedannealing.visitor.ShapefileVisitor;
 import fr.ign.simulatedannealing.visitor.Visitor;
 
 public class CirclePacking {
-  public static GraphConfiguration<Circle2D> create_configuration(Parameters p) {
+  public static GraphConfiguration<Circle2D> create_configuration(XmlParameters p) {
     ConstantEnergy<Circle2D, Circle2D> c1 = new ConstantEnergy<>(p.getDouble("energy"));
     ConstantEnergy<Circle2D, Circle2D> c2 = new ConstantEnergy<>(p.getDouble("surface"));
     UnaryEnergy<Circle2D> u1 = new AreaUnaryEnergy<>();
@@ -53,7 +53,7 @@ public class CirclePacking {
     conf.setSpecs("the_geom:Polygon");
     return conf;
   }
-  static DirectSampler<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> create_sampler(Parameters p, RandomGenerator rng) {
+  static DirectSampler<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> create_sampler(XmlParameters p, RandomGenerator rng) {
     ObjectBuilder<Circle2D> builder = new ObjectBuilder<Circle2D>() {
       @Override
       public Circle2D build(double[] coordinates) {
@@ -82,7 +82,7 @@ public class CirclePacking {
     PoissonDistribution distribution = new PoissonDistribution(rng, p.getDouble("poisson"));
     return new DirectSampler<>(distribution, birth);    
   }
-  static Sampler<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> create_sampler(Parameters p, RandomGenerator rng, DirectSampler<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> ds) {
+  static Sampler<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> create_sampler(XmlParameters p, RandomGenerator rng, DirectSampler<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> ds) {
     List<Kernel<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>> kernels = new ArrayList<>(3);
     KernelFactory<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> factory = new KernelFactory<>();
     double p_birthdeath = p.getDouble("pbirthdeath");
@@ -104,7 +104,7 @@ public class CirclePacking {
      * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default
      * values provided... parse the command line to eventually change the values >
      */
-    Parameters p = Parameters.unmarshall(new File("./src/main/resources/circlepacking_parameters.xml"));
+    XmlParameters p = XmlParameters.unmarshall(new File("./src/main/resources/circlepacking_parameters.xml"));
     RandomGenerator rng = new MersenneTwister(42);
     /*
      * < Before launching the optimization process, we create all the required stuffs: a configuration, a sampler, a

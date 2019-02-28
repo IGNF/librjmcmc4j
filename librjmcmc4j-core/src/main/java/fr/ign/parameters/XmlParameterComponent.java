@@ -10,12 +10,12 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.validation.Schema;
 
-@XmlType(name = "ParameterComponent")
-public class ParameterComponent {
+@XmlType(name = "XmlParameterComponent")
+public class XmlParameterComponent {
 
   public void marshall() {
     try {
-      JAXBContext jc = JAXBContext.newInstance(Parameters.class, Parameter.class);
+      JAXBContext jc = JAXBContext.newInstance(XmlParameters.class, XmlParameter.class);
       Marshaller marshaller = jc.createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
       marshaller.marshal(this, System.out);
@@ -26,7 +26,7 @@ public class ParameterComponent {
 
   public void marshall(String filename) {
     try {
-      JAXBContext context = JAXBContext.newInstance(Parameters.class, Parameter.class);
+      JAXBContext context = JAXBContext.newInstance(XmlParameters.class, XmlParameter.class);
       Marshaller marshaller = context.createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
       marshaller.marshal(this, new File(filename));
@@ -43,10 +43,10 @@ public class ParameterComponent {
    * @return the resulting content tree in Parameters
    * @throws Exception
    */
-  public static Parameters unmarshall(File file) throws Exception {
-    JAXBContext context = JAXBContext.newInstance("fr.ign.parameters", ParameterComponent.class.getClassLoader());
+  public static XmlParameters unmarshall(File file) throws Exception {
+    JAXBContext context = JAXBContext.newInstance("fr.ign.parameters", XmlParameterComponent.class.getClassLoader());
     Unmarshaller unmarshaller = context.createUnmarshaller();
-    Parameters root = (Parameters) unmarshaller.unmarshal(file);
+    XmlParameters root = (XmlParameters) unmarshaller.unmarshal(file);
     return root;
   }
 
@@ -59,14 +59,14 @@ public class ParameterComponent {
    * @return the resulting content tree in Parameters
    * @throws Exception
    */
-  public static Parameters unmarshall(File file, Schema xsdSchema) throws Exception {
+  public static XmlParameters unmarshall(File file, Schema xsdSchema) throws Exception {
     try {
-      JAXBContext context = JAXBContext.newInstance(Parameters.class, Parameter.class);
+      JAXBContext context = JAXBContext.newInstance(XmlParameters.class, XmlParameter.class);
       Unmarshaller unmarshaller = context.createUnmarshaller();
       // Validation : setting a schema on the marshaller instance to activate
       // validation against given XML schema
       unmarshaller.setSchema(xsdSchema);
-      Parameters root = (Parameters) unmarshaller.unmarshal(file);
+      XmlParameters root = (XmlParameters) unmarshaller.unmarshal(file);
       return root;
     } catch (Exception e1) {
       e1.printStackTrace();
@@ -81,12 +81,12 @@ public class ParameterComponent {
    * @return the resulting content tree in Parameters
    * @throws Exception
    */
-  public static Parameters unmarshall(String inputXML) throws Exception {
+  public static XmlParameters unmarshall(String inputXML) throws Exception {
     try {
-      JAXBContext context = JAXBContext.newInstance(Parameters.class, Parameter.class);
+      JAXBContext context = JAXBContext.newInstance(XmlParameters.class, XmlParameter.class);
       Unmarshaller msh = context.createUnmarshaller();
       StringReader reader = new StringReader(inputXML);
-      Parameters root = (Parameters) msh.unmarshal(reader);
+      XmlParameters root = (XmlParameters) msh.unmarshal(reader);
       return root;
     } catch (Exception e1) {
       e1.printStackTrace();
@@ -102,15 +102,15 @@ public class ParameterComponent {
    * @return the resulting content tree in Parameters
    * @throws Exception
    */
-  public static Parameters unmarshall(String inputXML, Schema xsdSchema) throws Exception {
+  public static XmlParameters unmarshall(String inputXML, Schema xsdSchema) throws Exception {
     try {
-      JAXBContext context = JAXBContext.newInstance(Parameters.class, Parameter.class);
+      JAXBContext context = JAXBContext.newInstance(XmlParameters.class, XmlParameter.class);
       Unmarshaller msh = context.createUnmarshaller();
       // Validation : setting a schema on the marshaller instance to activate
       // validation against given XML schema
       msh.setSchema(xsdSchema);
       StringReader reader = new StringReader(inputXML);
-      Parameters root = (Parameters) msh.unmarshal(reader);
+      XmlParameters root = (XmlParameters) msh.unmarshal(reader);
       return root;
     } catch (Exception e1) {
       throw e1;

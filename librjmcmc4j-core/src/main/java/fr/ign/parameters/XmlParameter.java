@@ -5,19 +5,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement(name = "param")
-public class Parameter extends ParameterComponent {
+public class XmlParameter extends XmlParameterComponent {
   
   @XmlAttribute(name = "key")
   private String key;
   
-  @XmlJavaTypeAdapter(ValueMapAdapter.class)
+  @XmlJavaTypeAdapter(XmlValueMapAdapter.class)
   @XmlAttribute(name = "value")
   private Object value;
   
-  public Parameter() {
+  public XmlParameter() {
   }
   
-  public Parameter(String k, Object v) {
+  public XmlParameter(String k, Object v) {
     this.key = k;
     this.value = v;
   }

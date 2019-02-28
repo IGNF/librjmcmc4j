@@ -13,7 +13,7 @@ import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import fr.ign.mpp.kernel.ObjectBuilder;
-import fr.ign.parameters.Parameters;
+import fr.ign.parameters.XmlParameters;
 import fr.ign.rjmcmc.acceptance.Acceptance;
 import fr.ign.rjmcmc.acceptance.MetropolisAcceptance;
 import fr.ign.rjmcmc.distribution.Distribution;
@@ -48,7 +48,7 @@ public class FixedPositionsCirclePacking {
 
   static Map<Integer, List<Double>> map;
 
-  static Sampler<CirclePackingFixedConfiguration, CirclePackingFixedModification> create_sampler(Parameters p, RandomGenerator rng) {
+  static Sampler<CirclePackingFixedConfiguration, CirclePackingFixedModification> create_sampler(XmlParameters p, RandomGenerator rng) {
     ObjectBuilder<IndexedCircle2D> builder = new ObjectBuilder<IndexedCircle2D>() {
       @Override
       public IndexedCircle2D build(double[] coordinates) {
@@ -126,7 +126,7 @@ public class FixedPositionsCirclePacking {
      * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default values provided...
      * parse the command line to eventually change the values >
      */
-    Parameters p = Parameters.unmarshall(new File("./src/main/resources/circlepackingfixed_parameters.xml"));
+    XmlParameters p = XmlParameters.unmarshall(new File("./src/main/resources/circlepackingfixed_parameters.xml"));
     long seed = p.getLong("seed");
     RandomGenerator rng = new MersenneTwister(seed);
     /*

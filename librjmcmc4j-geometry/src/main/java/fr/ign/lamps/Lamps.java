@@ -25,7 +25,7 @@ import fr.ign.mpp.configuration.GraphConfiguration;
 import fr.ign.mpp.kernel.KernelFactory;
 import fr.ign.mpp.kernel.ObjectBuilder;
 import fr.ign.mpp.kernel.UniformBirth;
-import fr.ign.parameters.Parameters;
+import fr.ign.parameters.XmlParameters;
 import fr.ign.rjmcmc.acceptance.Acceptance;
 import fr.ign.rjmcmc.acceptance.MetropolisAcceptance;
 import fr.ign.rjmcmc.distribution.PoissonDistribution;
@@ -54,7 +54,7 @@ import fr.ign.simulatedannealing.visitor.Visitor;
 public class Lamps {
   static Logger LOGGER = Logger.getLogger(Lamps.class.getName());
 
-  public static GraphConfiguration<Circle2D> create_configuration(final double minX, final double minY, final double maxX, final double maxY, Parameters p) {
+  public static GraphConfiguration<Circle2D> create_configuration(final double minX, final double minY, final double maxX, final double maxY, XmlParameters p) {
     PrecisionModel pm = new PrecisionModel(10000);
     final GeometryFactory factory = new GeometryFactory(pm);
     final GeometryPrecisionReducer reducer = new GeometryPrecisionReducer(pm);
@@ -168,7 +168,7 @@ public class Lamps {
   }
 
   static DirectSampler<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> create_sampler(double minX, double minY, double maxX,
-      double maxY, Parameters p, RandomGenerator rng) {
+      double maxY, XmlParameters p, RandomGenerator rng) {
     final double radius = p.getDouble("radius");
     ObjectBuilder<Circle2D> builder = new ObjectBuilder<Circle2D>() {
       @Override
@@ -192,7 +192,7 @@ public class Lamps {
     return new DirectSampler<>(distribution, birth);
   }
 
-  static Sampler<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> create_sampler(Parameters p, RandomGenerator rng,
+  static Sampler<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> create_sampler(XmlParameters p, RandomGenerator rng,
       DirectSampler<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> ds) {
     List<Kernel<GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>>> kernels = new ArrayList<>(3);
     KernelFactory<Circle2D, GraphConfiguration<Circle2D>, BirthDeathModification<Circle2D>> factory = new KernelFactory<>();
@@ -212,7 +212,7 @@ public class Lamps {
      * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default values provided...
      * parse the command line to eventually change the values >
      */
-    Parameters p = Parameters.unmarshall(new File("./src/main/resources/lamps_parameters.xml"));
+    XmlParameters p = XmlParameters.unmarshall(new File("./src/main/resources/lamps_parameters.xml"));
     RandomGenerator rng = new MersenneTwister(p.getLong("seed"));
     /*
      * < Before launching the optimization process, we create all the required stuffs: a configuration, a sampler, a schedule scheme and an
