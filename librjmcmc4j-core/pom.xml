@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>fr.ign</groupId>
 		<artifactId>librjmcmc4j</artifactId>
-		<version>1.1</version>
+		<version>1.2-SNAPSHOT</version>
 	</parent>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

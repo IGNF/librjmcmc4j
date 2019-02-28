@@ -6,22 +6,20 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.geotools.coverage.grid.GridCoverageFactory;
-import org.geotools.factory.FactoryIteratorProvider;
-import org.geotools.referencing.crs.EPSGCRSAuthorityFactory;
 import org.geotools.referencing.factory.DatumAliases;
 import org.geotools.referencing.factory.ReferencingFactoryContainer;
 import org.geotools.referencing.factory.ReferencingObjectFactory;
 import org.geotools.referencing.factory.epsg.AnsiDialectEpsgFactory;
 import org.geotools.referencing.factory.epsg.CartesianAuthorityFactory;
 import org.geotools.referencing.factory.epsg.LongitudeFirstFactory;
-import org.geotools.referencing.factory.epsg.ThreadedHsqlEpsgFactory;
+import org.geotools.referencing.factory.epsg.hsql.ThreadedHsqlEpsgFactory;
 import org.geotools.referencing.factory.gridshift.ClasspathGridShiftLocator;
 import org.geotools.referencing.factory.gridshift.GridShiftLocator;
-import org.geotools.referencing.factory.wms.AutoCRSFactory;
 import org.geotools.referencing.operation.AuthorityBackedFactory;
 import org.geotools.referencing.operation.BufferedCoordinateOperationFactory;
 import org.geotools.referencing.operation.DefaultCoordinateOperationFactory;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
+import org.geotools.util.factory.FactoryIteratorProvider;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CRSFactory;
 import org.opengis.referencing.cs.CSAuthorityFactory;
@@ -39,11 +37,12 @@ public class GeoToolsFactoryIteratorProvider implements FactoryIteratorProvider 
     List<T> list = getList(category);
     if (list == null) {
       System.out.println("NULL FOR CATEGORY " + category);
-      list = Collections.EMPTY_LIST;
+      list = Collections.emptyList();
     }
     return list.iterator();
   }
 
+  @SuppressWarnings("unchecked")
   public <T> List<T> getList(Class<T> category) {
     if (category.equals(CoordinateOperationAuthorityFactory.class)) {
       return (List<T>) Arrays.asList(AnsiDialectEpsgFactory.class, ThreadedHsqlEpsgFactory.class, LongitudeFirstFactory.class);
@@ -53,8 +52,8 @@ public class GeoToolsFactoryIteratorProvider implements FactoryIteratorProvider 
           AuthorityBackedFactory.class, DefaultCoordinateOperationFactory.class);
     }
     if (category.equals(CRSAuthorityFactory.class)) {
-      return (List<T>) Arrays.asList(EPSGCRSAuthorityFactory.class, AnsiDialectEpsgFactory.class, ThreadedHsqlEpsgFactory.class, LongitudeFirstFactory.class,
-          CartesianAuthorityFactory.class, AutoCRSFactory.class, EPSGCRSAuthorityFactory.class);
+      return (List<T>) Arrays.asList(AnsiDialectEpsgFactory.class, ThreadedHsqlEpsgFactory.class, LongitudeFirstFactory.class,
+          CartesianAuthorityFactory.class);
     }
     if (category.equals(CRSFactory.class)) {
       return (List<T>) Arrays.asList(ReferencingObjectFactory.class);

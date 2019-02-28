@@ -3,9 +3,8 @@ package fr.ign.geometry;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 
 public class Rectangle2DTest {
   Rectangle2D r1;

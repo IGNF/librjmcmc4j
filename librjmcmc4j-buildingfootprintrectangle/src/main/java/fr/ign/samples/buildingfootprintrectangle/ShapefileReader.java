@@ -8,12 +8,11 @@ import java.util.List;
 
 import org.geotools.data.FeatureReader;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.locationtech.jts.geom.GeometryFilter;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Polygon;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-
-import com.vividsolutions.jts.geom.GeometryFilter;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
 
 import fr.ign.geometry.Rectangle2D;
 

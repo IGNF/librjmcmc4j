@@ -15,11 +15,10 @@ import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.locationtech.jts.geom.GeometryFilter;
+import org.locationtech.jts.geom.Polygon;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-
-import com.vividsolutions.jts.geom.GeometryFilter;
-import com.vividsolutions.jts.geom.Polygon;
 
 import fr.ign.geometry.Rectangle2D;
 import fr.ign.mpp.configuration.GraphConfiguration;
