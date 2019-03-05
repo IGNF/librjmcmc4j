@@ -4,12 +4,12 @@
                       http://maven.apache.org/xsd/settings-1.0.0.xsd">
   <servers>
     <server>
-      <id>ign-snapshots</id>
+      <id>snapshots</id>
       <username>admin</username>
       <password>${env.MAVEN_IGN_SERVER_PASSWORD}</password>
     </server>
     <server>
-      <id>ign-releases</id>
+      <id>releases</id>
       <username>admin</username>
       <password>${env.MAVEN_IGN_SERVER_PASSWORD}</password>
     </server>
