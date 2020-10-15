@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>librjmcmc4j-core</artifactId>
@@ -41,7 +42,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.10</version>
+			<version>4.13.1</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.collections</groupId>
@@ -52,6 +53,11 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<version>1.10.19</version>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.xml.bind</groupId>
+			<artifactId>jakarta.xml.bind-api</artifactId>
+			<version>2.3.3</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -78,7 +84,6 @@
 				<configuration>
 					<compilerVersion>1.8</compilerVersion>
 					<source>1.8</source>
-					<complianceLevel>1.8</complianceLevel>
 					<target>1.8</target>
 					<includes>
 						<include>**/*.java</include>
