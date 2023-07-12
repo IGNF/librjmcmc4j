@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>fr.ign</groupId>
 		<artifactId>librjmcmc4j</artifactId>
-		<version>1.2-SNAPSHOT</version>
+		<version>1.2</version>
 	</parent>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -196,6 +196,7 @@
 		</plugins>
 	</build>
 	<distributionManagement>
+		<!--
 		<repository>
 			<id>releases</id>
 			<name>Release repository for IGN</name>
@@ -206,5 +207,11 @@
 			<name>Snapshot repository for IGN</name>
 			<url>https://forge-cogit.ign.fr/nexus/content/repositories/snapshots/</url>
 		</snapshotRepository>
+		-->
+		<repository>
+			<id>github</id>
+			<name>GitHub IGNF librjmcmc4j Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/IGNF/librjmcmc4j</url>
+		</repository>
 	</distributionManagement>
 </project>
