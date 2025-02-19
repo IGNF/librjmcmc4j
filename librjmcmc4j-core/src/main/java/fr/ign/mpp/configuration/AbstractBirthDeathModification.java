@@ -6,14 +6,25 @@ import java.util.List;
 import fr.ign.rjmcmc.configuration.Modification;
 import fr.ign.rjmcmc.kernel.SimpleObject;
 
+/**
+ * Abstract class for birth/death modifications.
+ * @param <T> type
+ * @param <C> configuration
+ * @param <M> modification
+ */
 public abstract class AbstractBirthDeathModification<T extends SimpleObject, C extends ListConfiguration<T, C, M>, M extends Modification<C, M>>
 		implements Modification<C, M> {
+	/**
+	 * A default constructor.
+	 */
+	AbstractBirthDeathModification() {}
 	/**
 	 * A list of objects to be inserted to the configuration.
 	 */
 	List<T> birth = new ArrayList<>();
 
 	/**
+	 * Get the list of objects to be inserted to the configuration.
 	 * @return the list of objects to be inserted to the configuration.
 	 */
 	public List<T> getBirth() {
@@ -26,6 +37,7 @@ public abstract class AbstractBirthDeathModification<T extends SimpleObject, C e
 	List<T> death = new ArrayList<>();
 
 	/**
+	 * Get the list of objects to be removed from the configuration.
 	 * @return the list of objects to be removed from the configuration.
 	 */
 	public List<T> getDeath() {
@@ -55,6 +67,8 @@ public abstract class AbstractBirthDeathModification<T extends SimpleObject, C e
 	}
 
 	/**
+	 * Get the difference between the number of object to be inserted and
+	 * the number to be removed from the configuration.
 	 * @return the difference between the number of object to be inserted and
 	 *         the number to be removed from the configuration.
 	 */

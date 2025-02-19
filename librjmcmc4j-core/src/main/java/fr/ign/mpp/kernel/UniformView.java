@@ -12,6 +12,12 @@ import fr.ign.mpp.configuration.AbstractGraphConfiguration;
 import fr.ign.rjmcmc.kernel.SimpleObject;
 import fr.ign.rjmcmc.kernel.View;
 
+/**
+ * Uniform view
+ * @param <T> type
+ * @param <C> configuration
+ * @param <M> modification
+ */
 public class UniformView<T extends SimpleObject, C extends AbstractGraphConfiguration<T, C, M>, M extends AbstractBirthDeathModification<T, C, M>>
     implements View<C, M> {
   /**

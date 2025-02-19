@@ -16,6 +16,12 @@ import fr.ign.rjmcmc.energy.CollectionEnergy;
 import fr.ign.rjmcmc.energy.UnaryEnergy;
 import fr.ign.rjmcmc.kernel.SimpleObject;
 
+/**
+ * Abstract class for graph configurations.
+ * @param <T> type
+ * @param <C> configuration
+ * @param <M> modification
+ */
 public abstract class AbstractGraphConfiguration<T extends SimpleObject, C extends AbstractGraphConfiguration<T, C, M>, M extends AbstractBirthDeathModification<T, C, M>>
     implements ListConfiguration<T, C, M> {
   /**
@@ -23,30 +29,51 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
    */
   static Logger LOGGER = Logger.getLogger(GraphConfiguration.class.getName());
 
-  public UnaryEnergy<T> unaryEnergy;
-  public BinaryEnergy<T, T> binaryEnergy;
-  public CollectionEnergy<T> globalEnergy;
-  double unary;
+  /**
+   * Unary energy (for each object).
+   */
+  protected UnaryEnergy<T> unaryEnergy;
+  /**
+   * Binary energy (for each couple of objects)
+   */
+  protected BinaryEnergy<T, T> binaryEnergy;
+  /**
+   * Collection energy (for the entire collection)
+   */
+  protected CollectionEnergy<T> globalEnergy;
+  /**
+   * Unary value.
+   */
+  protected double unary;
 
   @Override
   public double getUnaryEnergy() {
     return this.unary;
   }
 
-  double binary;
+  /**
+   * Binary Value.
+   */
+  protected double binary;
 
   @Override
   public double getBinaryEnergy() {
     return this.binary;
   }
 
-  double global;
+  /**
+   * Global value.
+   */
+  protected double global;
 
   @Override
   public double getGlobalEnergy() {
     return this.global;
   }
 
+  /**
+   * Proposed value.
+   */
   double proposedGlobal;
 
   @Override
@@ -64,15 +91,31 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
     return this.unary + this.binary + this.global;
   }
 
+  /**
+   * The underlying graph.
+   */
   protected SimpleWeightedGraph<GraphVertex<T>, GraphEdge> graph;
 
+  /**
+   * Get The underlying graph.
+   * @return The underlying graph.
+   */
   public SimpleWeightedGraph<GraphVertex<T>, GraphEdge> getGraph() {
     return graph;
   }
 
+  /**
+   * A map of vertices.
+   */
   protected Map<T, GraphVertex<T>> vertexMap;
 
+  /**
+   * If true, this collection is dirty: we have to recompute.
+   */
   boolean dirty;
+  /**
+   * If true, use cache.
+   */
   boolean useCache = false;
 
   @Override
@@ -110,6 +153,10 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
     this.dirty = true;
   }
 
+  /**
+   * Insert obj with cache.
+   * @param obj obj to insert
+   */
   public void insertWithCache(T obj) {
     Double value = cacheUnaryBirth.get(obj);
     if (value == null) {
@@ -159,6 +206,11 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
     return this.graph.vertexSet().size();
   };
 
+  /**
+   * Size for a certain type of object.
+   * @param clazz a class
+   * @return the size for clazz
+   */
   public int size(Class<? extends T> clazz) {
     int size = 0;
     for (GraphVertex<T> v : this.graph.vertexSet()) {
@@ -211,7 +263,13 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
     return deltaBirth(modif) + deltaDeath(modif) + deltaGlobal(modif);
   }
 
+  /**
+   * a cache.
+   */
   private Map<T, Double> cacheUnaryBirth = new HashMap<T, Double>();
+  /**
+   * a cache.
+   */
   private Map<T, Map<T, Double>> cacheBinaryBirth = new HashMap<T, Map<T, Double>>();
 
   @Override
@@ -219,8 +277,16 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
     return this.unaryEnergy.getValue(o);
   }
 
+  /**
+   * time.
+   */
   private long timeDeltaBirth;
 
+  /**
+   * Delta birth.
+   * @param modif modification
+   * @return Delta birth.
+   */
   public double deltaBirth(M modif) {
     if (useCache)
       return this.deltaBirthWithCache(modif);
@@ -247,6 +313,11 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
     return delta;
   }
 
+  /**
+   * Delta birth with cache
+   * @param modif moidification
+   * @return Delta birth.
+   */
   public double deltaBirthWithCache(M modif) {
     cacheUnaryBirth.clear();
     cacheBinaryBirth.clear();
@@ -290,16 +361,32 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
     return delta;
   }
 
+  /**
+   * time.
+   */
   private long timeDeltaDeath;
 
+  /**
+   time.
+   @return time
+   */
   public long getTimeDeltaBirth() {
     return this.timeDeltaBirth;
   }
 
+  /**
+   * time
+   * @return time
+   */
   public long getTimeDeltaDeath() {
     return this.timeDeltaDeath;
   }
 
+  /**
+   * Delta death.
+   * @param modif modification
+   * @return Delta death.
+   */
   public double deltaDeath(M modif) {
     double delta = 0;
     long start = System.currentTimeMillis();
@@ -329,6 +416,11 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
     return delta;
   }
 
+  /**
+   * Delta global.
+   * @param modif modification
+   * @return Delta global
+   */
   public double deltaGlobal(M modif) {
     if (this.globalEnergy == null) {
       return 0;
@@ -359,12 +451,23 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
     return result;
   }
 
+  /**
+   * Specs to save as shapefile.
+   */
   String specs;
 
+  /**
+   * Set specs.
+   * @param specs the specs.
+   */
   public void setSpecs(String specs) {
     this.specs = specs;
   }
 
+  /**
+   * Get the specs.
+   * @return the specs.
+   */
   public String getSpecs() {
     return specs;
   }

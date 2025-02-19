@@ -9,6 +9,10 @@ import fr.ign.rjmcmc.energy.CollectionEnergy;
 import fr.ign.rjmcmc.energy.UnaryEnergy;
 import fr.ign.rjmcmc.kernel.SimpleObject;
 
+/**
+ * Default graph configuration.
+ * @param <T> type
+ */
 public class GraphConfiguration<T extends SimpleObject> extends AbstractGraphConfiguration<T, GraphConfiguration<T>, BirthDeathModification<T>> {
   public GraphConfiguration(UnaryEnergy<T> unary_energy, BinaryEnergy<T, T> binary_energy) {
     this(unary_energy, binary_energy, null);

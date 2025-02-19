@@ -39,10 +39,10 @@ public class XmlParameterComponent {
   /**
    * Unmarshal XML data from the specified Parameters file.
    * 
-   * @param XML
+   * @param file
    *          data file
    * @return the resulting content tree in Parameters
-   * @throws Exception
+   * @throws Exception when unmarshalling
    */
   public static XmlParameters unmarshall(File file) throws Exception {
     JAXBContext context = JAXBContext.newInstance("fr.ign.parameters", XmlParameterComponent.class.getClassLoader());
@@ -54,11 +54,11 @@ public class XmlParameterComponent {
   /**
    * Validate and Unmarshal XML data from the specified Parameters file.
    * 
-   * @param XML
+   * @param file
    *          data file
-   * @param xsdSchema
+   * @param xsdSchema a schema
    * @return the resulting content tree in Parameters
-   * @throws Exception
+   * @throws Exception exception when unmarshalling
    */
   public static XmlParameters unmarshall(File file, Schema xsdSchema) throws Exception {
     try {

@@ -1,5 +1,9 @@
 package fr.ign.mpp.configuration;
 
+/**
+ * Graph Vertex.
+ * @param <T> type
+ */
 public class GraphVertex<T> {
 	T value;
 	double energy;

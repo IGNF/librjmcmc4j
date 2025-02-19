@@ -6,16 +6,11 @@ import fr.ign.rjmcmc.kernel.SimpleObject;
 import fr.ign.rjmcmc.sampler.Sampler;
 import fr.ign.simulatedannealing.temperature.Temperature;
 /**
- * 
- *        This software is released under the licence CeCILL
- *        see LICENSE.TXT
- *        see <http://www.cecill.info/ http://www.cecill.info/
- * 
- * @copyright IGN
- * 
+ * Stability end test.
  * @author Brasebin Mickaël
  * 
  * @version 1.0
+ * @param <O> Simple Object type
  **/ 
 public class StabilityEndTest<O extends SimpleObject> implements EndTest {
   int iterations;

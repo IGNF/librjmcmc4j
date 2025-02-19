@@ -6,14 +6,13 @@ import fr.ign.rjmcmc.sampler.Sampler;
 import fr.ign.simulatedannealing.temperature.Temperature;
 
 /**
- * 
+ * The end test interface.
  */
 public interface EndTest {
 	/**
-	 * @param config
-	 * @param sampler
-	 * @param t
-	 * @return
+	 * @param <C> configuration
+	 * @param <M> Modification
+	 * @return evaluate
 	 */
 	<C extends Configuration<C, M>, M extends Modification<C, M>> boolean evaluate(C config, Sampler<C, M> sampler, Temperature t);
 	/**

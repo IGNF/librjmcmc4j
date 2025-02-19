@@ -95,9 +95,9 @@ public class XmlParameters extends XmlParameterComponent {
 	 * On cherche dans les param de parametres qui a la description, celui qui a
 	 * key
 	 * 
-	 * @param description
-	 * @param key
-	 * @return
+	 * @param desc description
+	 * @param key a key
+	 * @return the parameter
 	 */
 	public Object get(String desc, String key) {
 		// System.out.println("key = " + key);

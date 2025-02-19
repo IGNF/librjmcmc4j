@@ -51,12 +51,8 @@ public class FixedPositionsUniformBirth<T extends SimpleObject> implements Objec
    *          another object
    * @param builder
    *          an object builder
-   * @param trans
-   *          a transform class
-   * @param pred
-   *          a predicate
-   * @param o
-   *          a generic array of parameters to be given to the transform constructor
+   * @param fixedPositionsMap
+   *          a map of fixed positions
    */
   public FixedPositionsUniformBirth(RandomGenerator rng, double[] a, double[] b, ObjectBuilder<T> builder, Map<Integer, List<Double>> fixedPositionsMap) {
     this.dimension = a.length;

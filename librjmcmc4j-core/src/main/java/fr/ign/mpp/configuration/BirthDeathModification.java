@@ -8,8 +8,6 @@ import fr.ign.rjmcmc.kernel.SimpleObject;
  * @author Julien Perret
  * @param <T>
  *            The type of objects held by the configuration
- * @param <C>
- *            The type of configuration
  */
 
 public class BirthDeathModification<T extends SimpleObject>

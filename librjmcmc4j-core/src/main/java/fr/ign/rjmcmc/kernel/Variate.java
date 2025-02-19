@@ -5,7 +5,7 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 
 /**
- * @author Julien Perret
+ * Variate class.
  */
 public class Variate {
   protected AbstractRealDistribution rand;

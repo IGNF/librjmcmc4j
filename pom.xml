@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>fr.ign</groupId>
+	<groupId>io.github.ignf</groupId>
 	<artifactId>librjmcmc4j</artifactId>
 	<version>1.2.1</version>
 	<url>https://github.com/IGNF/librjmcmc4j</url>
@@ -9,11 +9,52 @@
 	<properties>
 		<librjmcmc4j.version>1.2.1</librjmcmc4j.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.source.plugin>3.3.1</maven.source.plugin>
+		<maven.javadoc.plugin>3.11.2</maven.javadoc.plugin>
 	</properties>
 	<scm>
 		<connection>scm:git:https://github.com/IGNF/librjmcmc4j.git</connection>
 		<url>https://github.com/IGNF/librjmcmc4j</url>
 	</scm>
+	<developers>
+		<developer>
+			<id>julienperret</id>
+			<name>Julien Perret</name>
+			<email>julien.perret@ign.fr</email>
+			<url>https://www.umr-lastig.fr/julien-perret/</url>
+			<organization>Univ Gustave Eiffel, IGN-ENSG, LASTIG lab</organization>
+			<organizationUrl>https://www.umr-lastig.fr/</organizationUrl>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<timezone>Europe/Paris</timezone>
+			<properties>
+				<picUrl>https://avatars.githubusercontent.com/u/6437740?v=4</picUrl>
+			</properties>
+		</developer>
+		<developer>
+			<id>mbrasebin</id>
+			<name>Mickaël Brasebin</name>
+			<email>mickael.brasebin@gmail.com</email>
+			<url>https://mbrasebin.github.io/</url>
+		</developer>
+		<developer>
+			<id>ilokhat</id>
+			<name>Imran Lokhat</name>
+			<email>lartane@gmail.com</email>
+		</developer>
+	</developers>
+	<licenses>
+		<license>
+			<name>GNU Lesser General Public License version 3.0</name>
+			<url>https://www.gnu.org/licenses/lgpl-3.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<description>
+		librjmcmc4j is a library for stochastic optimization based on reversible jump monte carlo markov chains coupled with simulated annealing. It is the java port of librjmcmc.
+	</description>
 	<modules>
 		<module>librjmcmc4j-core</module>
 		<module>librjmcmc4j-geometry</module>
@@ -48,6 +89,20 @@
 					<publishingServerId>central</publishingServerId>
 				</configuration>
         	</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<distributionManagement>

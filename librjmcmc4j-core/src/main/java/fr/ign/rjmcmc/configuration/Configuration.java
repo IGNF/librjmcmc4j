@@ -3,22 +3,22 @@ package fr.ign.rjmcmc.configuration;
 
 /**
  * Represents a configuration of objects.
- * 
- * @author Julien Perret
+ * @param <C> Configuration
+ * @param <M> Modification
  */
 public interface Configuration<C extends Configuration<C, M>, M extends Modification<C, M>> {
 
 	/**
-	 * Compute the energy difference caused by the application of the given
-	 * modification.
+	 * Compute the energy difference caused by the application of the given modification.
 	 * 
 	 * @param m
 	 *            a modification
-	 * @return
+	 * @return energy difference caused by the application of the given modification
 	 */
 	double deltaEnergy(M m);
 
 	/**
+	 * the current energy of the configuration.
 	 * @return the current energy of the configuration.
 	 */
 	double getEnergy();

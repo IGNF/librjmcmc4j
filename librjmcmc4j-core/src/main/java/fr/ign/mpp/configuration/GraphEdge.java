@@ -2,6 +2,9 @@ package fr.ign.mpp.configuration;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 
+/**
+ * Graph edge.
+ */
 public class GraphEdge extends DefaultWeightedEdge {
   /**
    * 

@@ -8,6 +8,11 @@ import org.apache.commons.math3.random.RandomGenerator;
 import fr.ign.rjmcmc.configuration.Configuration;
 import fr.ign.rjmcmc.configuration.Modification;
 
+/**
+ * Kernel.
+ * @param <C> Configuration
+ * @param <M> Modification
+ */
 public class Kernel<C extends Configuration<C, M>, M extends Modification<C, M>> {
   /**
    * Logger.
@@ -37,8 +42,10 @@ public class Kernel<C extends Configuration<C, M>, M extends Modification<C, M>>
    *          a transform
    * @param p
    *          probability to apply the kernel
-   * @param q
+   * @param ratio
    *          probability to choose the direct transform
+   * @param name
+   * name
    */
   public Kernel(View<C, M> v0, View<C, M> v1, Variate x0, Variate x1, Transform t, KernelProbability<C, M> p, KernelProposalRatio<C, M> ratio, String name) {
     this.view0 = v0;

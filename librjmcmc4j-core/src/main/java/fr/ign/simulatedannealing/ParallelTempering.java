@@ -25,10 +25,10 @@ public class ParallelTempering {
 	/**
 	 * Optimize using parallel tempering.
 	 * 
-	 * @param e
+	 * @param e random generator
 	 * @param config
 	 *            an array of configurations
-	 * @param samplers
+	 * @param sampler
 	 *            a sampler
 	 * @param schedules
 	 *            an array of schedules

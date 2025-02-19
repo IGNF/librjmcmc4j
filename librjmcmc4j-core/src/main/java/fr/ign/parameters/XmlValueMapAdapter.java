@@ -3,7 +3,7 @@ package fr.ign.parameters;
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
- * 
+ * XML Value map adapter.
  *
  */
 public class XmlValueMapAdapter extends XmlAdapter<String, Object> {

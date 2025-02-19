@@ -4,7 +4,7 @@
 	<artifactId>librjmcmc4j-geometry</artifactId>
 	<url>https://github.com/IGNF/librjmcmc4j</url>
 	<parent>
-		<groupId>fr.ign</groupId>
+		<groupId>io.github.ignf</groupId>
 		<artifactId>librjmcmc4j</artifactId>
 		<version>1.2.1</version>
 	</parent>
@@ -40,7 +40,7 @@
 	</repositories>
 	<dependencies>
 		<dependency>
-			<groupId>fr.ign</groupId>
+			<groupId>io.github.ignf</groupId>
 			<artifactId>librjmcmc4j-core</artifactId>
 			<version>${librjmcmc4j.version}</version>
 		</dependency>
@@ -133,32 +133,23 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2.1</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>deploy</phase>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.8</version>
+				<version>${maven.javadoc.plugin}</version>
 				<configuration>
+					<doclint>all,-missing</doclint>
 					<additionalparam>-header &apos;&lt;script
 						type=&quot;text/javascript&quot;
 						src=&quot;http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML&quot;&gt;&lt;/script&gt;&apos;</additionalparam>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<version>2.8.1</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>

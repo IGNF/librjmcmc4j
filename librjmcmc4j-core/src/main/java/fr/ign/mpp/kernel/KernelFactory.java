@@ -11,6 +11,12 @@ import fr.ign.rjmcmc.kernel.Transform;
 import fr.ign.rjmcmc.kernel.Variate;
 import fr.ign.rjmcmc.kernel.View;
 
+/**
+ * A Kernel factory.
+ * @param <T> type
+ * @param <C> configuration
+ * @param <M> modification
+ */
 public class KernelFactory<T extends SimpleObject, C extends AbstractGraphConfiguration<T, C, M>, M extends AbstractBirthDeathModification<T, C, M>> {
 
   public KernelFactory() {

@@ -6,6 +6,12 @@ import fr.ign.rjmcmc.configuration.Configuration;
 import fr.ign.rjmcmc.configuration.Modification;
 import fr.ign.rjmcmc.kernel.SimpleObject;
 
+/**
+ * Interface for list configurations.
+ * @param <T> type
+ * @param <C> configuration
+ * @param <M> modification
+ */
 public interface ListConfiguration<T extends SimpleObject, C extends ListConfiguration<T, C, M>, M extends Modification<C, M>>
     extends Configuration<C, M>, Iterable<T> {
   /**
@@ -32,11 +38,13 @@ public interface ListConfiguration<T extends SimpleObject, C extends ListConfigu
   void remove(T v);
 
   /**
+   * the number of objects in the configuration.
    * @return the number of objects in the configuration.
    */
   int size();
 
   /**
+   * an iterator over the elements of the configuration.
    * @return an iterator over the elements of the configuration.
    */
   Iterator<T> iterator();

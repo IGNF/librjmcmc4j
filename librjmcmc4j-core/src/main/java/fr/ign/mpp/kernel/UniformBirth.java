@@ -19,7 +19,7 @@ import fr.ign.rjmcmc.kernel.Variate;
  * \(J_{F{-1}}(F(p)) = J_{F}(p)^{-1}\).
  * 
  * @author Julien Perret
- * @param <T>
+ * @param <T> Simple Object Type
  */
 public class UniformBirth<T extends SimpleObject> extends ObjectBirth<T> {
   /**

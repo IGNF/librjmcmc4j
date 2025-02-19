@@ -7,6 +7,10 @@ import fr.ign.rjmcmc.kernel.SimpleObject;
 import fr.ign.rjmcmc.kernel.Transform;
 import fr.ign.rjmcmc.kernel.Variate;
 
+/**
+ * Object Birth.
+ * @param <T> Simple Object Type
+ */
 public class ObjectBirth<T extends SimpleObject> implements ObjectSampler<T> {
 
   protected Transform transform;
