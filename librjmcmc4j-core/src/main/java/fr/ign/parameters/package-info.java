@@ -5,4 +5,5 @@
 @XmlSchema(location="parameters.xsd")
 
 package fr.ign.parameters;
-import javax.xml.bind.annotation.XmlSchema;
+
+import jakarta.xml.bind.annotation.XmlSchema;

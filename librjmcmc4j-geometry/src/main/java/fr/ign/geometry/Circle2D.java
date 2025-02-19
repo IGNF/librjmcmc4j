@@ -8,9 +8,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Polygon;
 
-import fr.ign.rjmcmc.kernel.SimpleObject;
-
-public class Circle2D implements Primitive, SimpleObject {
+public class Circle2D implements Primitive {
 	public double center_x;
 	public double center_y;
 	public double radius;

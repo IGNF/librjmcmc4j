@@ -5,6 +5,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.geotools.api.referencing.crs.CRSAuthorityFactory;
+import org.geotools.api.referencing.crs.CRSFactory;
+import org.geotools.api.referencing.cs.CSAuthorityFactory;
+import org.geotools.api.referencing.cs.CSFactory;
+import org.geotools.api.referencing.datum.DatumAuthorityFactory;
+import org.geotools.api.referencing.datum.DatumFactory;
+import org.geotools.api.referencing.operation.CoordinateOperationAuthorityFactory;
+import org.geotools.api.referencing.operation.CoordinateOperationFactory;
+import org.geotools.api.referencing.operation.MathTransformFactory;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.referencing.factory.DatumAliases;
 import org.geotools.referencing.factory.ReferencingFactoryContainer;
@@ -20,15 +29,6 @@ import org.geotools.referencing.operation.BufferedCoordinateOperationFactory;
 import org.geotools.referencing.operation.DefaultCoordinateOperationFactory;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.util.factory.FactoryIteratorProvider;
-import org.opengis.referencing.crs.CRSAuthorityFactory;
-import org.opengis.referencing.crs.CRSFactory;
-import org.opengis.referencing.cs.CSAuthorityFactory;
-import org.opengis.referencing.cs.CSFactory;
-import org.opengis.referencing.datum.DatumAuthorityFactory;
-import org.opengis.referencing.datum.DatumFactory;
-import org.opengis.referencing.operation.CoordinateOperationAuthorityFactory;
-import org.opengis.referencing.operation.CoordinateOperationFactory;
-import org.opengis.referencing.operation.MathTransformFactory;
 
 public class GeoToolsFactoryIteratorProvider implements FactoryIteratorProvider {
 

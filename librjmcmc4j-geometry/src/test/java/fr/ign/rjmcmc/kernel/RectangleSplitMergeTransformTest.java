@@ -25,7 +25,7 @@ public class RectangleSplitMergeTransformTest {
     t = new RectangleSplitMergeTransform(1);
     double[] val0 = new double[] { 0., 0., 10., 10., 5., 0., 0., 0., 0., 0. };
     double[] val1 = new double[10];
-    Rectangle2D r = new Rectangle2D(val0);
+    /*Rectangle2D r =*/ new Rectangle2D(val0);
     // System.out.println("in " + r.toGeometry());
     // System.out.println("in " + r.toGeometry().getArea());
     RandomGenerator ran = Random.random();
@@ -35,10 +35,10 @@ public class RectangleSplitMergeTransformTest {
       for (int i = 0; i < 5; i++) {
         val0[5 + i] = ran.nextDouble();
       }
-      double res = t.apply(true, val0, val1);
+      /*double res =*/ t.apply(true, val0, val1);
       Rectangle2D rout1 = new Rectangle2D(Arrays.copyOfRange(val1, 0, 5));
       Rectangle2D rout2 = new Rectangle2D(Arrays.copyOfRange(val1, 5, 10));
-      MultiPolygon mp = f.createMultiPolygon(new Polygon[] { rout1.toGeometry(), rout2.toGeometry() });
+      /*MultiPolygon mp =*/ f.createMultiPolygon(new Polygon[] { rout1.toGeometry(), rout2.toGeometry() });
       // System.out.println(mp);
       // rs += res + "\n";
       l.add(Arrays.copyOf(val1, val1.length));

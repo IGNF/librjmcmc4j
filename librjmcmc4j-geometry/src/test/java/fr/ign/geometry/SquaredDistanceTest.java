@@ -7,7 +7,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 
 import fr.ign.random.Random;
-import junit.framework.Assert;
+import  org.junit.Assert;
 
 public class SquaredDistanceTest {
   Rectangle2D r1;

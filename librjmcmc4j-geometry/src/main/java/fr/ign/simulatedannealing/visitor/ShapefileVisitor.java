@@ -4,21 +4,19 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
-import org.geotools.data.DataStore;
+import org.geotools.api.data.FileDataStore;
+import org.geotools.api.data.SimpleFeatureSource;
+import org.geotools.api.data.SimpleFeatureStore;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FileDataStoreFactorySpi;
-import org.geotools.data.Transaction;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
-import org.geotools.data.simple.SimpleFeatureSource;
-import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFilter;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import fr.ign.mpp.configuration.ListConfiguration;
 import fr.ign.rjmcmc.configuration.Modification;
@@ -70,13 +68,13 @@ public class ShapefileVisitor<T extends SimpleObject, C extends ListConfiguratio
 
   public void writeShapefile(String aFileName, C config) {
     try {
-      FileDataStoreFactorySpi factory = new ShapefileDataStoreFactory();
-      DataStore dataStore = factory.createDataStore(new File(aFileName).toURI().toURL());
+      ShapefileDataStoreFactory factory = new ShapefileDataStoreFactory();
+      FileDataStore dataStore = factory.createDataStore(new File(aFileName).toURI().toURL());
       // String specs = config.getSpecs();
       String featureTypeName = "Object";
       SimpleFeatureType featureType = DataUtilities.createType(featureTypeName, specs);
       dataStore.createSchema(featureType);
-      Transaction transaction = new DefaultTransaction("create");
+      DefaultTransaction transaction = new DefaultTransaction("create");
       String typeName = dataStore.getTypeNames()[0];
       SimpleFeatureSource featureSource = dataStore.getFeatureSource(typeName);
       SimpleFeatureType type = featureSource.getSchema();
@@ -86,7 +84,7 @@ public class ShapefileVisitor<T extends SimpleObject, C extends ListConfiguratio
       int i = 1;
       for (T v : config) {
         Object[] values = v.getArray();
-        Geometry geom = (Geometry) ((Geometry) values[0]).clone();
+        Geometry geom = (Geometry) ((Geometry) values[0]).copy();
         if (this.filter != null) {
           geom.apply(this.filter);
         }

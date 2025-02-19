@@ -13,6 +13,8 @@ import java.util.Locale;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 
+import org.geotools.api.geometry.Bounds;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.factory.CommonFactoryFinder;
@@ -20,8 +22,7 @@ import org.geotools.gce.geotiff.GeoTiffFormat;
 import org.geotools.gce.geotiff.GeoTiffReader;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.util.factory.GeoTools;
-import org.opengis.geometry.Envelope;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
 
 import fr.ign.geotools.GeoToolsFactoryIteratorProvider;
 
@@ -238,7 +239,7 @@ public class OrientedPlanarImageWrapper implements OrientedView {
       return;
     }
     RenderedImage renderedImage = coverage.getRenderedImage();
-    Envelope env = coverage.getEnvelope();
+    Bounds env = coverage.getEnvelope();
     range = new double[2][2];
     // Range
     range[0][0] = env.getMinimum(0);

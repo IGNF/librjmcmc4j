@@ -7,10 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.math3.distribution.UniformRealDistribution;
+import org.geotools.api.data.FeatureStore;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureStore;
-import org.geotools.data.Transaction;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.feature.SchemaException;
@@ -22,8 +23,7 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.triangulate.ConformingDelaunayTriangulationBuilder;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
+
 
 public class UniformPolygonSampler {
   Polygon polygon;
@@ -88,7 +88,7 @@ public class UniformPolygonSampler {
       @SuppressWarnings("unchecked")
 	FeatureStore<SimpleFeatureType, SimpleFeature> featureStore = (FeatureStore<SimpleFeatureType, SimpleFeature>) store
           .getFeatureSource(featureTypeName);
-      Transaction transaction = new DefaultTransaction();
+      DefaultTransaction transaction = new DefaultTransaction();
       ListFeatureCollection collection = new ListFeatureCollection(type);
       int i = 1;
       for (Point p : points) {

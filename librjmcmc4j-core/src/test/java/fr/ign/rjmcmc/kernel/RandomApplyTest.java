@@ -1,7 +1,7 @@
 package fr.ign.rjmcmc.kernel;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyDouble;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -18,7 +18,7 @@ import fr.ign.random.Random;
 import fr.ign.rjmcmc.configuration.Configuration;
 import fr.ign.rjmcmc.distribution.Distribution;
 import fr.ign.rjmcmc.distribution.PoissonDistribution;
-import junit.framework.Assert;
+import org.junit.Assert;
 
 public class RandomApplyTest {
 
@@ -34,7 +34,7 @@ public class RandomApplyTest {
     GraphConfiguration c = mock(GraphConfiguration.class);
     when(c.size()).thenReturn(0);
     double r0 = RandomApply.random_apply_normalisation(0, kernels.size(), kernels, c);
-    Assert.assertEquals("Normalisation with no kernel", 0.0, r0);
+    Assert.assertEquals("Normalisation with no kernel", 0.0, r0, 0.05);
     RandomGenerator rng = Random.random();
     KernelProbability proposalBirthDeath = new KernelProbability() {
       @Override
@@ -73,10 +73,10 @@ public class RandomApplyTest {
     Kernel kModification = new Kernel(null, null, null, null, null, proposalModification, ratioModification, "Modification");
     kernels.add(kModification);
     double r1 = RandomApply.random_apply_normalisation(0, kernels.size(), kernels, c);
-    Assert.assertEquals("Normalisation with 2 kernels but only 1 returns 1.", 1.0, r1);
+    Assert.assertEquals("Normalisation with 2 kernels but only 1 returns 1.", 1.0, r1, 0.05);
     when(c.size()).thenReturn(1);
     double r2 = RandomApply.random_apply_normalisation(0, kernels.size(), kernels, c);
-    Assert.assertEquals("Normalisation with 2 kernels returning 1.", 2.0, r2);
+    Assert.assertEquals("Normalisation with 2 kernels returning 1.", 2.0, r2, 0.05);
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })

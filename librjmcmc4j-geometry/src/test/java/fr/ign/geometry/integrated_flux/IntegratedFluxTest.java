@@ -7,10 +7,10 @@ import java.util.logging.Logger;
 
 import javax.media.jai.PlanarImage;
 
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import fr.ign.geometry.Point2D;
 import fr.ign.geometry.Rectangle2D;
