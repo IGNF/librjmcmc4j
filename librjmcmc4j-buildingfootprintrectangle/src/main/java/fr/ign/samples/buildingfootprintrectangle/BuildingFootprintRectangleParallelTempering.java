@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateFilter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFilter;
@@ -60,15 +59,16 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
   public static GraphConfiguration<Rectangle2D> create_configuration(XmlParameters p, OrientedView grad) {
     String mask_file = p.getString("mask");
     if (!mask_file.isEmpty()) {
+      System.out.println("We should probably use: "+ mask_file);
     }
-    ConstantEnergy<Rectangle2D, Rectangle2D> c1 = new ConstantEnergy<Rectangle2D, Rectangle2D>(p.getDouble("energy"));
-    ConstantEnergy<Rectangle2D, Rectangle2D> c2 = new ConstantEnergy<Rectangle2D, Rectangle2D>(p.getDouble("ponderation_grad"));
-    UnaryEnergy<Rectangle2D> u1 = new ImageGradientUnaryEnergy<Rectangle2D>(grad);
-    UnaryEnergy<Rectangle2D> u2 = new MultipliesUnaryEnergy<Rectangle2D>(c2, u1);
-    UnaryEnergy<Rectangle2D> u3 = new MinusUnaryEnergy<Rectangle2D>(c1, u2);
-    ConstantEnergy<Rectangle2D, Rectangle2D> c3 = new ConstantEnergy<Rectangle2D, Rectangle2D>(p.getDouble("ponderation_surface"));
-    BinaryEnergy<Rectangle2D, Rectangle2D> b1 = new IntersectionAreaBinaryEnergy<Rectangle2D>();
-    BinaryEnergy<Rectangle2D, Rectangle2D> b2 = new MultipliesBinaryEnergy<Rectangle2D, Rectangle2D>(c3, b1);
+    ConstantEnergy<Rectangle2D, Rectangle2D> c1 = new ConstantEnergy<>(p.getDouble("energy"));
+    ConstantEnergy<Rectangle2D, Rectangle2D> c2 = new ConstantEnergy<>(p.getDouble("ponderation_grad"));
+    UnaryEnergy<Rectangle2D> u1 = new ImageGradientUnaryEnergy<>(grad);
+    UnaryEnergy<Rectangle2D> u2 = new MultipliesUnaryEnergy<>(c2, u1);
+    UnaryEnergy<Rectangle2D> u3 = new MinusUnaryEnergy<>(c1, u2);
+    ConstantEnergy<Rectangle2D, Rectangle2D> c3 = new ConstantEnergy<>(p.getDouble("ponderation_surface"));
+    BinaryEnergy<Rectangle2D, Rectangle2D> b1 = new IntersectionAreaBinaryEnergy<>();
+    BinaryEnergy<Rectangle2D, Rectangle2D> b2 = new MultipliesBinaryEnergy<>(c3, b1);
     // c1 - c2*u1
     // u3 = c1 - u2 = energy - c2 * u1 = energy - ponderation_grad *
     // ImageGradientUnaryEnergy
@@ -106,7 +106,7 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
     Vector2D v = new Vector2D(p.getDouble("maxsize"), p.getDouble("maxsize"));
     double maxratio = p.getDouble("maxratio");
     double minratio = 1 / maxratio;
-    ObjectBuilder<Rectangle2D> builder = new ObjectBuilder<Rectangle2D>() {
+    ObjectBuilder<Rectangle2D> builder = new ObjectBuilder<>() {
       @Override
       public Rectangle2D build(double[] coordinates) {
         return new Rectangle2D(coordinates[0], coordinates[1], coordinates[2], coordinates[3], coordinates[4]);
@@ -127,9 +127,9 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
       }
     };
     Vector2D n = v.negate();
-    UniformBirth<Rectangle2D> birth = new UniformBirth<Rectangle2D>(rng,
-        new Rectangle2D(r.min().x(), r.min().y(), n.x(), n.y(), minratio),
-        new Rectangle2D(r.max().x(), r.max().y(), v.x(), v.y(), maxratio), builder);
+    UniformBirth<Rectangle2D> birth = new UniformBirth<>(rng,
+            new Rectangle2D(r.min().x(), r.min().y(), n.x(), n.y(), minratio),
+            new Rectangle2D(r.max().x(), r.max().y(), v.x(), v.y(), maxratio), builder);
 
     double p_birthdeath = p.getDouble("pbirthdeath");
     double p_birth = p.getDouble("pbirth");
@@ -155,8 +155,7 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
     kernels.add(factory.make_uniform_modification_kernel(rng, builder, new RectangleCornerTranslationTransform(3), p_corner, "CornTrans3"));
     // kernels.add(Kernel.make_uniform_modification_kernel(builder, new RectangleSplitMergeTransform(), p_split_merge, p_split, 1, 2, "SplitMerge"));
     Acceptance<SimpleTemperature> acceptance = new MetropolisAcceptance<>();
-    Sampler<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> s = new GreenSampler<>(rng, ds, acceptance, kernels);
-    return s;
+    return new GreenSampler<>(rng, ds, acceptance, kernels);
   }
 
   public static void main(String[] args) {
@@ -166,6 +165,7 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
      */
     XmlParameters p = initialize_parameters();
     RandomGenerator rng = Random.random();
+    assert p != null;
     int nReplicas = p.getInteger("replicas");
     /*
      * < Input data is an image. We first retrieve from the parameters the region to process... clip the image to fit this region... and then compute the
@@ -196,66 +196,49 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
     @SuppressWarnings("unchecked")
     Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>[] visitors = new Visitor[nReplicas];
     Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> visitor = new OutputStreamVisitor<>(System.out);
-    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> shpVisitor = new ShapefileVisitor<Rectangle2D, GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>("building_parallel_result", conf[0].getSpecs(),
+    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> shpVisitor = new ShapefileVisitor<>("results/building_parallel_result", conf[0].getSpecs(),
+            new GeometryFilter() {
+              final CoordinateFilter coordFilter = coord -> coord.y *= -1;
 
-        new GeometryFilter() {
-          CoordinateFilter coordFilter = new CoordinateFilter() {
-            @Override
-            public void filter(Coordinate coord) {
-              coord.y *= -1;
-            }
-          };
-
-          @Override
-          public void filter(Geometry geom) {
-            geom.apply(coordFilter);
-          }
-        });
-    List<Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>> list = new ArrayList<Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>>();
+              @Override
+              public void filter(Geometry geom) {
+                geom.apply(coordFilter);
+              }
+            });
+    List<Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>> list = new ArrayList<>();
     list.add(visitor);
     list.add(shpVisitor);
     CompositeVisitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> mVisitor = new CompositeVisitor<>(list);
     init_visitor(p, mVisitor);
     visitors[0] = mVisitor;
-    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> shpVisitorMiddle = new ShapefileVisitor<Rectangle2D, GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>("building_parallel_result_"+ (nReplicas / 2)+"_", conf[nReplicas / 2].getSpecs(),
-        new GeometryFilter() {
-          CoordinateFilter coordFilter = new CoordinateFilter() {
-            @Override
-            public void filter(Coordinate coord) {
-              coord.y *= -1;
-            }
-          };
+    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> shpVisitorMiddle = new ShapefileVisitor<>("building_parallel_result_" + (nReplicas / 2) + "_", conf[nReplicas / 2].getSpecs(),
+            new GeometryFilter() {
+                final CoordinateFilter coordFilter = coord -> coord.y *= -1;
 
-          @Override
-          public void filter(Geometry geom) {
-            geom.apply(coordFilter);
-          }
-        });
+                @Override
+                public void filter(Geometry geom) {
+                    geom.apply(coordFilter);
+                }
+            });
     init_visitor(p, shpVisitorMiddle);
 
     visitors[nReplicas / 2] = shpVisitorMiddle;
 
-    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> shpVisitorLast = new ShapefileVisitor<Rectangle2D, GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>>("building_parallel_result_"+ (nReplicas - 1)+"_", conf[nReplicas - 1].getSpecs(),
-        new GeometryFilter() {
-          CoordinateFilter coordFilter = new CoordinateFilter() {
-            @Override
-            public void filter(Coordinate coord) {
-              coord.y *= -1;
-            }
-          };
+    Visitor<GraphConfiguration<Rectangle2D>, BirthDeathModification<Rectangle2D>> shpVisitorLast = new ShapefileVisitor<>("building_parallel_result_" + (nReplicas - 1) + "_", conf[nReplicas - 1].getSpecs(),
+            new GeometryFilter() {
+                final CoordinateFilter coordFilter = coord -> coord.y *= -1;
 
-          @Override
-          public void filter(Geometry geom) {
-            geom.apply(coordFilter);
-          }
-        });
+                @Override
+                public void filter(Geometry geom) {
+                    geom.apply(coordFilter);
+                }
+            });
     init_visitor(p, shpVisitorLast);
     visitors[nReplicas - 1] = shpVisitorLast;
     /*
      * < This is the way to launch the optimization process. Here, the magic happen... >
      */
     ParallelTempering.optimize(rng, conf, samp, sch, end, visitors);
-    return;
   }
 
   private static void clip_bbox(IsoRectangle2D bbox, int x0, int y0, int x1, int y1) {
@@ -274,12 +257,12 @@ public class BuildingFootprintRectangleParallelTempering<O extends SimpleObject>
   }
 
   private static Schedule<SimpleTemperature> create_schedule(int i, XmlParameters p) {
-    return new GeometricSchedule<SimpleTemperature>(new SimpleTemperature(Math.pow(p.getDouble("temp_exponent"), i)), p.getDouble("deccoef"));
+    return new GeometricSchedule<>(new SimpleTemperature(Math.pow(p.getDouble("temp_exponent"), i)), p.getDouble("deccoef"));
   }
 
   private static XmlParameters initialize_parameters() {
     try {
-      return XmlParameters.unmarshall(new File("./src/main/resources/building_parameters.xml"));
+      return XmlParameters.unmarshall(new File("librjmcmc4j-buildingfootprintrectangle/src/main/resources/building_parameters.xml"));
     } catch (Exception e) {
       e.printStackTrace();
     }

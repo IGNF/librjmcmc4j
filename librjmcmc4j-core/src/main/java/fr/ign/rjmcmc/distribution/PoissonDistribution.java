@@ -6,12 +6,12 @@ import org.apache.commons.math3.random.RandomGenerator;
 public class PoissonDistribution implements Distribution {
   private AbstractIntegerDistribution mDistribution;
 
-    public PoissonDistribution(RandomGenerator rng, double mean) {
-	this.mDistribution = new org.apache.commons.math3.distribution.PoissonDistribution(
-			rng, 
-			mean, 
-			org.apache.commons.math3.distribution.PoissonDistribution.DEFAULT_EPSILON, 
-			org.apache.commons.math3.distribution.PoissonDistribution.DEFAULT_MAX_ITERATIONS);
+  public PoissonDistribution(RandomGenerator rng, double mean) {
+    this.mDistribution = new org.apache.commons.math3.distribution.PoissonDistribution(
+        rng,
+        mean,
+        org.apache.commons.math3.distribution.PoissonDistribution.DEFAULT_EPSILON,
+        org.apache.commons.math3.distribution.PoissonDistribution.DEFAULT_MAX_ITERATIONS);
   }
 
   // lambda ^(n1 - n0) * n0! / n1!
@@ -32,6 +32,6 @@ public class PoissonDistribution implements Distribution {
 
   @Override
   public int sample(RandomGenerator e) {
-    return this.mDistribution.sample();//FIXME use e
+    return this.mDistribution.sample();// TODO: check if e is useful if always given at construction
   }
 }

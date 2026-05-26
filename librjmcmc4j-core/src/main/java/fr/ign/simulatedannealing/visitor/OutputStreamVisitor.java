@@ -121,39 +121,39 @@ public class OutputStreamVisitor<C extends Configuration<C, M>, M extends Modifi
 
     ++iter;
     if ((dump > 0) && (iter % dump == 0)) {
-      this.formatter.format(this.formatInt, new Integer(iter));
+      this.formatter.format(this.formatInt, Integer.valueOf(iter));
       if (config instanceof ListConfiguration) {
         ListConfiguration<?, ?, ?> c = (ListConfiguration<?, ?, ?>) config;
-        this.formatter.format(this.formatInt, new Integer(c.size()));
+        this.formatter.format(this.formatInt, Integer.valueOf(c.size()));
       }
       int total_accepted = 0;
       for (int k = 0; k < kernel_size; ++k) {
-        this.formatter.format(this.formatDouble, new Double(100. * proposed[k] / dump));
-        this.formatter.format(this.formatDouble, new Double((proposed[k] > 0) ? (100. * accepted[k]) / proposed[k] : 100.));
+        this.formatter.format(this.formatDouble, Double.valueOf(100. * proposed[k] / dump));
+        this.formatter.format(this.formatDouble, Double.valueOf((proposed[k] > 0) ? (100. * accepted[k]) / proposed[k] : 100.));
         total_accepted += accepted[k];
         accepted[k] = proposed[k] = 0;
       }
       for (int i = 0; i < t.size(); i++) {
-        this.formatter.format(this.formatDouble, new Double(t.getTemperature(i)));
+        this.formatter.format(this.formatDouble, Double.valueOf(t.getTemperature(i)));
       }
-      this.formatter.format(this.formatDouble, new Double((100. * total_accepted) / dump));
+      this.formatter.format(this.formatDouble, Double.valueOf((100. * total_accepted) / dump));
       long clock_temp = System.currentTimeMillis();
-      this.formatter.format(this.formatDouble, new Double((double) (clock_temp - clock) / (double) dump));
+      this.formatter.format(this.formatDouble, Double.valueOf((double) (clock_temp - clock) / (double) dump));
       this.clock = clock_temp;
       if (config instanceof ListConfiguration) {
         ListConfiguration<?, ?, ?> c = (ListConfiguration<?, ?, ?>) config;
-        this.formatter.format(this.formatDouble, new Double(c.getUnaryEnergy()));
-        this.formatter.format(this.formatDouble, new Double(c.getBinaryEnergy()));
+        this.formatter.format(this.formatDouble, Double.valueOf(c.getUnaryEnergy()));
+        this.formatter.format(this.formatDouble, Double.valueOf(c.getBinaryEnergy()));
       }
-      this.formatter.format(this.formatDouble, new Double(config.getEnergy()));
+      this.formatter.format(this.formatDouble, Double.valueOf(config.getEnergy()));
 
       // this.formatter.format(this.formatDouble, new Double(time * 1000.
       // / dump));
-      this.formatter.format(this.formatDouble, new Double((double) timeRandomApply / (double) time));
-      this.formatter.format(this.formatDouble, new Double((double) timeGreenRatio / (double) time));
-      this.formatter.format(this.formatDouble, new Double((double) timeDelta / (double) time));
-      this.formatter.format(this.formatDouble, new Double((double) timeAcceptance / (double) time));
-      this.formatter.format(this.formatDouble, new Double((double) timeApply / (double) time));
+      this.formatter.format(this.formatDouble, Double.valueOf((double) timeRandomApply / (double) time));
+      this.formatter.format(this.formatDouble, Double.valueOf((double) timeGreenRatio / (double) time));
+      this.formatter.format(this.formatDouble, Double.valueOf((double) timeDelta / (double) time));
+      this.formatter.format(this.formatDouble, Double.valueOf((double) timeAcceptance / (double) time));
+      this.formatter.format(this.formatDouble, Double.valueOf((double) timeApply / (double) time));
 
       // this.formatter.format(this.formatDouble, new
       // Double((double)timeDeltaBirth/(double)(timeDeltaBirth+timeDeltaDeath)));

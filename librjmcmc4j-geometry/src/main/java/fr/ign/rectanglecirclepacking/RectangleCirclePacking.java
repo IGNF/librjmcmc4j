@@ -9,25 +9,26 @@ import org.apache.commons.math3.random.RandomGenerator;
 
 import fr.ign.geometry.Circle2D;
 import fr.ign.geometry.Primitive;
-import fr.ign.geometry.Rectangle2D;
+import fr.ign.geometry.Square2D;
+import fr.ign.mpp.DirectRejectionSampler;
 import fr.ign.mpp.DirectSampler;
 import fr.ign.mpp.configuration.BirthDeathModification;
 import fr.ign.mpp.configuration.GraphConfiguration;
 import fr.ign.mpp.energy.IntersectionAreaBinaryEnergy;
+import fr.ign.mpp.kernel.KernelFactory;
+import fr.ign.mpp.kernel.MultiObjectUniformBirth;
 import fr.ign.mpp.kernel.ObjectBuilder;
 import fr.ign.mpp.kernel.ObjectSampler;
-import fr.ign.mpp.kernel.UniformTypeView;
 import fr.ign.parameters.XmlParameters;
 import fr.ign.random.Random;
 import fr.ign.rjmcmc.acceptance.Acceptance;
 import fr.ign.rjmcmc.acceptance.MetropolisAcceptance;
+import fr.ign.rjmcmc.configuration.ConfigurationModificationPredicate;
 import fr.ign.rjmcmc.distribution.PoissonDistribution;
 import fr.ign.rjmcmc.energy.BinaryEnergy;
 import fr.ign.rjmcmc.energy.ConstantEnergy;
 import fr.ign.rjmcmc.energy.MultipliesBinaryEnergy;
-import fr.ign.rjmcmc.kernel.DiagonalAffineTransform;
 import fr.ign.rjmcmc.kernel.Kernel;
-import fr.ign.rjmcmc.kernel.NullView;
 import fr.ign.rjmcmc.kernel.Transform;
 import fr.ign.rjmcmc.kernel.Variate;
 import fr.ign.rjmcmc.sampler.GreenSampler;
@@ -82,7 +83,7 @@ public class RectangleCirclePacking {
   static ObjectBuilder<Primitive> rectanglebuilder = new ObjectBuilder<Primitive>() {
     @Override
     public Primitive build(double[] coordinates) {
-      return new Rectangle2D(coordinates[0], coordinates[1], coordinates[2], coordinates[3], 1.);
+      return new Square2D(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
     }
 
     @Override
@@ -92,7 +93,7 @@ public class RectangleCirclePacking {
 
     @Override
     public void setCoordinates(Primitive t, double[] coordinates) {
-      Rectangle2D rect = (Rectangle2D) t;
+      Square2D rect = (Square2D) t;
       coordinates[0] = rect.centerx;
       coordinates[1] = rect.centery;
       coordinates[2] = rect.normalx;
@@ -108,7 +109,8 @@ public class RectangleCirclePacking {
     Transform transformCircle;
     Transform transformRectangle;
 
-    public PrimitiveSampler(RandomGenerator e, double p_circle, Transform transformCircle, Transform transformRectangle) {
+    public PrimitiveSampler(RandomGenerator e, double p_circle, Transform transformCircle,
+        Transform transformRectangle) {
       this.engine = e;
       this.p_circle = p_circle;
       this.transformCircle = transformCircle;
@@ -160,7 +162,8 @@ public class RectangleCirclePacking {
     }
   }
 
-  static Sampler<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> create_sampler(XmlParameters p, RandomGenerator rng) {
+  static Sampler<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> create_sampler(XmlParameters p,
+      RandomGenerator rng) {
 
     double minx = p.getDouble("minx");
     double miny = p.getDouble("miny");
@@ -168,50 +171,76 @@ public class RectangleCirclePacking {
     double maxy = p.getDouble("maxy");
     double minradius = p.getDouble("minradius");
     double maxradius = p.getDouble("maxradius");
-    double[] v = new double[] { minx, miny, minradius };
-    double[] d = new double[] { maxx - minx, maxy - miny, maxradius - minradius };
-    DiagonalAffineTransform transformCircle = new DiagonalAffineTransform(d, v);
-    v = new double[] { minx, miny, minradius, minradius };
-    d = new double[] { maxx - minx, maxy - miny, (maxradius - minradius) / 2, (maxradius - minradius) / 2 };
-    DiagonalAffineTransform transformRectangle = new DiagonalAffineTransform(d, v);
+    // double[] v = new double[] { minx, miny, minradius };
+    // double[] d = new double[] { maxx - minx, maxy - miny, maxradius - minradius };
+    // DiagonalAffineTransform transformCircle = new DiagonalAffineTransform(d, v);
+    // v = new double[] { minx, miny, minradius, minradius };
+    // d = new double[] { maxx - minx, maxy - miny, (maxradius - minradius) / 2, (maxradius - minradius) / 2 };
+    // DiagonalAffineTransform transformRectangle = new DiagonalAffineTransform(d, v);
 
     double p_circle = p.getDouble("pcircle");
-    PrimitiveSampler objectSampler = new PrimitiveSampler(rng, p_circle, transformCircle, transformRectangle);
+    // PrimitiveSampler objectSampler = new PrimitiveSampler(rng, p_circle,
+    // transformCircle, transformRectangle);
+    MultiObjectUniformBirth<Primitive> objectSampler = new MultiObjectUniformBirth<>();
+    objectSampler.add(rng, Circle2D.class, p_circle, new Circle2D(minx, miny, minradius),
+        new Circle2D(maxx, maxy, maxradius), circlebuilder);
+    objectSampler.add(rng, Square2D.class, 1 - p_circle,
+        new Square2D(minx, miny, -maxradius, -maxradius),
+        new Square2D(maxx, maxy, maxradius, maxradius), rectanglebuilder);
     PoissonDistribution distribution = new PoissonDistribution(rng, p.getDouble("poisson"));
-    DirectSampler<Primitive, GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> ds = new DirectSampler<>(distribution, objectSampler);
+
+    ConfigurationModificationPredicate<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> predicate = new ConfigurationModificationPredicate<>() {
+      double minArea = Math.PI * minradius * minradius;
+      @Override
+      public boolean check(GraphConfiguration<Primitive> c, BirthDeathModification<Primitive> m) {
+        return m.getBirth().stream().allMatch(p-> p.getArea() >= minArea);
+      }      
+    };
+    DirectSampler<Primitive, GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> ds = new DirectRejectionSampler<>(
+        distribution, objectSampler, predicate);
 
     double p_birthdeath = p.getDouble("pbirthdeath");
     List<Kernel<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>> kernels = new ArrayList<>(3);
+		KernelFactory<Primitive, GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> factory = new KernelFactory<>();
+    kernels.add(factory.make_uniform_typed_birth_death_kernel(rng, Circle2D.class, circlebuilder, objectSampler.getBirth(Circle2D.class), p_birthdeath, 1.0, "Circle"));
+    kernels.add(factory.make_uniform_typed_birth_death_kernel(rng, Square2D.class, rectanglebuilder, objectSampler.getBirth(Square2D.class), p_birthdeath, 1.0, "Square"));
 
-    Kernel<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> kernel1 = new Kernel<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(
-        new NullView<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(),
-        new UniformTypeView<Primitive, GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(Circle2D.class, circlebuilder), new Variate(rng),
-        new Variate(rng), transformCircle, p_birthdeath, 1.0, "Circle");
-    kernels.add(kernel1);
-    Kernel<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> kernel2 = new Kernel<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(
-        new NullView<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(),
-        new UniformTypeView<Primitive, GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(Rectangle2D.class, rectanglebuilder), new Variate(rng),
-        new Variate(rng), transformRectangle, p_birthdeath, 1.0, "Rectangle");
-    kernels.add(kernel2);
+    // Kernel<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> kernel1 = new Kernel<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(
+    //     new NullView<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(),
+    //     new UniformTypeView<Primitive, GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(Circle2D.class,
+    //         circlebuilder),
+    //     new Variate(rng),
+    //     new Variate(rng), transformCircle, p_birthdeath, 1.0, "Circle");
+    // kernels.add(kernel1);
+    // Kernel<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> kernel2 = new Kernel<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(
+    //     new NullView<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(),
+    //     new UniformTypeView<Primitive, GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(
+    //       Square2D.class, rectanglebuilder),
+    //     new Variate(rng),
+    //     new Variate(rng), transformRectangle, p_birthdeath, 1.0, "Rectangle");
+    // kernels.add(kernel2);
 
     // kernels.add(factory.make_uniform_modification_kernel(rng, builder,
     // new RectangleEdgeTranslationTransform(0, minratio, maxratio),
     // p_edge, "EdgeTrans0"));
     Acceptance<SimpleTemperature> acceptance = new MetropolisAcceptance<>();
-    Sampler<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> s = new GreenSampler<>(rng, ds, acceptance, kernels);
+    Sampler<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> s = new GreenSampler<>(rng, ds,
+        acceptance, kernels);
     return s;
   }
 
   public static void main(String[] args) throws IOException {
     /*
-     * < Retrieve the singleton instance of the parameters object... initialize the parameters object with the default
+     * < Retrieve the singleton instance of the parameters object... initialize the
+     * parameters object with the default
      * values provided... parse the command line to eventually change the values >
      */
     XmlParameters p = initialize_parameters();
     RandomGenerator rng = Random.random();
     rng.setSeed(0);
     /*
-     * < Before launching the optimization process, we create all the required stuffs: a configuration, a sampler, a
+     * < Before launching the optimization process, we create all the required
+     * stuffs: a configuration, a sampler, a
      * schedule scheme and an end test >
      */
     GraphConfiguration<Primitive> conf = create_configuration(p);
@@ -219,18 +248,23 @@ public class RectangleCirclePacking {
     Schedule<SimpleTemperature> sch = create_schedule(p);
     EndTest end = create_end_test(p);
     /*
-     * < Build and initialize simple visitor which prints some data on the standard output >
+     * < Build and initialize simple visitor which prints some data on the standard
+     * output >
      */
-    Visitor<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> visitor = new OutputStreamVisitor<>(System.out);
+    new File("results_2").mkdirs();
+    Visitor<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> visitor = new OutputStreamVisitor<>(
+        System.out);
     Visitor<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> shpVisitor = new ShapefileVisitor<Primitive, GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>(
-        "./target/rectanglecircle_result", conf.getSpecs());
+        "results_2/rectanglecircle_result", conf.getSpecs());
     List<Visitor<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>> list = new ArrayList<Visitor<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>>>();
     list.add(visitor);
     list.add(shpVisitor);
-    CompositeVisitor<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> mVisitor = new CompositeVisitor<>(list);
+    CompositeVisitor<GraphConfiguration<Primitive>, BirthDeathModification<Primitive>> mVisitor = new CompositeVisitor<>(
+        list);
     init_visitor(p, mVisitor);
     /*
-     * < This is the way to launch the optimization process. Here, the magic happen... >
+     * < This is the way to launch the optimization process. Here, the magic
+     * happen... >
      */
     SimulatedAnnealing.optimize(Random.random(), conf, samp, sch, end, mVisitor);
     return;
@@ -246,7 +280,10 @@ public class RectangleCirclePacking {
 
   private static XmlParameters initialize_parameters() {
     try {
-      return XmlParameters.unmarshall(new File("./src/main/resources/rectanglecirclepacking_parameters.xml"));
+      System.err.println(
+          new File("librjmcmc4j-geometry/src/main/resources/rectanglecirclepacking_parameters.xml").getAbsolutePath());
+      return XmlParameters
+          .unmarshall(new File("librjmcmc4j-geometry/src/main/resources/rectanglecirclepacking_parameters.xml"));
     } catch (Exception e) {
       e.printStackTrace();
     }

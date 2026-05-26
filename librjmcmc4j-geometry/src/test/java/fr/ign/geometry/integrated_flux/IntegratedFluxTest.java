@@ -150,7 +150,7 @@ public class IntegratedFluxTest {
 
   @Test
   public void testComputeOrientedViewPrimitive() {
-    double flux = IntegratedFlux.compute(view, new Double(5));
+    double flux = IntegratedFlux.compute(view, Double.valueOf(5));
     logger.info("Double flux = " + flux);
     Assert.assertEquals(0, flux, 0);
   }

@@ -23,7 +23,7 @@
 	<param key="energy" value="250" />
 	<param key="ponderation_grad" value="1" />
 	<param key="ponderation_mask" value="0" />
-	<param key="dsm" value="./src/test/resources/ZTerrain.tif" />
+	<param key="dsm" value="librjmcmc4j-buildingfootprintrectangle/src/test/resources/ZTerrain.tif" />
 	<param key="mask" value="" />
 	<param key="xmin" value="0" />
 	<param key="ymin" value="0" />

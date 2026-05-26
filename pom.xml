@@ -3,14 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.ignf</groupId>
 	<artifactId>librjmcmc4j</artifactId>
-	<version>1.2.1</version>
+	<version>1.2.3</version>
 	<url>https://github.com/IGNF/librjmcmc4j</url>
 	<packaging>pom</packaging>
 	<properties>
-		<librjmcmc4j.version>1.2.1</librjmcmc4j.version>
+		<librjmcmc4j.version>1.2.2</librjmcmc4j.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.source.plugin>3.3.1</maven.source.plugin>
-		<maven.javadoc.plugin>3.11.2</maven.javadoc.plugin>
+		<maven.javadoc.plugin>3.12.0</maven.javadoc.plugin>
 	</properties>
 	<scm>
 		<connection>scm:git:https://github.com/IGNF/librjmcmc4j.git</connection>
@@ -53,7 +53,7 @@
 		</license>
 	</licenses>
 	<description>
-		librjmcmc4j is a library for stochastic optimization based on reversible jump monte carlo markov chains coupled with simulated annealing. It is the java port of librjmcmc.
+		librjmcmc4j is a library for stochastic optimization based on reversible jump Monte Carlo Markov chains coupled with simulated annealing. It is the java port of librjmcmc.
 	</description>
 	<modules>
 		<module>librjmcmc4j-core</module>
@@ -92,7 +92,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
-				<version>1.5</version>
+				<version>3.2.8</version>
 				<executions>
 					<execution>
 						<id>sign-artifacts</id>
@@ -100,6 +100,12 @@
 						<goals>
 							<goal>sign</goal>
 						</goals>
+						<configuration>
+							<!--suppress UnresolvedMavenProperty -->
+							<keyname>${my.gpg.keyname}</keyname>
+							<!--suppress UnresolvedMavenProperty -->
+							<passphraseServerId>${my.gpg.keyname}</passphraseServerId>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

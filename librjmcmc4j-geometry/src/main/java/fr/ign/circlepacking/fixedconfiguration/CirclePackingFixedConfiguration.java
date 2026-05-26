@@ -87,7 +87,7 @@ public class CirclePackingFixedConfiguration implements ListConfiguration<Indexe
   public List<Integer> getAvailableIds() {
     List<Integer> availableIds = new ArrayList<>(this.idPositionMap.keySet());
     for (IndexedCircle2D c : this.circles) {
-      availableIds.remove(new Integer(c.index));
+      availableIds.remove(Integer.valueOf(c.index));
     }
     return availableIds;
   }

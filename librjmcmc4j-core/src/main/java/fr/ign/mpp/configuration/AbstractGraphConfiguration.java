@@ -160,7 +160,7 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
   public void insertWithCache(T obj) {
     Double value = cacheUnaryBirth.get(obj);
     if (value == null) {
-      value = new Double(this.unaryEnergy.getValue(obj));
+      value = Double.valueOf(this.unaryEnergy.getValue(obj));
     }
     GraphVertex<T> n = new GraphVertex<>(obj, value.doubleValue());
     this.vertexMap.put(obj, n);
@@ -327,7 +327,7 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
       T b = modif.getBirth().get(index);
       double value = this.unaryEnergy.getValue(b);
       delta += value;
-      cacheUnaryBirth.put(b, new Double(value));
+      cacheUnaryBirth.put(b, Double.valueOf(value));
       for (GraphVertex<T> v : this.graph.vertexSet()) {
         if (!modif.getDeath().contains(v.value)) {
           value = this.binaryEnergy.getValue(b, v.value);
@@ -338,7 +338,7 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
               map = new HashMap<T, Double>();
               cacheBinaryBirth.put(b, map);
             }
-            map.put(v.value, new Double(value));
+            map.put(v.value, Double.valueOf(value));
           }
         }
       }
@@ -352,7 +352,7 @@ public abstract class AbstractGraphConfiguration<T extends SimpleObject, C exten
             map = new HashMap<T, Double>();
             cacheBinaryBirth.put(b, map);
           }
-          map.put(other, new Double(value));
+          map.put(other, Double.valueOf(value));
         }
       }
     }

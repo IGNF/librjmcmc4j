@@ -6,11 +6,11 @@
 	<parent>
 		<groupId>io.github.ignf</groupId>
 		<artifactId>librjmcmc4j</artifactId>
-		<version>1.2.1</version>
+		<version>1.2.3</version>
 	</parent>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<geotools.version>32.2</geotools.version>
+		<geotools.version>35-RC</geotools.version>
 	</properties>
 	<scm>
 		<connection>scm:git:https://github.com/IGNF/librjmcmc4j.git</connection>
@@ -24,11 +24,11 @@
 		</repository>
 		<repository>
 			<id>download.java.net.repos</id>
-			<url>http://download.java.net/maven/2/</url>
+			<url>https://download.java.net/maven/2/</url>
 		</repository>
 		<repository>
 			<id>geosolution.it</id>
-			<url>http://maven.geo-solutions.it/</url>
+			<url>https://maven.geo-solutions.it/</url>
 		</repository>
 		<repository>
 		    <id>osgeo</id>
@@ -53,16 +53,24 @@
 			<groupId>org.geotools</groupId>
 			<artifactId>gt-geotiff</artifactId>
 			<version>${geotools.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-coverage</artifactId>
-			<version>${geotools.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-referencing</artifactId>
-			<version>${geotools.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.measure</groupId>
+					<artifactId>unit-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.locationtech.jts</groupId>
+					<artifactId>jts-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-lang3</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
@@ -82,13 +90,13 @@
 		<!-- Dépendance Transitives gt-geotiff -->
 		<dependency>
 			<groupId>org.geotools</groupId>
-			<artifactId>gt-main</artifactId>
+			<artifactId>gt-epsg-hsql</artifactId>
 			<version>${geotools.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-epsg-hsql</artifactId>
-			<version>${geotools.version}</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.19.0</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -111,16 +119,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.4</version>
+				<version>3.8.1</version>
 				<configuration>
-					<compilerVersion>1.8</compilerVersion>
-					<source>1.8</source>
-					<target>1.8</target>
-					<includes>
-						<include>**/*.java</include>
-					</includes>
-					<excludes>
-					</excludes>
+					<source>17</source>
+					<target>17</target>
 				</configuration>
 			</plugin>
 			<plugin>

@@ -36,7 +36,11 @@ public class KernelFactory<T extends SimpleObject, C extends AbstractGraphConfig
    * @return the new kernel
    */
   public Kernel<C, M> make_uniform_birth_death_kernel(RandomGenerator rng, ObjectBuilder<T> builder, UniformBirth<T> b, double p, double q, String n) {
-    return new Kernel<C, M>(new NullView<C, M>(), new UniformView<T, C, M>(builder), b.getVariate(), new Variate(rng), b.getTransform(), p, q, n);
+    return new Kernel<>(new NullView<>(), new UniformView<T, C, M>(builder), b.getVariate(), new Variate(rng), b.getTransform(), p, q, n);
+  }
+
+  public Kernel<C, M> make_uniform_typed_birth_death_kernel(RandomGenerator rng, Class<? extends T> clazz, ObjectBuilder<T> builder, UniformBirth<T> b, double p, double q, String n) {
+    return new Kernel<>(new NullView<>(), new UniformTypeView<T, C, M>(clazz, builder), b.getVariate(), new Variate(rng), b.getTransform(), p, q, n);
   }
 
   /**
@@ -95,10 +99,19 @@ public class KernelFactory<T extends SimpleObject, C extends AbstractGraphConfig
    * @return the new kernel
    */
   public Kernel<C, M> make_uniform_modification_kernel(RandomGenerator rng, ObjectBuilder<T> builder, Transform t, double p, double q, int n0, int n1, String name) {
-    View<C, M> view0 = new UniformView<T, C, M>(builder, n0);
-    View<C, M> view1 = new UniformView<T, C, M>(builder, n1);
+    View<C, M> view0 = new UniformView<>(builder, n0);
+    View<C, M> view1 = new UniformView<>(builder, n1);
     Variate variate0 = new Variate(rng);
     Variate variate1 = new Variate(rng);
     return new Kernel<>(view0, view1, variate0, variate1, t, p, q, name);
   }
+
+  public Kernel<C, M> make_uniform_typed_modification_kernel(RandomGenerator rng, Class<? extends T> clazz, ObjectBuilder<T> builder, Transform t, double p, double q, int n0, int n1, String name) {
+    View<C, M> view0 = new UniformTypeView<>(clazz, builder, n0);
+    View<C, M> view1 = new UniformTypeView<>(clazz, builder, n1);
+    Variate variate0 = new Variate(rng);
+    Variate variate1 = new Variate(rng);
+    return new Kernel<>(view0, view1, variate0, variate1, t, p, q, name);
+  }
+
 }

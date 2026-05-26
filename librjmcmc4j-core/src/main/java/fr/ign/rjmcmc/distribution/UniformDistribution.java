@@ -28,6 +28,6 @@ public class UniformDistribution implements Distribution {
 
   @Override
   public int sample(RandomGenerator e) {
-    return this.mVariate.sample(); //FIXME use e
+    return this.mVariate.sample(); //TODO: check if e is useful if always given at construction
   }
 }
