@@ -3,6 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.ignf</groupId>
 	<artifactId>librjmcmc4j</artifactId>
+	<name>librjmcmc4j</name>
 	<version>1.2.3</version>
 	<url>https://github.com/IGNF/librjmcmc4j</url>
 	<packaging>pom</packaging>

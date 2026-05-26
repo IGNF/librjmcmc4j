@@ -4,6 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>librjmcmc4j-core</artifactId>
 	<url>https://github.com/IGNF/librjmcmc4j</url>
+	<name>librjmcmc4j-core</name>
 	<parent>
 		<groupId>io.github.ignf</groupId>
 		<artifactId>librjmcmc4j</artifactId>
